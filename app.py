@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import random
+import streamlit.components.v1 as components
 
 # Page Configuration
 st.set_page_config(
@@ -92,12 +93,12 @@ compact_clock_html = """
 </div>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap');
+  body { background: transparent; margin: 0; }
   #compact-clock-widget {
-    position: fixed;
-    top: 14px;
-    right: 30px;
-    z-index: 999999;
-    background: rgba(13, 17, 23, 0.92);
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    background: rgba(13, 17, 23, 0.95);
     border: 1px solid #30363d;
     border-radius: 6px;
     padding: 6px 14px;
@@ -165,7 +166,7 @@ compact_clock_html = """
   setInterval(fetchCompactWeather, 600000);
 </script>
 """
-st.markdown(compact_clock_html, unsafe_allow_html=True)
+components.html(compact_clock_html, height=38, scrolling=False)
 
 # ----------------------------------------------------
 # STYLING & NAVIGATION (Post-Login)
