@@ -13,7 +13,6 @@ st.set_page_config(
 # ----------------------------------------------------
 # USER DATABASE & CREDENTIALS
 # ----------------------------------------------------
-# You can add or modify authorized personnel usernames and passwords here
 USERS = {
     "admin": "KineticNPD2026",
     "sharma": "GearDesign2026",
@@ -49,7 +48,6 @@ def check_credentials():
                 username = st.text_input("Username", placeholder="Enter your username")
                 password = st.text_input("Password", type="password", placeholder="Enter your password")
                 
-                # Dynamic Captcha Display
                 num1 = st.session_state["captcha_num1"]
                 num2 = st.session_state["captcha_num2"]
                 captcha_label = f"Security Verification: What is {num1} + {num2}?"
@@ -62,25 +60,21 @@ def check_credentials():
                 if submit_login:
                     expected_captcha = str(num1 + num2)
                     
-                    # Validate CAPTCHA first
                     if user_captcha.strip() != expected_captcha:
                         st.error("❌ Incorrect CAPTCHA answer. Please try again.")
-                        # Refresh captcha on failure
                         st.session_state["captcha_num1"] = random.randint(1, 9)
                         st.session_state["captcha_num2"] = random.randint(1, 9)
-                    # Validate Username & Password
                     elif username in USERS and USERS[username] == password:
                         st.session_state["authenticated"] = True
                         st.success("Login successful! Loading portal...")
                         st.rerun()
                     else:
                         st.error("❌ Invalid username or password.")
-                        # Refresh captcha on failure
                         st.session_state["captcha_num1"] = random.randint(1, 9)
                         st.session_state["captcha_num2"] = random.randint(1, 9)
             
             st.markdown("---")
-            st.info("💡 **Default Login Credentials for Testing:**\n* **Username:** `admin` | **Password:** `KineticNPD2026`\n* **Username:** `sharma` | **Password:** `GearDesign2026`")
+            st.info("💡 **Default Login Credentials:**\n* **Username:** `admin` | **Password:** `KineticNPD2026`\n* **Username:** `sharma` | **Password:** `GearDesign2026`")
         return False
     return True
 
@@ -146,19 +140,4 @@ elif nav_selection == "ISO 8.3.3.1 Design Inputs":
         with col1:
             project_code = st.text_input("Project Code / Gear Model", "KG-SPUR-2026")
             functional_req = st.text_area("Functional & Performance Requirements", "Must withstand continuous torque of 450 Nm at 1500 RPM.")
-            safety_statutory = st.text_area("Statutory & Regulatory Requirements", "Compliance with AGMA 2001-D04 and ISO 1328-1 grade 6 accuracy.")
-        with col2:
-            material_pref = st.text_input("Preferred Material & Heat Treatment", "Case-hardened Steel 20 (GOST 1050-74 / SAE 8620), HRC 58-62")
-            tolerance_specs = st.text_area("Critical Dimensional Tolerances", "Bore diameter tolerance H7, face width ±0.05 mm.")
-            submitted_by = st.text_input("Lead Designer / Reviewer", "NPD Engineering Team")
-
-        submitted = st.form_submit_button("Save & Log Design Input")
-        if submitted:
-            st.success(f"Design inputs successfully logged for project {project_code} under ISO 8.3.3.1 compliance standards.")
-
-# ----------------------------------------------------
-# 3. MATERIAL & STANDARDS MATRIX
-# ----------------------------------------------------
-elif nav_selection == "Material & Standards Matrix":
-    st.markdown("## 🔬 Material & Standards Cross-Reference")
-    st.markdown("Quick lookup matrix for carbon steels, spring wires, industrial sealing elements
+            safety_statutory = st.text_area("Statutory & Regulatory Requirements", "Compliance with AGMA 2001-D04 and ISO 13
