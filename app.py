@@ -13,8 +13,9 @@ st.set_page_config(
 # ----------------------------------------------------
 # USER DATABASE & CREDENTIALS
 # ----------------------------------------------------
-USERS = {    "admin": "admin123"
-        }
+USERS = {
+    "admin": "admin123"
+}
 
 # ----------------------------------------------------
 # AUTHENTICATION & CAPTCHA MODULE
@@ -68,7 +69,6 @@ def check_credentials():
                         st.error("❌ Invalid username or password.")
                         st.session_state["captcha_num1"] = random.randint(1, 9)
                         st.session_state["captcha_num2"] = random.randint(1, 9)
-            
             
         return False
     return True
