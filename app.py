@@ -13,8 +13,8 @@ st.set_page_config(
 # ----------------------------------------------------
 # USER DATABASE & CREDENTIALS
 # ----------------------------------------------------
-USERS = {
-    "admin": "KineticNPD2026",
+USERS = {    "admin": "KineticNPD2026"
+        }
 
 # ----------------------------------------------------
 # AUTHENTICATION & CAPTCHA MODULE
