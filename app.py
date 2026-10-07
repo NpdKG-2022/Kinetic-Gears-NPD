@@ -140,4 +140,4 @@ elif nav_selection == "ISO 8.3.3.1 Design Inputs":
         with col1:
             project_code = st.text_input("Project Code / Gear Model", "KG-SPUR-2026")
             functional_req = st.text_area("Functional & Performance Requirements", "Must withstand continuous torque of 450 Nm at 1500 RPM.")
-            safety_statutory = st.text_area("Statutory & Regulatory Requirements", "Compliance with AGMA 2001-D04 and ISO 13
+            safety_statutory = st.text_area("Statutory & Regulatory Requirements", "Compliance with AGMA 2001-D04 and ISO 13)
