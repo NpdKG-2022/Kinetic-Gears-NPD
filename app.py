@@ -5,7 +5,7 @@ import streamlit.components.v1 as components
 
 # Page Configuration
 st.set_page_config(
-    page_title="KINETIC GEARS | NPD Portal",
+    page_title="KINETIC GEARS | NPD",
     page_icon="⚙️",
     layout="wide",
     initial_sidebar_state="expanded"
