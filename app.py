@@ -140,4 +140,17 @@ elif nav_selection == "ISO 8.3.3.1 Design Inputs":
         with col1:
             project_code = st.text_input("Project Code / Gear Model", "KG-SPUR-2026")
             functional_req = st.text_area("Functional & Performance Requirements", "Must withstand continuous torque of 450 Nm at 1500 RPM.")
-            safety_statutory = st.text_area("Statutory & Regulatory Requirements", "Compliance with AGMA 2001-D04 and ISO 13)
+            safety_statutory = st.text_area("Statutory & Regulatory Requirements", "Compliance with AGMA 2001-D04 and ISO 1328-1 grade 6 accuracy.")
+        with col2:
+            material_pref = st.text_input("Preferred Material & Heat Treatment", "Case-hardened Steel 20 (GOST 1050-74 / SAE 8620), HRC 58-62")
+            tolerance_specs = st.text_area("Critical Dimensional Tolerances", "Bore diameter tolerance H7, face width ±0.05 mm.")
+            submitted_by = st.text_input("Lead Designer / Reviewer", "NPD Engineering Team")
+
+        submitted = st.form_submit_button("Save & Log Design Input")
+        if submitted:
+            st.success(f"Design inputs successfully logged for project {project_code} under ISO 8.3.3.1 compliance standards.")
+
+# ----------------------------------------------------
+# 3. MATERIAL & STANDARDS MATRIX
+# ----------------------------------------------------
+elif nav
