@@ -4,7 +4,7 @@ import random
 
 # Page Configuration
 st.set_page_config(
-    page_title="KINETIC GEARS | NPD Portal",
+    page_title="KINETIC GEARS | NPD",
     page_icon="⚙️",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -15,10 +15,6 @@ st.set_page_config(
 # ----------------------------------------------------
 USERS = {
     "admin": "KineticNPD2026",
-    "sharma": "GearDesign2026",
-    "verma": "Prototype2026",
-    "manager": "Kinetics2026"
-}
 
 # ----------------------------------------------------
 # AUTHENTICATION & CAPTCHA MODULE
@@ -38,7 +34,7 @@ def check_credentials():
         col1, col2, col3 = st.columns([1, 2, 1])
         with col2:
             st.markdown("# ⚙️ KINETIC GEARS")
-            st.markdown("### New Product Development Portal")
+            st.markdown("### New Product Development")
             st.markdown("---")
             st.markdown("#### Authorized Employee Login")
             
@@ -73,8 +69,7 @@ def check_credentials():
                         st.session_state["captcha_num1"] = random.randint(1, 9)
                         st.session_state["captcha_num2"] = random.randint(1, 9)
             
-            st.markdown("---")
-            st.info("💡 **Default Login Credentials:**\n* **Username:** `admin` | **Password:** `KineticNPD2026`\n* **Username:** `sharma` | **Password:** `GearDesign2026`")
+            
         return False
     return True
 
@@ -86,7 +81,7 @@ if not check_credentials():
 # ----------------------------------------------------
 st.sidebar.image("https://img.icons8.com/external-flat-design-circle/64/external-Gear-industrial-technology-flat-design-circle.png", width=50)
 st.sidebar.markdown("### KINETIC GEARS")
-st.sidebar.markdown("**NPD & Engineering Portal**")
+st.sidebar.markdown("**New Product Development (N.P.D.)**")
 st.sidebar.markdown("---")
 
 nav_selection = st.sidebar.radio(
