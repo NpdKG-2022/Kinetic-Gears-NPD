@@ -1,10 +1,11 @@
 import streamlit as st
 import pandas as pd
 import random
+import streamlit.components.v1 as components
 
 # Page Configuration
 st.set_page_config(
-    page_title="KINETIC GEARS | NPD",
+    page_title="KINETIC GEARS | NPD Portal",
     page_icon="⚙️",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -61,7 +62,6 @@ def check_credentials():
                 if submit_login:
                     expected_captcha = str(num1 + num2)
                     
-                    # Validate CAPTCHA and Credentials
                     if user_captcha.strip() != expected_captcha:
                         st.error("❌ Incorrect CAPTCHA answer. A new verification has been generated.")
                         generate_new_captcha()
@@ -89,6 +89,135 @@ st.sidebar.markdown("### KINETIC GEARS")
 st.sidebar.markdown("**New Product Development (N.P.D.)**")
 st.sidebar.markdown("---")
 
+# Live Digital Clock & Weather Widget (Sidebar Integration)
+clock_html = """
+<div class="clock-card">
+  <div id="day-text" class="day-header">LOADING...</div>
+  <div class="time-container">
+    <span id="ampm-text" class="ampm">--</span>
+    <span id="time-text" class="time-digits">00:00</span>
+    <span id="sec-text" class="seconds">00</span>
+  </div>
+  <div class="bottom-row">
+    <div id="temp-box" class="temp-display">--°C</div>
+    <div id="date-text" class="date-display">--- 00 0000</div>
+  </div>
+</div>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&display=swap');
+  body { background: transparent; margin: 0; font-family: 'Orbitron', sans-serif; }
+  .clock-card {
+    background: #0d1117;
+    border: 2px solid #30363d;
+    border-radius: 10px;
+    padding: 12px;
+    color: #ffffff;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    margin-bottom: 15px;
+  }
+  .day-header {
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: #e6edf3;
+    margin-bottom: 6px;
+    border-bottom: 1px solid #30363d;
+    padding-bottom: 4px;
+  }
+  .time-container {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 6px;
+    margin: 8px 0;
+  }
+  .ampm {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #58a6ff;
+  }
+  .time-digits {
+    font-size: 2.2rem;
+    font-weight: 900;
+    color: #58a6ff;
+    text-shadow: 0 0 10px rgba(88, 166, 255, 0.4);
+  }
+  .seconds {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #8b949e;
+  }
+  .bottom-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 8px;
+    border-top: 1px solid #30363d;
+    padding-top: 6px;
+    font-size: 0.85rem;
+  }
+  .temp-display {
+    color: #3fb950;
+    font-weight: 700;
+  }
+  .date-display {
+    color: #8b949e;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+  }
+</style>
+<script>
+  function updateClock() {
+    const now = new Date();
+    const days = ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"];
+    document.getElementById("day-text").innerText = days[now.getDay()];
+    
+    let hours = now.getHours();
+    const ampm = hours >= 12 ? "PM" : "AM";
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    
+    document.getElementById("ampm-text").innerText = ampm;
+    document.getElementById("time-text").innerText = `${String(hours).padStart(2, '0')}:${minutes}`;
+    document.getElementById("sec-text").innerText = seconds;
+    
+    const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+    const monthStr = months[now.getMonth()];
+    const dayNum = String(now.getDate()).padStart(2, '0');
+    const yearNum = now.getFullYear();
+    document.getElementById("date-text").innerText = `${monthStr} ${dayNum} ${yearNum}`;
+  }
+  setInterval(updateClock, 1000);
+  updateClock();
+
+  async function fetchWeather() {
+    try {
+      const ipRes = await fetch('https://ipapi.co/json/');
+      const ipData = await ipRes.json();
+      const lat = ipData.latitude;
+      const lon = ipData.longitude;
+      const city = ipData.city || "Location";
+      
+      if (lat && lon) {
+        const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
+        const weatherData = await weatherRes.json();
+        const temp = weatherData.current_weather.temperature;
+        document.getElementById("temp-box").innerText = `${temp}°C (${city})`;
+      }
+    } catch (e) {
+      document.getElementById("temp-box").innerText = "--°C";
+    }
+  }
+  fetchWeather();
+  setInterval(fetchWeather, 600000);
+</script>
+"""
+
+components.html(clock_html, height=135)
+
 nav_selection = st.sidebar.radio(
     "Select Module",
     ["Dashboard", "ISO 8.3.3.1 Design Inputs", "Material & Standards Matrix", "Prototype Cost Estimator"]
@@ -97,14 +226,13 @@ nav_selection = st.sidebar.radio(
 st.sidebar.markdown("---")
 if st.sidebar.button("Log Out"):
     st.session_state["authenticated"] = False
-    # Clear captcha so a brand new challenge appears on next login
     if "captcha_num1" in st.session_state:
         del st.session_state["captcha_num1"]
     if "captcha_num2" in st.session_state:
         del st.session_state["captcha_num2"]
     st.rerun()
 
-st.sidebar.info("System Status: **Online**")
+st.sidebar.info("System Status: **Online** | ISO 9001:2015 Compliant")
 
 # ----------------------------------------------------
 # 1. DASHBOARD MODULE
