@@ -190,7 +190,7 @@ if st.sidebar.button("Log Out"):
         del st.session_state["captcha_num2"]
     st.rerun()
 
-st.sidebar.info("System Status: **Online** | ISO 9001:2015 Compliant")
+st.sidebar.info("System Status: **Online**")
 
 # ----------------------------------------------------
 # 1. DASHBOARD MODULE
