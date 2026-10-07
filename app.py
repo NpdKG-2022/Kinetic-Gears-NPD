@@ -153,4 +153,12 @@ elif nav_selection == "ISO 8.3.3.1 Design Inputs":
 # ----------------------------------------------------
 # 3. MATERIAL & STANDARDS MATRIX
 # ----------------------------------------------------
-elif nav
+elif nav_selection == "Material & Standards Matrix":
+    st.markdown("## 🔬 Material & Standards Cross-Reference")
+    st.markdown("Quick lookup matrix for carbon steels, spring wires, industrial sealing elements, and international standards.")
+
+    search_query = st.text_input("Search standard (e.g., GOST 1050-74, SAE 1018, Spring Wire):")
+
+    standards_data = {
+        "Material / Standard": [
+            "Steel 20 (GOST 1050-74)",
