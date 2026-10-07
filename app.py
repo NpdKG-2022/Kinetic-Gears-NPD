@@ -161,4 +161,67 @@ elif nav_selection == "Material & Standards Matrix":
 
     standards_data = {
         "Material / Standard": [
-            "Steel 20 (GOST 1050-74)",
+            "Steel 20 (GOST 1050-74)", 
+            "SAE 1018 / 1020", 
+            "GOST 9389-75 (Class II)", 
+            "Champion Style 59 Sheet", 
+            "GOST 6309-73 Thread"
+        ],
+        "Category": [
+            "Carbon Steel", 
+            "Carbon Steel", 
+            "High-Carbon Spring Wire", 
+            "Jointing Sheet", 
+            "Sealing Thread"
+        ],
+        "Key Application": [
+            "Gear blanks, shafts", 
+            "General machining", 
+            "Compression/tension springs", 
+            "Oil-resistant gaskets", 
+            "Industrial packing"
+        ],
+        "Equivalent / Notes": [
+            "Comparable to AISI 1020", 
+            "Standard low-carbon steel", 
+            "Cold-drawn carbon spring wire", 
+            "0.5 mm oil-resistant jointing", 
+            "Black glossy cotton thread"
+        ]
+    }
+    std_df = pd.DataFrame(standards_data)
+
+    if search_query:
+        filtered_df = std_df[std_df.apply(lambda row: row.astype(str).str.contains(search_query, case=False).any(), axis=1)]
+        st.dataframe(filtered_df, use_container_width=True)
+    else:
+        st.dataframe(std_df, use_container_width=True)
+
+# ----------------------------------------------------
+# 4. PROTOTYPE COST ESTIMATOR
+# ----------------------------------------------------
+elif nav_selection == "Prototype Cost Estimator":
+    st.markdown("## 🧮 Prototype & Feasibility Cost Calculator")
+    st.markdown("Estimate raw material, cutting/machining time, and scrap overhead for new gear prototypes.")
+
+    col1, col2 = st.columns(2)
+    with col1:
+        raw_weight = st.number_input("Estimated Blank Weight (kg)", min_value=0.1, max_value=50.0, value=3.5)
+        material_cost_per_kg = st.number_input("Material Rate ($/kg)", min_value=1.0, max_value=500.0, value=45.0)
+        machining_hours = st.number_input("Estimated Machining / Hobbing Hours", min_value=0.5, max_value=100.0, value=6.0)
+    with col2:
+        hourly_rate = st.number_input("Machining Hourly Rate ($/hr)", min_value=10.0, max_value=200.0, value=50.0)
+        scrap_allowance = st.slider("Scrap & Setup Allowance (%)", 5, 30, 15)
+
+    if st.button("Calculate Prototype Cost"):
+        base_material_cost = raw_weight * material_cost_per_kg
+        machining_cost = machining_hours * hourly_rate
+        subtotal = base_material_cost + machining_cost
+        total_cost = subtotal * (1 + scrap_allowance / 100.0)
+
+        st.markdown("---")
+        st.markdown("### Cost Breakdown Summary")
+        st.metric(label="Total Estimated Prototype Cost", value=f"${total_cost:.2f}")
+        st.write(f"- **Raw Material Cost:** ${base_material_cost:.2f}")
+        st.write(f"- **Machining Labor Cost:** ${machining_cost:.2f}")
+        st.write(f"- **Scrap Buffer ({scrap_allowance}%):** ${(subtotal * scrap_allowance / 100.0):.2f}")
