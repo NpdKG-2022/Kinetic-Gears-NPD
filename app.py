@@ -55,8 +55,7 @@ def check_credentials():
                 captcha_label = f"Security Verification: What is {num1} + {num2}?"
                 
                 st.markdown(f"**{captcha_label}**")
-                user_captcha = st.text_input("Enter Captcha Answer", placeholder="Enter sum")
-                
+                user_captcha = st.text_input("Enter Captcha Answer", placeholder="Enter the correct answer")
                 submit_login = st.form_submit_button("Secure Login", use_container_width=True)
                 
                 if submit_login:
