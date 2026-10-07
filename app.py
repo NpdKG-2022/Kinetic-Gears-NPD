@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 import random
-import streamlit.components.v1 as components
 
 # Page Configuration
 st.set_page_config(
@@ -82,96 +81,53 @@ if not check_credentials():
     st.stop()
 
 # ----------------------------------------------------
-# STYLING & NAVIGATION (Post-Login)
+# TOP-RIGHT MINIMAL LIVE CLOCK & WEATHER WIDGET
 # ----------------------------------------------------
-st.sidebar.image("https://img.icons8.com/external-flat-design-circle/64/external-Gear-industrial-technology-flat-design-circle.png", width=50)
-st.sidebar.markdown("### KINETIC GEARS")
-st.sidebar.markdown("**New Product Development (N.P.D.)**")
-st.sidebar.markdown("---")
-
-# Live Digital Clock & Weather Widget (Sidebar Integration)
-clock_html = """
-<div class="clock-card">
-  <div id="day-text" class="day-header">LOADING...</div>
-  <div class="time-container">
-    <span id="ampm-text" class="ampm">--</span>
-    <span id="time-text" class="time-digits">00:00</span>
-    <span id="sec-text" class="seconds">00</span>
-  </div>
-  <div class="bottom-row">
-    <div id="temp-box" class="temp-display">--°C</div>
-    <div id="date-text" class="date-display">--- 00 0000</div>
-  </div>
+compact_clock_html = """
+<div id="compact-clock-widget">
+  <span id="c-day">---</span>, 
+  <span id="c-date">--- 00 0000</span> | 
+  <span id="c-time">00:00:00</span> <span id="c-ampm">--</span> | 
+  <span id="c-temp">--°C</span>
 </div>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&display=swap');
-  body { background: transparent; margin: 0; font-family: 'Orbitron', sans-serif; }
-  .clock-card {
-    background: #0d1117;
-    border: 2px solid #30363d;
-    border-radius: 10px;
-    padding: 12px;
-    color: #ffffff;
-    text-align: center;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-    margin-bottom: 15px;
-  }
-  .day-header {
-    font-size: 1rem;
-    font-weight: 700;
-    letter-spacing: 2px;
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap');
+  #compact-clock-widget {
+    position: fixed;
+    top: 14px;
+    right: 30px;
+    z-index: 999999;
+    background: rgba(13, 17, 23, 0.92);
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.75rem;
     color: #e6edf3;
-    margin-bottom: 6px;
-    border-bottom: 1px solid #30363d;
-    padding-bottom: 4px;
-  }
-  .time-container {
     display: flex;
-    align-items: baseline;
-    justify-content: center;
-    gap: 6px;
-    margin: 8px 0;
-  }
-  .ampm {
-    font-size: 0.95rem;
-    font-weight: 700;
-    color: #58a6ff;
-  }
-  .time-digits {
-    font-size: 2.2rem;
-    font-weight: 900;
-    color: #58a6ff;
-    text-shadow: 0 0 10px rgba(88, 166, 255, 0.4);
-  }
-  .seconds {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: #8b949e;
-  }
-  .bottom-row {
-    display: flex;
-    justify-content: space-between;
+    gap: 10px;
     align-items: center;
-    margin-top: 8px;
-    border-top: 1px solid #30363d;
-    padding-top: 6px;
-    font-size: 0.85rem;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.6);
+    backdrop-filter: blur(4px);
   }
-  .temp-display {
+  #compact-clock-widget #c-time {
+    color: #58a6ff;
+    font-weight: 700;
+  }
+  #compact-clock-widget #c-ampm {
+    color: #58a6ff;
+    font-weight: 700;
+  }
+  #compact-clock-widget #c-temp {
     color: #3fb950;
     font-weight: 700;
   }
-  .date-display {
-    color: #8b949e;
-    font-weight: 500;
-    letter-spacing: 0.5px;
-  }
 </style>
 <script>
-  function updateClock() {
+  function updateCompactClock() {
     const now = new Date();
-    const days = ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"];
-    document.getElementById("day-text").innerText = days[now.getDay()];
+    const days = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+    document.getElementById("c-day").innerText = days[now.getDay()];
     
     let hours = now.getHours();
     const ampm = hours >= 12 ? "PM" : "AM";
@@ -180,43 +136,44 @@ clock_html = """
     const minutes = String(now.getMinutes()).padStart(2, '0');
     const seconds = String(now.getSeconds()).padStart(2, '0');
     
-    document.getElementById("ampm-text").innerText = ampm;
-    document.getElementById("time-text").innerText = `${String(hours).padStart(2, '0')}:${minutes}`;
-    document.getElementById("sec-text").innerText = seconds;
+    document.getElementById("c-time").innerText = `${String(hours).padStart(2, '0')}:${minutes}:${seconds}`;
+    document.getElementById("c-ampm").innerText = ampm;
     
     const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
-    const monthStr = months[now.getMonth()];
-    const dayNum = String(now.getDate()).padStart(2, '0');
-    const yearNum = now.getFullYear();
-    document.getElementById("date-text").innerText = `${monthStr} ${dayNum} ${yearNum}`;
+    document.getElementById("c-date").innerText = `${months[now.getMonth()]} ${String(now.getDate()).padStart(2, '0')} ${now.getFullYear()}`;
   }
-  setInterval(updateClock, 1000);
-  updateClock();
+  setInterval(updateCompactClock, 1000);
+  updateCompactClock();
 
-  async function fetchWeather() {
+  async function fetchCompactWeather() {
     try {
       const ipRes = await fetch('https://ipapi.co/json/');
       const ipData = await ipRes.json();
       const lat = ipData.latitude;
       const lon = ipData.longitude;
-      const city = ipData.city || "Location";
-      
       if (lat && lon) {
         const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
         const weatherData = await weatherRes.json();
         const temp = weatherData.current_weather.temperature;
-        document.getElementById("temp-box").innerText = `${temp}°C (${city})`;
+        document.getElementById("c-temp").innerText = `${temp}°C`;
       }
     } catch (e) {
-      document.getElementById("temp-box").innerText = "--°C";
+      document.getElementById("c-temp").innerText = "--°C";
     }
   }
-  fetchWeather();
-  setInterval(fetchWeather, 600000);
+  fetchCompactWeather();
+  setInterval(fetchCompactWeather, 600000);
 </script>
 """
+st.markdown(compact_clock_html, unsafe_allow_html=True)
 
-components.html(clock_html, height=135)
+# ----------------------------------------------------
+# STYLING & NAVIGATION (Post-Login)
+# ----------------------------------------------------
+st.sidebar.image("https://img.icons8.com/external-flat-design-circle/64/external-Gear-industrial-technology-flat-design-circle.png", width=50)
+st.sidebar.markdown("### KINETIC GEARS")
+st.sidebar.markdown("**New Product Development (N.P.D.)**")
+st.sidebar.markdown("---")
 
 nav_selection = st.sidebar.radio(
     "Select Module",
