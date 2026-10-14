@@ -1,12 +1,95 @@
 import random
 import streamlit as st
 
-# Set page configuration with title and logo favicon
+# Set page configuration
 st.set_page_config(
     page_title="Kinetic Gears",
     page_icon="KG-Logo.png",
     layout="centered"
 )
+
+# --- INJECT GLASSMORPHISM CSS ---
+st.markdown("""
+<style>
+    /* Full page background with mountain theme */
+    .stApp {
+        background: linear-gradient(rgba(15, 12, 29, 0.5), rgba(15, 12, 29, 0.7)),
+                    url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1920&auto=format&fit=crop');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+    }
+
+    /* Hide standard header & footer decoration */
+    header, footer {
+        visibility: hidden;
+    }
+
+    /* Style Streamlit Form to look like a Frosted Glass Card */
+    div[data-testid="stForm"] {
+        background: rgba(255, 255, 255, 0.08) !important;
+        backdrop-filter: blur(16px) saturate(180%) !important;
+        -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        border-radius: 20px !important;
+        padding: 40px 30px !important;
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4) !important;
+    }
+
+    /* Custom Title & Subtitle Styling */
+    .glass-title {
+        color: #ffffff !important;
+        text-align: center;
+        font-size: 32px;
+        font-weight: 700;
+        margin-top: 10px;
+        letter-spacing: 1px;
+    }
+    .glass-subtitle {
+        color: rgba(255, 255, 255, 0.7) !important;
+        text-align: center;
+        font-size: 14px;
+        margin-bottom: 25px;
+    }
+
+    /* Minimalist underline input fields */
+    div[data-testid="stTextInput"] input {
+        background-color: transparent !important;
+        border: none !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.5) !important;
+        border-radius: 0px !important;
+        color: #ffffff !important;
+        padding: 10px 5px !important;
+        font-size: 15px !important;
+    }
+    div[data-testid="stTextInput"] input:focus {
+        border-bottom: 2px solid #ffffff !important;
+        box-shadow: none !important;
+    }
+    div[data-testid="stTextInput"] label {
+        color: rgba(255, 255, 255, 0.9) !important;
+        font-weight: 500 !important;
+    }
+
+    /* White Solid Login Button */
+    div[data-testid="stFormSubmitButton"] button {
+        background-color: #ffffff !important;
+        color: #111111 !important;
+        font-weight: 700 !important;
+        border-radius: 8px !important;
+        border: none !important;
+        height: 48px !important;
+        font-size: 16px !important;
+        margin-top: 15px !important;
+        transition: all 0.3s ease !important;
+    }
+    div[data-testid="stFormSubmitButton"] button:hover {
+        background-color: #e2e2e2 !important;
+        color: #000000 !important;
+        transform: translateY(-2px);
+    }
+</style>
+""", unsafe_allow_html=True)
 
 
 # --- HELPER FUNCTIONS ---
@@ -17,7 +100,7 @@ def generate_new_captcha():
 
     if op_symbol == "-":
         a = random.randint(5, 20)
-        b = random.randint(1, a)  # Ensure non-negative results for simplicity
+        b = random.randint(1, a)
     elif op_symbol == "*":
         a = random.randint(2, 9)
         b = random.randint(2, 9)
@@ -45,7 +128,6 @@ def login():
     entered_pass = st.session_state.get("password", "")
     entered_captcha_str = st.session_state.get("captcha_input", "").strip()
 
-    # Validate CAPTCHA
     try:
         entered_captcha = int(entered_captcha_str)
     except ValueError:
@@ -55,7 +137,7 @@ def login():
 
     if entered_captcha != st.session_state.captcha_ans:
         st.error("Incorrect CAPTCHA answer. Please try again.")
-        generate_new_captcha()  # Generate a new puzzle on failure
+        generate_new_captcha()
     elif entered_user == "admin" and entered_pass == "admin123":
         st.session_state.logged_in = True
         st.success("Login successful!")
@@ -75,20 +157,18 @@ def logout():
 
 # --- LOGIN SCREEN ---
 if not st.session_state.logged_in:
-    # Display logo centered above login form with a balanced width
-    col1, col2, col3 = st.columns([1, 1, 1])
-    with col2:
-        st.image("KG-Logo.png", width=120)
-
-    st.markdown(
-        "<h2 style='text-align: center;'>KINETIC GEARS</h2>", unsafe_allow_html=True
-    )
-    st.markdown(
-        "<p style='text-align: center; color: gray;'>Please enter credentials, solve the maths and start the work</p>",
-        unsafe_allow_html=True,
-    )
-
     with st.form("login_form"):
+        # Display logo inside glass card
+        col1, col2, col3 = st.columns([1, 1, 1])
+        with col2:
+            st.image("KG-Logo.png", width=100)
+
+        st.markdown("<div class='glass-title'>KINETIC GEARS</div>", unsafe_allow_html=True)
+        st.markdown(
+            "<div class='glass-subtitle'>Please enter credentials, solve the maths and start the work</div>",
+            unsafe_allow_html=True,
+        )
+
         st.text_input("Username", key="username", placeholder="Enter username")
         st.text_input("Password", type="password", key="password", placeholder="Enter password")
 
@@ -96,19 +176,13 @@ if not st.session_state.logged_in:
         captcha_label = f"Solve: {st.session_state.captcha_num1} {st.session_state.captcha_op} {st.session_state.captcha_num2} = ?"
         st.text_input(captcha_label, key="captcha_input", placeholder="Enter the answer")
 
-        submitted = st.form_submit_button("Login", use_container_width=True)
+        submitted = st.form_submit_button("Log In", use_container_width=True)
         if submitted:
             login()
 
 # --- DASHBOARD SCREEN (Post-Login) ---
 else:
-    # Header with logo
-    col1, col2 = st.columns([1, 5])
-    with col1:
-        st.image("KG-Logo.png", width=80)
-    with col2:
-        st.title("Kinetic Gears Dashboard")
-
+    st.markdown("<h1 style='color: white;'>📊 Kinetic Gears Dashboard</h1>", unsafe_allow_html=True)
     st.write("You have successfully logged in as **admin**.")
     st.info("This is where your core application features will go.")
 
