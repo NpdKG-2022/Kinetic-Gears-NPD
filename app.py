@@ -27,22 +27,17 @@ logo_base64 = get_base64_image("KG-Logo.png")
 
 # List of random mechanical manufacturing & engineering wallpapers
 manufacturing_wallpapers = [
-    # CNC / Machining / Metal cutting
     "https://images.unsplash.com/photo-1565043589221-1a6fd9ae45c7?q=80&w=1920&auto=format&fit=crop",
-    # Precision gears / Industrial machinery
     "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=1920&auto=format&fit=crop",
-    # Factory assembly line / Automation
     "https://images.unsplash.com/photo-1581092160607-ee22621dd758?q=80&w=1920&auto=format&fit=crop",
-    # Heavy industrial metal manufacturing
     "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?q=80&w=1920&auto=format&fit=crop",
-    # Mechanical engineering workshop / Blueprint & tools
     "https://images.unsplash.com/photo-1537462715879-360eeb61a0ad?q=80&w=1920&auto=format&fit=crop",
 ]
 
 # Select a random wallpaper for this session load
 selected_wallpaper = random.choice(manufacturing_wallpapers)
 
-# Custom CSS for clean autofit table display and card button styling
+# Custom CSS for Glassmorphism login and navigation cards
 st.markdown(
     f"""
     <style>
@@ -55,6 +50,52 @@ st.markdown(
             background-attachment: fixed;
         }}
 
+        /* --- GLASSMORPHISM LOGIN FORM STYLING --- */
+        div[data-testid="stForm"] {{
+            background: rgba(255, 255, 255, 0.08) !important;
+            backdrop-filter: blur(16px) saturate(180%) !important;
+            -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            border-radius: 24px !important;
+            padding: 40px 30px !important;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4) !important;
+        }}
+
+        div[data-testid="stTextInput"] input {{
+            background-color: transparent !important;
+            border: none !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.5) !important;
+            border-radius: 0px !important;
+            color: #ffffff !important;
+            padding: 10px 5px !important;
+            font-size: 15px !important;
+        }}
+        div[data-testid="stTextInput"] input:focus {{
+            border-bottom: 2px solid #ffffff !important;
+            box-shadow: none !important;
+        }}
+        div[data-testid="stTextInput"] label {{
+            color: rgba(255, 255, 255, 0.9) !important;
+            font-weight: 500 !important;
+        }}
+
+        div[data-testid="stFormSubmitButton"] button {{
+            background-color: #ffffff !important;
+            color: #111111 !important;
+            font-weight: 700 !important;
+            border-radius: 30px !important;
+            border: none !important;
+            height: 48px !important;
+            font-size: 16px !important;
+            margin-top: 15px !important;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important;
+            transition: all 0.3s ease !important;
+        }}
+        div[data-testid="stFormSubmitButton"] button:hover {{
+            background-color: #f0f0f0 !important;
+            transform: translateY(-2px);
+        }}
+
         /* Make dataframes take full width and wrap cleanly */
         [data-testid="stDataFrame"] {{
             width: 100% !important;
@@ -63,7 +104,7 @@ st.markdown(
             width: 100% !important;
         }}
         
-        /* Transform Streamlit buttons into gorgeous interactive navigation cards */
+        /* Transform dashboard buttons into interactive navigation cards */
         div[data-testid="column"] button {{
             border-radius: 24px !important;
             padding: 20px 10px !important;
@@ -157,24 +198,40 @@ if "selected_tab" not in st.session_state:
 
 
 def login_screen():
-    st.markdown("<br><br>", unsafe_allow_html=True)
-    _, col2, _ = st.columns([1, 1.5, 1])
+    st.markdown("<br>", unsafe_allow_html=True)
+    _, col2, _ = st.columns([1, 1.2, 1])
 
     with col2:
-        st.markdown(
-            "<h2 style='text-align: center; color: white;'>🏭 CENTURY DESIGNS Login</h2>",
-            unsafe_allow_html=True,
-        )
-        st.markdown(
-            "<p style='text-align: center; color: rgba(255,255,255,0.7);'>Please log in to access"
-            " the tracking system.</p>",
-            unsafe_allow_html=True,
-        )
-
         with st.form("login_form"):
-            username_input = st.text_input("Username")
-            password_input = st.text_input("Password", type="password")
-            submit_button = st.form_submit_button("Login", use_container_width=True)
+            if logo_base64:
+                st.markdown(
+                    f"""
+                    <div style="text-align: center; margin-bottom: 5px;">
+                        <img src="data:image/png;base64,{logo_base64}" width="70" style="display: block; margin: 0 auto;" />
+                    </div>
+                """,
+                    unsafe_allow_html=True,
+                )
+
+            st.markdown(
+                "<h1 style='text-align: center; color: white; font-weight: 700; margin-bottom: 25px;'>Login</h1>",
+                unsafe_allow_html=True,
+            )
+
+            username_input = st.text_input("Email", placeholder="Enter username or email")
+            password_input = st.text_input("Password", type="password", placeholder="Enter password")
+            
+            st.markdown(
+                """
+                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 13px; margin: 10px 0 15px 0;">
+                    <span style="color: rgba(255,255,255,0.8);"><input type="checkbox" style="margin-right: 5px;"> Remember me</span>
+                    <a href="#" style="color: #ffffff; text-decoration: none;">Forget Password</a>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+
+            submit_button = st.form_submit_button("Log in", use_container_width=True)
 
             if submit_button:
                 if (
@@ -195,6 +252,15 @@ def login_screen():
                     st.rerun()
                 else:
                     st.error("Invalid username or password. Please try again.")
+
+        st.markdown(
+            """
+            <div style="text-align: center; margin-top: 20px; color: rgba(255,255,255,0.8); font-size: 14px;">
+                Don't have an account? <a href="#" style="color: white; font-weight: 600; text-decoration: none;">Register</a>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
 
 
 # ================= SESSION TIMEOUT CHECK =================
