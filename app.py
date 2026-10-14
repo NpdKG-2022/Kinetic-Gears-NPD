@@ -247,12 +247,9 @@ if st.query_params.get("do_logout") == "true":
 top_c1, top_c2 = st.columns([1.5, 2.0])
 
 with top_c1:
+    # Invisible background script handling session activity timeout
     st.markdown(
         f"""
-        <div style="color: white; font-size: 15px; padding-top: 5px;">
-            ⏳ Session Expires In:<br>
-            <span id="countdown-timer" style="font-family: 'Orbitron', sans-serif; font-size: 18px; font-weight: 700; color: #ff4081; letter-spacing: 1px;">10:00</span>
-        </div>
         <script>
             const timeoutDuration = {SESSION_TIMEOUT} * 1000;
             let lastActivity = Date.now();
@@ -264,22 +261,14 @@ with top_c1:
             window.addEventListener('scroll', resetTimer, {{ passive: true }});
             window.addEventListener('touchstart', resetTimer, {{ passive: true }});
 
-            function updateExpiryCountdown() {{
+            function checkExpiry() {{
                 const now = Date.now();
                 const elapsed = now - lastActivity;
-                const remaining = timeoutDuration - elapsed;
-                if (remaining <= 0) {{
-                    document.getElementById('countdown-timer').innerText = "00:00";
+                if ((timeoutDuration - elapsed) <= 0) {{
                     window.location.href = "?do_logout=true";
-                    return;
                 }}
-                const totalSecs = Math.floor(remaining / 1000);
-                const mins = String(Math.floor(totalSecs / 60)).padStart(2, '0');
-                const secs = String(totalSecs % 60).padStart(2, '0');
-                document.getElementById('countdown-timer').innerText = mins + ":" + secs;
             }}
-            setInterval(updateExpiryCountdown, 1000);
-            updateExpiryCountdown();
+            setInterval(checkExpiry, 1000);
         </script>
         """,
         unsafe_allow_html=True
