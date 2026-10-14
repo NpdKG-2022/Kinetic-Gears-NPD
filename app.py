@@ -7,7 +7,7 @@ st.set_page_config(
     page_title="Kinetic Gears",
     page_icon="KG-Logo.png",
     layout="wide",
-    initial_sidebar_state="collapsed",  # Start collapsed so it expands cleanly on hover
+    initial_sidebar_state="collapsed",
 )
 
 
@@ -35,7 +35,7 @@ manufacturing_wallpapers = [
 
 selected_wallpaper = random.choice(manufacturing_wallpapers)
 
-# --- INJECT CSS WITH HOVER SIDEBAR ---
+# --- INJECT CSS WITH HOVER SIDEBAR FIX ---
 st.markdown(
     f"""
 <style>
@@ -53,27 +53,43 @@ st.markdown(
         visibility: hidden;
     }}
 
-    /* --- HOVER-TO-EXPAND SIDEBAR STYLING --- */
-    /* Set collapsed width to a thin strip so it acts like a trigger tab */
+    /* --- ROBUST HOVER-TO-EXPAND SIDEBAR --- */
+    /* Thin active trigger strip on the left edge when collapsed */
     section[data-testid="stSidebar"][aria-expanded="false"] {{
-        width: 70px !important;
-        min-width: 70px !important;
+        width: 60px !important;
+        min-width: 60px !important;
         transform: translateX(0px) !important;
-        transition: width 0.3s ease-in-out !important;
-        background-color: rgba(15, 12, 29, 0.85) !important;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        background-color: rgba(15, 12, 29, 0.9) !important;
+        visibility: visible !important;
+        display: block !important;
+        z-index: 999999 !important;
     }}
 
-    /* Expand smoothly when hovered over */
+    /* Hide text/contents gracefully while collapsed so it looks like a clean icon bar */
+    section[data-testid="stSidebar"][aria-expanded="false"] *:not(img) {{
+        opacity: 0;
+        transition: opacity 0.2s ease;
+    }}
+
+    /* Expand smoothly to full width when hovered */
     section[data-testid="stSidebar"][aria-expanded="false"]:hover {{
         width: 280px !important;
         min-width: 280px !important;
     }}
 
-    /* Normal expanded width style */
+    /* Bring back contents smoothly on hover */
+    section[data-testid="stSidebar"][aria-expanded="false"]:hover * {{
+        opacity: 1 !important;
+    }}
+
+    /* Normal expanded state */
     section[data-testid="stSidebar"][aria-expanded="true"] {{
         width: 280px !important;
         min-width: 280px !important;
-        transition: width 0.3s ease-in-out !important;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        background-color: rgba(15, 12, 29, 0.95) !important;
+        z-index: 999999 !important;
     }}
 
     /* Style Streamlit Form for Glassmorphism */
@@ -242,7 +258,7 @@ else:
             st.markdown(
                 f"""
                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px; overflow: hidden;">
-                    <img src="data:image/png;base64,{logo_base64}" width="40" style="flex-shrink: 0;" />
+                    <img src="data:image/png;base64,{logo_base64}" width="35" style="flex-shrink: 0;" />
                     <h3 style="margin: 0; white-space: nowrap;">Kinetic Gears</h3>
                 </div>
             """,
@@ -288,5 +304,5 @@ else:
 
     st.markdown("---")
     st.info(
-        "Hover over the left edge of the screen to smoothly expand the sidebar navigation menu!"
+        "Move your mouse to the far-left edge of the screen to reveal the navigation menu instantly!"
     )
