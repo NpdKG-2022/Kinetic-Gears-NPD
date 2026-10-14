@@ -166,6 +166,7 @@ def login():
     elif entered_user == "admin" and entered_pass == "admin123":
         st.session_state.logged_in = True
         st.success("Login successful!")
+        st.rerun()  # Forces immediate script reload to display the dashboard
     else:
         st.error("Invalid username or password. Please try again.")
         generate_new_captcha()
