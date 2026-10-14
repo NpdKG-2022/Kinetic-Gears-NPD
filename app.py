@@ -159,8 +159,6 @@ st.markdown(
 # ================= USER AUTHENTICATION & PERSISTENCE SETUP =================
 USERS = {
     "admin": {"password": "admin123", "role": "Admin"},
-    "operator1": {"password": "password1", "role": "Operator"},
-    "manager": {"password": "manager123", "role": "Manager"},
 }
 
 SESSION_TIMEOUT = 600  # 10 minutes in seconds
@@ -286,7 +284,7 @@ if not st.session_state["logged_in"]:
 st.markdown(
     """
     <div style="text-align: center; margin-bottom: 0px;">
-        <h1 style="font-size: 50px; margin-bottom: 0px; color: white;">🏭 CENTURY DESIGNS Tracking System</h1>
+        <h1 style="font-size: 50px; margin-bottom: 0px; color: white;">Welcome to KINETIC GEARS</h1>
     </div>
     """,
     unsafe_allow_html=True,
