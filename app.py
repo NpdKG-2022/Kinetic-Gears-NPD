@@ -7,7 +7,7 @@ st.set_page_config(
     page_title="Kinetic Gears",
     page_icon="KG-Logo.png",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed",  # Start collapsed so it expands cleanly on hover
 )
 
 
@@ -35,7 +35,7 @@ manufacturing_wallpapers = [
 
 selected_wallpaper = random.choice(manufacturing_wallpapers)
 
-# --- INJECT CSS ---
+# --- INJECT CSS WITH HOVER SIDEBAR ---
 st.markdown(
     f"""
 <style>
@@ -51,6 +51,29 @@ st.markdown(
     /* Hide standard header & footer decoration */
     header, footer {{
         visibility: hidden;
+    }}
+
+    /* --- HOVER-TO-EXPAND SIDEBAR STYLING --- */
+    /* Set collapsed width to a thin strip so it acts like a trigger tab */
+    section[data-testid="stSidebar"][aria-expanded="false"] {{
+        width: 70px !important;
+        min-width: 70px !important;
+        transform: translateX(0px) !important;
+        transition: width 0.3s ease-in-out !important;
+        background-color: rgba(15, 12, 29, 0.85) !important;
+    }}
+
+    /* Expand smoothly when hovered over */
+    section[data-testid="stSidebar"][aria-expanded="false"]:hover {{
+        width: 280px !important;
+        min-width: 280px !important;
+    }}
+
+    /* Normal expanded width style */
+    section[data-testid="stSidebar"][aria-expanded="true"] {{
+        width: 280px !important;
+        min-width: 280px !important;
+        transition: width 0.3s ease-in-out !important;
     }}
 
     /* Style Streamlit Form for Glassmorphism */
@@ -166,7 +189,7 @@ def login():
     elif entered_user == "admin" and entered_pass == "admin123":
         st.session_state.logged_in = True
         st.success("Login successful!")
-        st.rerun()  # Forces immediate script reload to display the dashboard
+        st.rerun()
     else:
         st.error("Invalid username or password. Please try again.")
         generate_new_captcha()
@@ -211,16 +234,16 @@ if not st.session_state.logged_in:
             if submitted:
                 login()
 
-# --- DASHBOARD SCREEN (Post-Login with Collapsible Sidebar) ---
+# --- DASHBOARD SCREEN (Post-Login with Hover Sidebar) ---
 else:
     # --- SIDEBAR NAVIGATION ---
     with st.sidebar:
         if logo_base64:
             st.markdown(
                 f"""
-                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
-                    <img src="data:image/png;base64,{logo_base64}" width="40" />
-                    <h3 style="margin: 0;">Kinetic Gears</h3>
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px; overflow: hidden;">
+                    <img src="data:image/png;base64,{logo_base64}" width="40" style="flex-shrink: 0;" />
+                    <h3 style="margin: 0; white-space: nowrap;">Kinetic Gears</h3>
                 </div>
             """,
                 unsafe_allow_html=True,
@@ -265,5 +288,5 @@ else:
 
     st.markdown("---")
     st.info(
-        "You can collapse or expand this sidebar anytime using the arrow icon at the top left of the screen."
+        "Hover over the left edge of the screen to smoothly expand the sidebar navigation menu!"
     )
