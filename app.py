@@ -36,13 +36,20 @@ st.markdown("""
         box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4) !important;
     }
 
+    /* Perfectly center the logo inside the form container */
+    div[data-testid="stForm"] img {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
     /* Custom Title & Subtitle Styling */
     .glass-title {
         color: #ffffff !important;
         text-align: center;
         font-size: 32px;
         font-weight: 700;
-        margin-top: 10px;
+        margin-top: 15px;
         letter-spacing: 1px;
     }
     .glass-subtitle {
@@ -158,10 +165,8 @@ def logout():
 # --- LOGIN SCREEN ---
 if not st.session_state.logged_in:
     with st.form("login_form"):
-        # Display logo centered inside glass card with balanced width
-        col1, col2, col3 = st.columns([1, 1, 1])
-        with col2:
-            st.image("KG-Logo.png", width=90)
+        # Logo centered automatically via CSS rule
+        st.image("KG-Logo.png", width=90)
 
         st.markdown("<div class='glass-title'>KINETIC GEARS</div>", unsafe_allow_html=True)
         st.markdown(
