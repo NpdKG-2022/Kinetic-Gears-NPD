@@ -7,7 +7,6 @@ st.set_page_config(
     page_title="Kinetic Gears",
     page_icon="KG-Logo.png",
     layout="wide",
-    initial_sidebar_state="expanded"
 )
 
 
@@ -227,15 +226,8 @@ else:
         nav_selection = st.radio(
             "Navigation",
             [
-                "🏠 Dashboard",
-                "🎫 Ticket List",
-                "💬 Chat",
-                "📅 Calendar",
-                "📋 Forms",
-                "📊 Tables",
-                "📈 Charts",
-                "⚙️ UI Elements",
-                "💳 Cards",
+                "Dashboard",
+                
             ],
             label_visibility="collapsed",
         )
