@@ -29,32 +29,31 @@ st.markdown("""
     min-width: 280px !important;
   }
 
-  /* Fade out all text labels and descriptions by default */
-  [data-testid="stSidebar"] .stRadio label p,
+  /* Hide headers, descriptions, and system status when collapsed */
   [data-testid="stSidebar"] h3,
   [data-testid="stSidebar"] p,
-  [data-testid="stSidebar"] .stInfo {
+  [data-testid="stSidebar"] .stInfo,
+  [data-testid="stSidebar"] label[data-baseweb="radio"] span:not(:first-child) {
     opacity: 0;
     transition: opacity 0.2s ease-in-out;
-    white-space: nowrap;
   }
 
-  /* Reveal text labels and descriptions smoothly on sidebar hover */
-  [data-testid="stSidebar"]:hover .stRadio label p,
+  /* Reveal all labels and text smoothly when hovering over the sidebar */
   [data-testid="stSidebar"]:hover h3,
   [data-testid="stSidebar"]:hover p,
-  [data-testid="stSidebar"]:hover .stInfo {
+  [data-testid="stSidebar"]:hover .stInfo,
+  [data-testid="stSidebar"]:hover label[data-baseweb="radio"] span:not(:first-child) {
     opacity: 1;
   }
 
-  /* Keep logo visible */
+  /* Ensure logo remains visible */
   [data-testid="stSidebar"] img {
     opacity: 1 !important;
   }
 
-  /* Replace radio text with custom icon representations when collapsed */
-  [data-testid="stSidebar"] .stRadio div[role="radiogroup"] label div:nth-child(2) {
-    transition: all 0.2s ease;
+  /* Keep radio button layout clean during transition */
+  [data-testid="stSidebar"] .stRadio div[role="radiogroup"] {
+    overflow: hidden;
   }
 </style>
 """, unsafe_allow_html=True)
@@ -278,7 +277,8 @@ st.sidebar.markdown("---")
 
 nav_selection = st.sidebar.radio(
     "Select Module",
-    ["Dashboard", "ISO 8.3.3.1 Design Inputs", "Material & Standards Matrix", "Prototype Cost Estimator"]
+    ["📊 Dashboard", "📋 ISO 8.3.3.1 Inputs", "🔬 Materials Matrix", "🧮 Cost Estimator"],
+    format_func=lambda x: x  # Keeps the icon + text when expanded
 )
 
 st.sidebar.info("System Status: **Online**")
