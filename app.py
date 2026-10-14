@@ -376,8 +376,8 @@ with top_c2:
         """,
         height=55,
     )
+    
 with top_c3:
-    login_time = st.session_state.get("login_time", time.time())
     st.components.v1.html(
         f"""
         <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
@@ -400,20 +400,32 @@ with top_c3:
         </style>
         <div class="expire-card">
             ⏳ Expires:<br>
-            <div id="countdown-timer" class="expire-timer">00:00</div>
+            <div id="countdown-timer" class="expire-timer">10:00</div>
         </div>
         <script>
-            const loginTime = {login_time} * 1000;
-            const timeoutDuration = {SESSION_TIMEOUT} * 1000;
+            const timeoutDuration = {SESSION_TIMEOUT} * 1000; // 10 minutes in ms
+            let lastActivity = Date.now();
+
+            function resetTimer() {{
+                lastActivity = Date.now();
+            }}
+
+            // Listen for any user activity across the page
+            window.addEventListener('mousemove', resetTimer, {{ passive: true }});
+            window.addEventListener('mousedown', resetTimer, {{ passive: true }});
+            window.addEventListener('click', resetTimer, {{ passive: true }});
+            window.addEventListener('keypress', resetTimer, {{ passive: true }});
+            window.addEventListener('scroll', resetTimer, {{ passive: true }});
+            window.addEventListener('touchstart', resetTimer, {{ passive: true }});
 
             function updateExpiryCountdown() {{
-                const now = new Date().getTime();
-                const elapsed = now - loginTime;
+                const now = Date.now();
+                const elapsed = now - lastActivity;
                 const remaining = timeoutDuration - elapsed;
 
                 if (remaining <= 0) {{
                     document.getElementById('countdown-timer').innerText = "00:00";
-                    window.location.reload();
+                    window.location.href = "?do_logout=true";
                     return;
                 }}
 
