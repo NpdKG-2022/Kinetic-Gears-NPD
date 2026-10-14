@@ -35,7 +35,7 @@ manufacturing_wallpapers = [
 
 selected_wallpaper = random.choice(manufacturing_wallpapers)
 
-# --- INJECT CSS WITH PERFECT FULL-WIDTH SIDEBAR ACTIVE PILL STYLING ---
+# --- INJECT CSS WITH HIDDEN RADIO CIRCLES & GRADIENT PILL STYLING ---
 st.markdown(
     f"""
 <style>
@@ -50,31 +50,37 @@ st.markdown(
 
     .stDeployButton {{display: none !important;}}
 
-    /* --- FULL-WIDTH GRADIENT PILL ACTIVE SIDEBAR STYLING --- */
+    /* --- HIDE RADIO DOTS & STYLE AS CLEAN MENU PILLS --- */
+    div[data-testid="stSidebar"] div[data-testid="stRadio"] input[type="radio"] {{
+        display: none !important;
+    }}
     div[data-testid="stSidebar"] div[data-testid="stRadio"] [data-baseweb="radio"] {{
-        width: 100% !important;
-        margin-bottom: 4px !important;
+        display: none !important;
     }}
 
-    div[data-testid="stSidebar"] div[data-testid="stRadio"] [data-baseweb="radio"] input:checked + div {{
-        background: linear-gradient(135deg, #7c3aed 0%, #3b82f6 100%) !important;
+    div[data-testid="stSidebar"] div[data-testid="stRadio"] div[role="radiogroup"] > label {{
+        background: transparent !important;
         border-radius: 12px !important;
         padding: 10px 14px !important;
-        width: 100% !important;
-        display: flex !important;
-        align-items: center !important;
-        box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
+        margin-bottom: 4px !important;
+        cursor: pointer !important;
+        transition: all 0.2s ease-in-out !important;
     }}
 
-    div[data-testid="stSidebar"] div[data-testid="stRadio"] [data-baseweb="radio"] input:checked + div p {{
+    div[data-testid="stSidebar"] div[data-testid="stRadio"] div[role="radiogroup"] > label:hover {{
+        background: rgba(255, 255, 255, 0.06) !important;
+    }}
+
+    /* Apply smooth gradient background when the menu item is selected */
+    div[data-testid="stSidebar"] div[data-testid="stRadio"] div[role="radiogroup"] > label:has(input:checked) {{
+        background: linear-gradient(135deg, #7c3aed 0%, #3b82f6 100%) !important;
+        box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4) !important;
+    }}
+
+    /* Ensure text color turns crisp white for the selected option */
+    div[data-testid="stSidebar"] div[data-testid="stRadio"] div[role="radiogroup"] > label:has(input:checked) p {{
         color: #ffffff !important;
         font-weight: 600 !important;
-    }}
-
-    /* Unselected radio item hover effect */
-    div[data-testid="stSidebar"] div[data-testid="stRadio"] [data-baseweb="radio"] div:hover {{
-        background-color: rgba(255, 255, 255, 0.05);
-        border-radius: 12px;
     }}
 
     /* Style Streamlit Form for Glassmorphism */
@@ -269,7 +275,7 @@ else:
 
         st.markdown("---")
         st.markdown("**SESSION**")
-        if st.button("🚪 Log Out", use_control_width := True if "use_control_width" else True, use_container_width=True):
+        if st.button("🚪 Log Out", use_container_width=True):
             logout()
             st.rerun()
 
