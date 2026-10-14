@@ -1,3 +1,4 @@
+import base64
 import random
 import streamlit as st
 
@@ -7,6 +8,20 @@ st.set_page_config(
     page_icon="KG-Logo.png",
     layout="centered"
 )
+
+
+# Helper function to convert logo to base64 for flawless HTML centering
+@st.cache_data
+def get_base64_image(image_path):
+    try:
+        with open(image_path, "rb") as f:
+            data = f.read()
+        return base64.b64encode(data).decode()
+    except Exception:
+        return ""
+
+
+logo_base64 = get_base64_image("KG-Logo.png")
 
 # --- INJECT GLASSMORPHISM CSS ---
 st.markdown("""
@@ -34,13 +49,6 @@ st.markdown("""
         border-radius: 20px !important;
         padding: 40px 30px !important;
         box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4) !important;
-    }
-
-    /* Perfectly center the logo inside the form container */
-    div[data-testid="stForm"] img {
-        display: block;
-        margin-left: centered;
-        margin-right: centered;
     }
 
     /* Custom Title & Subtitle Styling */
@@ -101,7 +109,6 @@ st.markdown("""
 
 # --- HELPER FUNCTIONS ---
 def generate_new_captcha():
-    """Generates a random simple arithmetic question."""
     ops = [("+", lambda a, b: a + b), ("-", lambda a, b: a - b), ("*", lambda a, b: a * b)]
     op_symbol, op_func = random.choice(ops)
 
@@ -165,8 +172,13 @@ def logout():
 # --- LOGIN SCREEN ---
 if not st.session_state.logged_in:
     with st.form("login_form"):
-        # Logo centered automatically via CSS rule
-        st.image("KG-Logo.png", width=90)
+        # Perfectly center the logo using base64 and HTML
+        if logo_base64:
+            st.markdown(f"""
+                <div style="text-align: center; margin-bottom: 5px;">
+                    <img src="data:image/png;base64,{logo_base64}" width="90" style="display: block; margin: 0 auto;" />
+                </div>
+            """, unsafe_allow_html=True)
 
         st.markdown("<div class='glass-title'>KINETIC GEARS</div>", unsafe_allow_html=True)
         st.markdown(
