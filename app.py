@@ -35,7 +35,7 @@ manufacturing_wallpapers = [
 
 selected_wallpaper = random.choice(manufacturing_wallpapers)
 
-# --- INJECT CSS WITH FIXED SIDEBAR ACTIVE PILL STYLING ---
+# --- INJECT CSS WITH PERFECT FULL-WIDTH SIDEBAR ACTIVE PILL STYLING ---
 st.markdown(
     f"""
 <style>
@@ -50,25 +50,31 @@ st.markdown(
 
     .stDeployButton {{display: none !important;}}
 
-    /* --- CORRECTED SIDEBAR RADIO GRADIENT PILL STYLING --- */
+    /* --- FULL-WIDTH GRADIENT PILL ACTIVE SIDEBAR STYLING --- */
     div[data-testid="stSidebar"] div[data-testid="stRadio"] [data-baseweb="radio"] {{
-        border-radius: 12px !important;
+        width: 100% !important;
         margin-bottom: 4px !important;
-        transition: all 0.2s ease-in-out !important;
     }}
 
-    /* Apply smooth gradient background when the radio option is checked */
     div[data-testid="stSidebar"] div[data-testid="stRadio"] [data-baseweb="radio"] input:checked + div {{
         background: linear-gradient(135deg, #7c3aed 0%, #3b82f6 100%) !important;
         border-radius: 12px !important;
-        padding: 8px 12px !important;
+        padding: 10px 14px !important;
+        width: 100% !important;
+        display: flex !important;
+        align-items: center !important;
         box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
     }}
 
-    /* Ensure text color turns crisp white for the selected option */
     div[data-testid="stSidebar"] div[data-testid="stRadio"] [data-baseweb="radio"] input:checked + div p {{
         color: #ffffff !important;
         font-weight: 600 !important;
+    }}
+
+    /* Unselected radio item hover effect */
+    div[data-testid="stSidebar"] div[data-testid="stRadio"] [data-baseweb="radio"] div:hover {{
+        background-color: rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
     }}
 
     /* Style Streamlit Form for Glassmorphism */
@@ -263,7 +269,7 @@ else:
 
         st.markdown("---")
         st.markdown("**SESSION**")
-        if st.button("🚪 Log Out", use_container_width=True):
+        if st.button("🚪 Log Out", use_control_width := True if "use_control_width" else True, use_container_width=True):
             logout()
             st.rerun()
 
