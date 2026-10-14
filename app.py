@@ -274,37 +274,36 @@ st.markdown(
 username_val = st.session_state['username']
 role_val = st.session_state['role']
 
-# Single full-width consolidated top component (Clock on top, user info & expanding logout button below)
-st.components.v1.html(
+# Render header using clean markdown and flexbox layout
+st.markdown(
     f"""
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
     <style>
-        body {{ margin: 0; background-color: transparent; }}
-        .top-container {{
+        .custom-header-container {{
             display: flex;
             justify-content: flex-end;
             align-items: flex-end;
             flex-direction: column;
             width: 100%;
-            padding-right: 5px;
+            margin-bottom: 10px;
         }}
         .clock-card {{
             background: linear-gradient(135deg, #e91e63, #c2185b);
             border-radius: 12px;
-            padding: 4px 12px;
+            padding: 6px 14px;
             text-align: center;
             box-shadow: 0 4px 15px rgba(233, 30, 99, 0.3);
             font-family: 'Orbitron', sans-serif;
             margin-bottom: 6px;
         }}
         .time-display {{
-            font-size: 15px;
+            font-size: 16px;
             font-weight: 700;
             color: #ffffff;
             letter-spacing: 1.5px;
         }}
         .date-display {{
-            font-size: 9px;
+            font-size: 10px;
             font-weight: 500;
             color: #fce4ec;
             letter-spacing: 0.5px;
@@ -335,10 +334,11 @@ st.components.v1.html(
         .logout-text {{ font-family: sans-serif; font-weight: 600; font-size: 13px; padding-left: 2px; padding-right: 12px; opacity: 0; transition: opacity 0.3s ease 0.1s; }}
         .logout-btn:hover .logout-text {{ opacity: 1; }}
     </style>
-    <div class="top-container">
+    
+    <div class="custom-header-container">
         <div class="clock-card">
-            <div id="futuristic-time" class="time-display">00:00:00 AM</div>
-            <div id="futuristic-date" class="date-display">Loading date...</div>
+            <div id="live-clock-time" class="time-display">00:00:00 AM</div>
+            <div id="live-clock-date" class="date-display">Loading date...</div>
         </div>
         <div class="user-logout-row">
             <div class="user-info">
@@ -356,8 +356,9 @@ st.components.v1.html(
             </a>
         </div>
     </div>
+    
     <script>
-        function updateFuturisticClock() {{
+        function updateLiveClock() {{
             const now = new Date();
             let hours = now.getHours();
             const minutes = String(now.getMinutes()).padStart(2, '0');
@@ -366,15 +367,19 @@ st.components.v1.html(
             hours = hours % 12;
             hours = hours ? hours : 12; 
             const formattedHours = String(hours).padStart(2, '0');
-            document.getElementById('futuristic-time').innerText = formattedHours + ":" + minutes + ":" + seconds + " " + ampm;
-            const options = {{ weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }};
-            document.getElementById('futuristic-date').innerText = now.toLocaleDateString('en-US', options);
+            const timeEl = document.getElementById('live-clock-time');
+            const dateEl = document.getElementById('live-clock-date');
+            if (timeEl) timeEl.innerText = formattedHours + ":" + minutes + ":" + seconds + " " + ampm;
+            if (dateEl) {{
+                const options = {{ weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }};
+                dateEl.innerText = now.toLocaleDateString('en-US', options);
+            }}
         }}
-        setInterval(updateFuturisticClock, 1000);
-        updateFuturisticClock();
+        setInterval(updateLiveClock, 1000);
+        updateLiveClock();
     </script>
     """,
-    height=90,
+    unsafe_allow_html=True
 )
 
 st.markdown("---")
