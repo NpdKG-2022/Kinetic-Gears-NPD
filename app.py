@@ -149,7 +149,7 @@ compact_clock_html = """
   }
   #logout-btn .logout-text {
     opacity: 0;
-    width: 20px;
+    width: 200px;
     overflow: hidden;
     transition: opacity 0.2s ease, width 0.25s ease;
   }
