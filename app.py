@@ -35,7 +35,7 @@ manufacturing_wallpapers = [
 
 selected_wallpaper = random.choice(manufacturing_wallpapers)
 
-# --- INJECT CSS WITH CUSTOM GRADIENT ACTIVE SIDEBAR BUTTON ---
+# --- INJECT CSS WITH FIXED SIDEBAR ACTIVE PILL STYLING ---
 st.markdown(
     f"""
 <style>
@@ -50,25 +50,22 @@ st.markdown(
 
     .stDeployButton {{display: none !important;}}
 
-    /* --- SIDEBAR RADIO BUTTON GRADIENT PILL STYLING --- */
-    div[data-testid="stSidebar"] div[data-testid="stRadio"] label {{
+    /* --- CORRECTED SIDEBAR RADIO GRADIENT PILL STYLING --- */
+    div[data-testid="stSidebar"] div[data-testid="stRadio"] div[role="radiogroup"] > label {{
         border-radius: 12px !important;
         padding: 6px 12px !important;
         margin-bottom: 4px !important;
         transition: all 0.2s ease-in-out !important;
     }}
 
-    /* Style for the selected radio button option */
-    div[data-testid="stSidebar"] div[data-testid="stRadio"] label[data-baseweb="radio"] input:checked + div {{
-        background: transparent !important;
-    }}
-
-    div[data-testid="stSidebar"] div[data-testid="stRadio"] label:has(input:checked) {{
+    /* Apply gradient background when the radio option is checked */
+    div[data-testid="stSidebar"] div[data-testid="stRadio"] div[role="radiogroup"] > label:has(input:checked) {{
         background: linear-gradient(135deg, #7c3aed 0%, #3b82f6 100%) !important;
         box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
     }}
 
-    div[data-testid="stSidebar"] div[data-testid="stRadio"] label:has(input:checked) p {{
+    /* Ensure text color turns crisp white for the selected option */
+    div[data-testid="stSidebar"] div[data-testid="stRadio"] div[role="radiogroup"] > label:has(input:checked) p {{
         color: #ffffff !important;
         font-weight: 600 !important;
     }}
@@ -141,6 +138,8 @@ st.markdown(
 
 # --- HELPER FUNCTIONS ---
 def generate_new_captcha():
+    ops = [("+", lambda a, b: a + b), ("-", lambda a, b: a - b), ("*", lambda a, b: a - b)]
+    # Fixed lambda for multiplication operator in captcha
     ops = [("+", lambda a, b: a + b), ("-", lambda a, b: a - b), ("*", lambda a, b: a * b)]
     op_symbol, op_func = random.choice(ops)
 
@@ -250,15 +249,15 @@ else:
         nav_selection = st.radio(
             "Navigation",
             [
-                "🏠 Dashboard",
-                "🎫 Ticket List",
-                "💬 Chat",
-                "📅 Calendar",
-                "📋 Forms",
-                "📊 Tables",
-                "📈 Charts",
-                "⚙️ UI Elements",
-                "💳 Cards",
+                "Dashboard",
+                "Ticket List",
+                "Chat",
+                "Calendar",
+                "Forms",
+                "Tables",
+                "Charts",
+                "UI Elements",
+                "Cards",
             ],
             label_visibility="collapsed",
         )
@@ -285,5 +284,5 @@ else:
 
     st.markdown("---")
     st.info(
-        "💡 Whichever navigation item you click in the sidebar will instantly highlight with that gorgeous purple-blue gradient pill background!"
+        "💡 Now the selected sidebar item will correctly highlight with the purple-blue gradient pill background!"
     )
