@@ -5,54 +5,12 @@ import streamlit.components.v1 as components
 
 # Page Configuration
 st.set_page_config(
-    page_title="KINETIC GEARS | NPD",
+    page_title="KINETIC GEARS | NPD Portal",
     page_icon="⚙️",
     layout="wide",
     initial_sidebar_state="expanded"
 )
-# ----------------------------------------------------
-# HOVER-COLLAPSIBLE SIDEBAR WITH ICON-ONLY COLLAPSE
-# ----------------------------------------------------
-st.markdown("""
-<style>
-  /* Default collapsed sidebar state */
-  [data-testid="stSidebar"] {
-    width: 75px !important;
-    min-width: 75px !important;
-    transition: width 0.3s ease-in-out !important;
-    overflow-x: hidden !important;
-  }
-  
-  /* Expanded sidebar state on hover */
-  [data-testid="stSidebar"]:hover {
-    width: 280px !important;
-    min-width: 280px !important;
-  }
 
-  /* Fade out text labels by default when collapsed */
-  [data-testid="stSidebar"] h3,
-  [data-testid="stSidebar"] p,
-  [data-testid="stSidebar"] .stInfo,
-  [data-testid="stSidebar"] div[data-baseweb="radio"] span {
-    opacity: 0;
-    transition: opacity 0.2s ease-in-out;
-    white-space: nowrap;
-  }
-
-  /* Reveal text labels and headings smoothly when hovering over the sidebar */
-  [data-testid="stSidebar"]:hover h3,
-  [data-testid="stSidebar"]:hover p,
-  [data-testid="stSidebar"]:hover .stInfo,
-  [data-testid="stSidebar"]:hover div[data-baseweb="radio"] span {
-    opacity: 1;
-  }
-
-  /* Keep logo visible always */
-  [data-testid="stSidebar"] img {
-    opacity: 1 !important;
-  }
-</style>
-""", unsafe_allow_html=True)
 # ----------------------------------------------------
 # USER DATABASE & CREDENTIALS
 # ----------------------------------------------------
@@ -121,6 +79,7 @@ def check_credentials():
 
 if not check_credentials():
     st.stop()
+
 # ----------------------------------------------------
 # TOP-RIGHT MINIMAL LIVE CLOCK, WEATHER & HOVER LOGOUT
 # ----------------------------------------------------
@@ -162,6 +121,7 @@ compact_clock_html = """
     align-items: center;
     box-shadow: 0 3px 10px rgba(0,0,0,0.6);
     backdrop-filter: blur(4px);
+    height: 30px;
   }
   #compact-clock-widget #c-time { color: #58a6ff; font-weight: 700; }
   #compact-clock-widget #c-ampm { color: #58a6ff; font-weight: 700; }
@@ -172,31 +132,38 @@ compact_clock_html = """
     border: 1px solid #30363d;
     border-radius: 6px;
     color: #f85149;
-    padding: 7px 10px;
+    padding: 0 10px;
     font-family: -apple-system, BlinkMacSystemFont, sans-serif;
     font-size: 0.75rem;
     font-weight: 600;
     cursor: pointer;
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 6px;
     box-shadow: 0 3px 10px rgba(0,0,0,0.6);
     backdrop-filter: blur(4px);
     overflow: hidden;
     white-space: nowrap;
-    width: 32px;
-    transition: width 0.25s ease, background 0.2s ease;
+    width: 34px;
+    min-width: 34px;
+    height: 30px;
+    transition: width 0.25s ease, background 0.2s ease, padding 0.25s ease;
   }
   #logout-btn .logout-text {
     opacity: 0;
-    transition: opacity 0.2s ease;
+    width: 0px;
+    overflow: hidden;
+    transition: opacity 0.2s ease, width 0.25s ease;
   }
   #logout-btn:hover {
-    width: 90px;
+    width: 94px;
+    padding: 0 12px;
     background: rgba(48, 54, 61, 0.95);
   }
   #logout-btn:hover .logout-text {
     opacity: 1;
+    width: auto;
   }
 </style>
 <script>
@@ -241,8 +208,6 @@ compact_clock_html = """
   setInterval(fetchCompactWeather, 600000);
 
   function triggerLogout() {
-    window.parent.postMessage({type: 'streamlit:setComponentValue', value: 'logout'}, '*');
-    // Alternatively triggers reload with logout query param if needed
     const url = new URL(window.parent.location.href);
     url.searchParams.set('action', 'logout');
     window.parent.location.href = url.toString();
@@ -263,9 +228,51 @@ if query_params.get("action") == "logout":
     st.rerun()
 
 # ----------------------------------------------------
-# STYLING & NAVIGATION (Post-Login)
+# STYLING & COLLAPSIBLE HOVER SIDEBAR
 # ----------------------------------------------------
-# Fixed raw GitHub URL for proper image rendering
+st.markdown("""
+<style>
+  /* Collapsible Sidebar on Hover */
+  [data-testid="stSidebar"] {
+    width: 75px !important;
+    min-width: 75px !important;
+    transition: width 0.3s ease-in-out !important;
+    overflow-x: hidden !important;
+  }
+  [data-testid="stSidebar"]:hover {
+    width: 280px !important;
+    min-width: 280px !important;
+  }
+
+  /* Smooth text appearance on hover */
+  [data-testid="stSidebar"] .sidebar-content {
+    overflow: hidden;
+  }
+  
+  /* Hide sidebar text/labels when collapsed, show on hover */
+  [data-testid="stSidebar"] .stRadio label span,
+  [data-testid="stSidebar"] h3,
+  [data-testid="stSidebar"] p,
+  [data-testid="stSidebar"] .stInfo {
+    visibility: hidden;
+    transition: visibility 0.2s ease-in-out;
+    white-space: nowrap;
+  }
+  [data-testid="stSidebar"]:hover .stRadio label span,
+  [data-testid="stSidebar"]:hover h3,
+  [data-testid="stSidebar"]:hover p,
+  [data-testid="stSidebar"]:hover .stInfo {
+    visibility: visible;
+  }
+
+  /* Always keep icons & logo visible */
+  [data-testid="stSidebar"] img {
+    visibility: visible !important;
+  }
+</style>
+""", unsafe_allow_html=True)
+
+# Sidebar Navigation
 st.sidebar.image("https://raw.githubusercontent.com/NpdKG-2022/Kinetic-Gears-NPD/main/KG-Logo.png", width=100)
 st.sidebar.markdown("### KINETIC GEARS")
 st.sidebar.markdown("**New Product Development (N.P.D.)**")
@@ -273,16 +280,16 @@ st.sidebar.markdown("---")
 
 nav_selection = st.sidebar.radio(
     "Select Module",
-    ["📊 Dashboard", "📋 ISO 8.3.3.1 Inputs", "🔬 Materials Matrix", "🧮 Cost Estimator"],
-    format_func=lambda x: x  # Keeps the icon + text when expanded
+    ["📊 Dashboard", "📋 ISO 8.3.3.1 Inputs", "🔬 Materials Matrix", "🧮 Cost Estimator"]
 )
 
+st.sidebar.markdown("---")
 st.sidebar.info("System Status: **Online**")
 
 # ----------------------------------------------------
 # 1. DASHBOARD MODULE
 # ----------------------------------------------------
-if nav_selection == "Dashboard":
+if nav_selection == "📊 Dashboard":
     st.markdown("## 📊 NPD Project Dashboard")
     st.markdown("Monitor active gear development pipelines across Stage-Gate milestones.")
 
@@ -309,7 +316,7 @@ if nav_selection == "Dashboard":
 # ----------------------------------------------------
 # 2. ISO 8.3.3.1 DESIGN INPUTS MANAGER
 # ----------------------------------------------------
-elif nav_selection == "ISO 8.3.3.1 Design Inputs":
+elif nav_selection == "📋 ISO 8.3.3.1 Inputs":
     st.markdown("## 📋 Product Design Inputs (Clause 8.3.3.1)")
     st.markdown("Capture functional, performance, safety, and statutory requirements for new gear mechanisms.")
 
@@ -331,7 +338,7 @@ elif nav_selection == "ISO 8.3.3.1 Design Inputs":
 # ----------------------------------------------------
 # 3. MATERIAL & STANDARDS MATRIX
 # ----------------------------------------------------
-elif nav_selection == "Material & Standards Matrix":
+elif nav_selection == "🔬 Materials Matrix":
     st.markdown("## 🔬 Material & Standards Cross-Reference")
     st.markdown("Quick lookup matrix for carbon steels, spring wires, industrial sealing elements, and international standards.")
 
@@ -378,7 +385,7 @@ elif nav_selection == "Material & Standards Matrix":
 # ----------------------------------------------------
 # 4. PROTOTYPE COST ESTIMATOR
 # ----------------------------------------------------
-elif nav_selection == "Prototype Cost Estimator":
+elif nav_selection == "🧮 Cost Estimator":
     st.markdown("## 🧮 Prototype & Feasibility Cost Calculator")
     st.markdown("Estimate raw material, cutting/machining time, and scrap overhead for new gear prototypes.")
 
