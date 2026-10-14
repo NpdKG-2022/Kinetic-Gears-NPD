@@ -24,15 +24,21 @@ def get_base64_image(image_path):
 
 logo_base64 = get_base64_image("KG-Logo.png")
 
-# List of core mechanical manufacturing wallpapers
+# List of random mechanical manufacturing & engineering wallpapers
 manufacturing_wallpapers = [
-    "https://images.unsplash.com/photo-1563770660941-20978e870e26?q=80&w=1920&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1616401784845-180882ba9ba8?q=80&w=1920&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1635835266854-a87d1c6bc1b8?q=80&w=1920&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1531297484001-80022131f5a1?q=80&w=1920&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1581092335397-9583fe92d232?q=80&w=1920&auto=format&fit=crop",
+    # CNC / Machining / Metal cutting
+    "https://images.unsplash.com/photo-1565043589221-1a6fd9ae45c7?q=80&w=1920&auto=format&fit=crop",
+    # Precision gears / Industrial machinery
+    "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=1920&auto=format&fit=crop",
+    # Factory assembly line / Automation
+    "https://images.unsplash.com/photo-1581092160607-ee22621dd758?q=80&w=1920&auto=format&fit=crop",
+    # Heavy industrial metal manufacturing
+    "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?q=80&w=1920&auto=format&fit=crop",
+    # Mechanical engineering workshop / Blueprint & tools
+    "https://images.unsplash.com/photo-1537462715879-360eeb61a0ad?q=80&w=1920&auto=format&fit=crop",
 ]
 
+# Select a random wallpaper for this session load
 selected_wallpaper = random.choice(manufacturing_wallpapers)
 
 # Custom CSS for clean autofit table display and card button styling
