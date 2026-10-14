@@ -130,31 +130,37 @@ compact_clock_html = """
     border: 1px solid #30363d;
     border-radius: 6px;
     color: #f85149;
-    padding: 7px 10px;
+    padding: 6px 10px;
     font-family: -apple-system, BlinkMacSystemFont, sans-serif;
     font-size: 0.75rem;
     font-weight: 600;
     cursor: pointer;
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 6px;
     box-shadow: 0 3px 10px rgba(0,0,0,0.6);
     backdrop-filter: blur(4px);
     overflow: hidden;
     white-space: nowrap;
     width: 32px;
-    transition: width 0.25s ease, background 0.2s ease;
+    min-width: 32px;
+    transition: width 0.25s ease, background 0.2s ease, padding 0.25s ease;
   }
   #logout-btn .logout-text {
     opacity: 0;
-    transition: opacity 0.2s ease;
+    width: 0px;
+    overflow: hidden;
+    transition: opacity 0.2s ease, width 0.25s ease;
   }
   #logout-btn:hover {
-    width: 90px;
+    width: 96px;
+    padding: 6px 12px;
     background: rgba(48, 54, 61, 0.95);
   }
   #logout-btn:hover .logout-text {
     opacity: 1;
+    width: auto;
   }
 </style>
 <script>
