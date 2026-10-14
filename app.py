@@ -7,6 +7,7 @@ st.set_page_config(
     page_title="Kinetic Gears",
     page_icon="KG-Logo.png",
     layout="wide",
+    initial_sidebar_state="expanded"
 )
 
 
@@ -34,7 +35,7 @@ manufacturing_wallpapers = [
 
 selected_wallpaper = random.choice(manufacturing_wallpapers)
 
-# --- INJECT CSS ---
+# --- INJECT CSS WITH CUSTOM GRADIENT ACTIVE SIDEBAR BUTTON ---
 st.markdown(
     f"""
 <style>
@@ -48,6 +49,29 @@ st.markdown(
     }}
 
     .stDeployButton {{display: none !important;}}
+
+    /* --- SIDEBAR RADIO BUTTON GRADIENT PILL STYLING --- */
+    div[data-testid="stSidebar"] div[data-testid="stRadio"] label {{
+        border-radius: 12px !important;
+        padding: 6px 12px !important;
+        margin-bottom: 4px !important;
+        transition: all 0.2s ease-in-out !important;
+    }}
+
+    /* Style for the selected radio button option */
+    div[data-testid="stSidebar"] div[data-testid="stRadio"] label[data-baseweb="radio"] input:checked + div {{
+        background: transparent !important;
+    }}
+
+    div[data-testid="stSidebar"] div[data-testid="stRadio"] label:has(input:checked) {{
+        background: linear-gradient(135deg, #7c3aed 0%, #3b82f6 100%) !important;
+        box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
+    }}
+
+    div[data-testid="stSidebar"] div[data-testid="stRadio"] label:has(input:checked) p {{
+        color: #ffffff !important;
+        font-weight: 600 !important;
+    }}
 
     /* Style Streamlit Form for Glassmorphism */
     div[data-testid="stForm"] {{
@@ -226,8 +250,15 @@ else:
         nav_selection = st.radio(
             "Navigation",
             [
-                "Dashboard",
-                
+                "🏠 Dashboard",
+                "🎫 Ticket List",
+                "💬 Chat",
+                "📅 Calendar",
+                "📋 Forms",
+                "📊 Tables",
+                "📈 Charts",
+                "⚙️ UI Elements",
+                "💳 Cards",
             ],
             label_visibility="collapsed",
         )
@@ -254,5 +285,5 @@ else:
 
     st.markdown("---")
     st.info(
-        "💡 Use the sidebar toggle arrow in the top-left corner anytime to cleanly open or close your navigation menu."
+        "💡 Whichever navigation item you click in the sidebar will instantly highlight with that gorgeous purple-blue gradient pill background!"
     )
