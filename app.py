@@ -2,11 +2,16 @@ import base64
 import random
 import streamlit as st
 
-# Set page configuration
-st.set_page_config(page_title="Kinetic Gears", page_icon="KG-Logo.png", layout="centered")
+# Set page configuration with collapsible sidebar support
+st.set_page_config(
+    page_title="Kinetic Gears",
+    page_icon="KG-Logo.png",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
 
 
-# Helper function to convert logo to base64 for flawless HTML centering
+# Helper function to convert logo to base64
 @st.cache_data
 def get_base64_image(image_path):
     try:
@@ -19,28 +24,22 @@ def get_base64_image(image_path):
 
 logo_base64 = get_base64_image("KG-Logo.png")
 
-# List of curated core mechanical manufacturing wallpapers
+# List of core mechanical manufacturing wallpapers
 manufacturing_wallpapers = [
-    # CNC milling / Machining center in action
     "https://images.unsplash.com/photo-1563770660941-20978e870e26?q=80&w=1920&auto=format&fit=crop",
-    # Heavy industrial metal cutting and lathe work
     "https://images.unsplash.com/photo-1616401784845-180882ba9ba8?q=80&w=1920&auto=format&fit=crop",
-    # Industrial gears and mechanical components
     "https://images.unsplash.com/photo-1635835266854-a87d1c6bc1b8?q=80&w=1920&auto=format&fit=crop",
-    # Automated factory production / Robotic manufacturing line
     "https://images.unsplash.com/photo-1531297484001-80022131f5a1?q=80&w=1920&auto=format&fit=crop",
-    # Precision industrial manufacturing shop floor
-    "https://images.unsplash.com/photo-1581092335397-9583fe92d232?q=80&w=1920&auto=format&fit=crop"
+    "https://images.unsplash.com/photo-1581092335397-9583fe92d232?q=80&w=1920&auto=format&fit=crop",
 ]
 
-# Select a random wallpaper for this session load
 selected_wallpaper = random.choice(manufacturing_wallpapers)
 
-# --- INJECT GLASSMORPHISM CSS WITH DYNAMIC WALLPAPER ---
+# --- INJECT CSS ---
 st.markdown(
     f"""
 <style>
-    /* Full page background with dynamic mechanical wallpaper */
+    /* Full page background with dynamic mechanical wallpaper on login */
     .stApp {{
         background: linear-gradient(rgba(15, 12, 29, 0.6), rgba(15, 12, 29, 0.8)),
                     url('{selected_wallpaper}');
@@ -54,7 +53,7 @@ st.markdown(
         visibility: hidden;
     }}
 
-    /* Style Streamlit Form to look like a Frosted Glass Card */
+    /* Style Streamlit Form for Glassmorphism */
     div[data-testid="stForm"] {{
         background: rgba(255, 255, 255, 0.08) !important;
         backdrop-filter: blur(16px) saturate(180%) !important;
@@ -65,7 +64,6 @@ st.markdown(
         box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4) !important;
     }}
 
-    /* Custom Title & Subtitle Styling */
     .glass-title {{
         color: #ffffff !important;
         text-align: center;
@@ -81,7 +79,6 @@ st.markdown(
         margin-bottom: 25px;
     }}
 
-    /* Minimalist underline input fields */
     div[data-testid="stTextInput"] input {{
         background-color: transparent !important;
         border: none !important;
@@ -100,7 +97,6 @@ st.markdown(
         font-weight: 500 !important;
     }}
 
-    /* White Solid Login Button */
     div[data-testid="stFormSubmitButton"] button {{
         background-color: #ffffff !important;
         color: #111111 !important;
@@ -152,7 +148,6 @@ if "captcha_num1" not in st.session_state:
     generate_new_captcha()
 
 
-# Function to handle login
 def login():
     entered_user = st.session_state.get("username", "")
     entered_pass = st.session_state.get("password", "")
@@ -176,7 +171,6 @@ def login():
         generate_new_captcha()
 
 
-# Function to handle logout
 def logout():
     st.session_state.logged_in = False
     st.session_state.username = ""
@@ -187,39 +181,88 @@ def logout():
 
 # --- LOGIN SCREEN ---
 if not st.session_state.logged_in:
-    with st.form("login_form"):
+    col1, col2, col3 = st.columns([1, 1.2, 1])
+    with col2:
+        with st.form("login_form"):
+            if logo_base64:
+                st.markdown(
+                    f"""
+                    <div style="text-align: center; margin-bottom: 5px;">
+                        <img src="data:image/png;base64,{logo_base64}" width="90" style="display: block; margin: 0 auto;" />
+                    </div>
+                """,
+                    unsafe_allow_html=True,
+                )
+
+            st.markdown("<div class='glass-title'>KINETIC GEARS</div>", unsafe_allow_html=True)
+            st.markdown(
+                "<div class='glass-subtitle'>Please enter credentials, solve the maths and start the work</div>",
+                unsafe_allow_html=True,
+            )
+
+            st.text_input("Username", key="username", placeholder="Enter username")
+            st.text_input("Password", type="password", key="password", placeholder="Enter password")
+
+            captcha_label = f"Solve: {st.session_state.captcha_num1} {st.session_state.captcha_op} {st.session_state.captcha_num2} = ?"
+            st.text_input(captcha_label, key="captcha_input", placeholder="Enter the answer")
+
+            submitted = st.form_submit_button("Log In", use_container_width=True)
+            if submitted:
+                login()
+
+# --- DASHBOARD SCREEN (Post-Login with Collapsible Sidebar) ---
+else:
+    # --- SIDEBAR NAVIGATION ---
+    with st.sidebar:
         if logo_base64:
             st.markdown(
                 f"""
-                <div style="text-align: center; margin-bottom: 5px;">
-                    <img src="data:image/png;base64,{logo_base64}" width="90" style="display: block; margin: 0 auto;" />
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+                    <img src="data:image/png;base64,{logo_base64}" width="40" />
+                    <h3 style="margin: 0;">Kinetic Gears</h3>
                 </div>
             """,
                 unsafe_allow_html=True,
             )
 
-        st.markdown("<div class='glass-title'>KINETIC GEARS</div>", unsafe_allow_html=True)
-        st.markdown(
-            "<div class='glass-subtitle'>Please enter credentials, solve the maths and start the work</div>",
-            unsafe_allow_html=True,
+        st.markdown("**MAIN**")
+        nav_selection = st.radio(
+            "Navigation",
+            [
+                "🏠 Dashboard",
+                "🎫 Ticket List",
+                "💬 Chat",
+                "📅 Calendar",
+                "📋 Forms",
+                "📊 Tables",
+                "📈 Charts",
+                "⚙️ UI Elements",
+                "💳 Cards",
+            ],
+            label_visibility="collapsed",
         )
 
-        st.text_input("Username", key="username", placeholder="Enter username")
-        st.text_input("Password", type="password", key="password", placeholder="Enter password")
+        st.markdown("---")
+        st.markdown("**ACCOUNT**")
+        if st.button("🚪 Log Out", use_container_width=True):
+            logout()
+            st.rerun()
 
-        captcha_label = f"Solve: {st.session_state.captcha_num1} {st.session_state.captcha_op} {st.session_state.captcha_num2} = ?"
-        st.text_input(captcha_label, key="captcha_input", placeholder="Enter the answer")
+    # --- MAIN DASHBOARD CONTENT AREA ---
+    st.title(f"📊 {nav_selection}")
+    st.write("Welcome back, **admin**! You are logged into the Kinetic Gears management platform.")
 
-        submitted = st.form_submit_button("Log In", use_container_width=True)
-        if submitted:
-            login()
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        st.metric(label="New Clients", value="236", delta="+12.3%")
+    with col2:
+        st.metric(label="Earnings of Month", value="$18,306", delta="+4.2%")
+    with col3:
+        st.metric(label="New Projects", value="1538", delta="-1.5%")
+    with col4:
+        st.metric(label="Active Gear units", value="864")
 
-# --- DASHBOARD SCREEN (Post-Login) ---
-else:
-    st.markdown("<h1 style='color: white;'>📊 Kinetic Gears Dashboard</h1>", unsafe_allow_html=True)
-    st.write("You have successfully logged in as **admin**.")
-    st.info("This is where your core application features will go.")
-
-    if st.button("Log Out", type="secondary"):
-        logout()
-        st.rerun()
+    st.markdown("---")
+    st.info(
+        "You can collapse or expand this sidebar anytime using the arrow icon at the top left of the screen."
+    )
