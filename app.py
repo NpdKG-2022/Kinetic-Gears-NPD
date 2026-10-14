@@ -1,6 +1,7 @@
 import base64
 import io
 import os
+import random
 import time
 import pandas as pd
 import streamlit as st
@@ -43,63 +44,72 @@ selected_wallpaper = random.choice(manufacturing_wallpapers)
 
 # Custom CSS for clean autofit table display and card button styling
 st.markdown(
-    """
+    f"""
     <style>
+        /* Full page background with dynamic mechanical wallpaper */
+        .stApp {{
+            background: linear-gradient(rgba(15, 12, 29, 0.65), rgba(15, 12, 29, 0.85)),
+                        url('{selected_wallpaper}');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }}
+
         /* Make dataframes take full width and wrap cleanly */
-        [data-testid="stDataFrame"] {
+        [data-testid="stDataFrame"] {{
             width: 100% !important;
-        }
-        [data-testid="stDataFrame"] > div {
+        }}
+        [data-testid="stDataFrame"] > div {{
             width: 100% !important;
-        }
+        }}
         
         /* Transform Streamlit buttons into gorgeous interactive navigation cards */
-        div[data-testid="column"] button {
+        div[data-testid="column"] button {{
             border-radius: 24px !important;
             padding: 20px 10px !important;
             height: 120px !important;
             width: 100% !important;
             font-weight: 600 !important;
             font-size: 14px !important;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03) !important;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important;
             transition: all 0.3s ease !important;
             display: flex !important;
             flex-direction: column !important;
             align-items: center !important;
             justify-content: center !important;
             white-space: pre-wrap !important;
-        }
-        div[data-testid="column"] button:hover {
+        }}
+        div[data-testid="column"] button:hover {{
             transform: translateY(-5px) !important;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.08) !important;
-        }
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3) !important;
+        }}
 
         /* Individual Card Colors & Borders based on Column Position */
-        div[data-testid="column"]:nth-child(1) button {
+        div[data-testid="column"]:nth-child(1) button {{
             background-color: #ffebee !important;
             color: #c2185b !important;
             border: 2px solid #c2185b !important;
-        }
-        div[data-testid="column"]:nth-child(2) button {
+        }}
+        div[data-testid="column"]:nth-child(2) button {{
             background-color: #e0f7fa !important;
             color: #00838f !important;
             border: 2px solid #00838f !important;
-        }
-        div[data-testid="column"]:nth-child(3) button {
+        }}
+        div[data-testid="column"]:nth-child(3) button {{
             background-color: #f3e5f5 !important;
             color: #7b1fa2 !important;
             border: 2px solid #7b1fa2 !important;
-        }
-        div[data-testid="column"]:nth-child(4) button {
+        }}
+        div[data-testid="column"]:nth-child(4) button {{
             background-color: #e8f5e9 !important;
             color: #2e7d32 !important;
             border: 2px solid #2e7d32 !important;
-        }
-        div[data-testid="column"]:nth-child(5) button {
+        }}
+        div[data-testid="column"]:nth-child(5) button {{
             background-color: #fff3e0 !important;
             color: #ef6c00 !important;
             border: 2px solid #ef6c00 !important;
-        }
+        }}
     </style>
 """,
     unsafe_allow_html=True,
@@ -152,11 +162,11 @@ def login_screen():
 
     with col2:
         st.markdown(
-            "<h2 style='text-align: center;'>🏭 CENTURY DESIGNS Login</h2>",
+            "<h2 style='text-align: center; color: white;'>🏭 CENTURY DESIGNS Login</h2>",
             unsafe_allow_html=True,
         )
         st.markdown(
-            "<p style='text-align: center; color: gray;'>Please log in to access"
+            "<p style='text-align: center; color: rgba(255,255,255,0.7);'>Please log in to access"
             " the tracking system.</p>",
             unsafe_allow_html=True,
         )
@@ -210,7 +220,7 @@ if not st.session_state["logged_in"]:
 st.markdown(
     """
     <div style="text-align: center; margin-bottom: 0px;">
-        <h1 style="font-size: 50px; margin-bottom: 0px;">🏭 CENTURY DESIGNS Tracking System</h1>
+        <h1 style="font-size: 50px; margin-bottom: 0px; color: white;">🏭 CENTURY DESIGNS Tracking System</h1>
     </div>
     """,
     unsafe_allow_html=True,
@@ -222,8 +232,8 @@ top_c1, top_c2, top_c3, top_c4 = st.columns([1.2, 2.3, 1.1, 0.9])
 
 with top_c1:
     st.markdown(
-        f"👤 **{st.session_state['username']}**<br>Role:"
-        f" **{st.session_state['role']}**",
+        f"<div style='color: white;'>👤 <b>{st.session_state['username']}</b><br>Role:"
+        f" <b>{st.session_state['role']}</b></div>",
         unsafe_allow_html=True,
     )
 
@@ -293,7 +303,7 @@ with top_c3:
     elapsed = time.time() - st.session_state.get("login_time", time.time())
     remaining_secs = max(0, int(SESSION_TIMEOUT - elapsed))
     mins, secs = divmod(remaining_secs, 60)
-    st.markdown(f"⏳ Expires:<br>**{mins:02d}:{secs:02d}**", unsafe_allow_html=True)
+    st.markdown(f"<div style='color: white;'>⏳ Expires:<br><b>{mins:02d}:{secs:02d}</b></div>", unsafe_allow_html=True)
 
 with top_c4:
     st.markdown("<br>", unsafe_allow_html=True)
@@ -399,7 +409,7 @@ else:
     )
 
     # ================= CARD GRID NAVIGATION MENU =================
-    st.markdown("### 📌 Navigation Menu")
+    st.markdown("<h3 style='color: white;'>📌 Navigation Menu</h3>", unsafe_allow_html=True)
 
     tabs_config = [
         {"title": "Dashboard & Tracking", "icon": "📊", "bg": "#ffebee", "color": "#c2185b"},
@@ -422,9 +432,10 @@ else:
 
     # ================= TAB 1: DASHBOARD =================
     if selected_tab == "📊 Dashboard & Tracking":
-        st.subheader("📊 Live Tracking Summary")
+        st.markdown("<h3 style='color: white;'>📊 Live Tracking Summary</h3>", unsafe_allow_html=True)
         st.markdown(
-            "*(Note: Monthly columns are color-coded: 🟩 Green = Complete, 🟨 Yellow = Partial)*"
+            "<span style='color: rgba(255,255,255,0.7);'>(Note: Monthly columns are color-coded: 🟩 Green = Complete, 🟨 Yellow = Partial)</span>",
+            unsafe_allow_html=True
         )
 
         f_col1, f_col2, f_col3 = st.columns(3)
@@ -497,7 +508,7 @@ else:
         st.dataframe(styled_df, use_container_width=True, hide_index=True)
 
         # ================= EXPORT OPTIONS =================
-        st.markdown("### 📥 Export Tracking Data")
+        st.markdown("<h3 style='color: white;'>📥 Export Tracking Data</h3>", unsafe_allow_html=True)
         e_col1, e_col2 = st.columns([1, 2])
 
         with e_col1:
@@ -617,7 +628,7 @@ else:
 
     # ================= TAB 2: VIEW DRAWING =================
     elif selected_tab == "🔍 View Drawing (In-Browser)":
-        st.subheader("🔍 In-Browser Engineering Drawing Viewer")
+        st.markdown("<h3 style='color: white;'>🔍 In-Browser Engineering Drawing Viewer</h3>", unsafe_allow_html=True)
         v_col1, v_col2 = st.columns(2)
 
         all_codes = sorted(df_tracker["CODE NO."].astype(str).unique().tolist())
@@ -680,7 +691,7 @@ else:
 
     # ================= TAB 3: ENTER DISPATCHES =================
     elif selected_tab == "📝 Enter Dispatches":
-        st.subheader("📝 Record Monthly Dispatch")
+        st.markdown("<h3 style='color: white;'>📝 Record Monthly Dispatch</h3>", unsafe_allow_html=True)
 
         if "d_qty" not in st.session_state:
             st.session_state["d_qty"] = 0
@@ -734,7 +745,7 @@ else:
                 st.rerun()
 
         st.markdown("---")
-        st.subheader("📋 Raw Dispatch Entry History")
+        st.markdown("<h3 style='color: white;'>📋 Raw Dispatch Entry History</h3>", unsafe_allow_html=True)
         if not log_df.empty:
             st.dataframe(log_df, use_container_width=True, hide_index=True)
             if st.session_state["role"] == "Admin":
@@ -748,7 +759,7 @@ else:
 
     # ================= TAB 4: MANAGE DRAWINGS =================
     elif selected_tab == "📐 Manage Drawings":
-        st.subheader("📐 Attach or Update Drawings for Code Numbers")
+        st.markdown("<h3 style='color: white;'>📐 Attach or Update Drawings for Code Numbers</h3>", unsafe_allow_html=True)
         all_unique_codes = sorted(
             df_tracker["CODE NO."].astype(str).unique().tolist()
         )
@@ -804,7 +815,7 @@ else:
 
     # ================= TAB 5: ADD NEW ITEM SCHEDULE =================
     elif selected_tab == "➕ Add New Item Schedule":
-        st.subheader("➕ Add New Item & Plant Requirement Schedule")
+        st.markdown("<h3 style='color: white;'>➕ Add New Item & Plant Requirement Schedule</h3>", unsafe_allow_html=True)
         with st.form("new_item_form"):
             c1, c2, c3 = st.columns(3)
             with c1:
