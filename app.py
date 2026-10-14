@@ -302,7 +302,7 @@ sidebar_html = f"""
     padding-bottom: 20px;
     border-bottom: 1px solid #30363d;
     white-space: nowrap;
-  }
+  }}
 
   .brand-logo {{
     min-width: 44px;
@@ -316,7 +316,7 @@ sidebar_html = f"""
     font-weight: 800;
     font-size: 1.1rem;
     box-shadow: 0 4px 12px rgba(248, 81, 73,.4);
-  }
+  }}
 
   .brand-text {{
     opacity: 0;
@@ -331,19 +331,19 @@ sidebar_html = f"""
     color: #e6edf3;
     font-weight: 700;
     font-size: 0.95rem;
-  }
+  }}
 
   .brand-subtitle {{
     color: #8b949e;
     font-size: 0.75rem;
-  }
+  }}
 
   .nav-menu {{
     display: flex;
     flex-direction: column;
     gap: 8px;
     margin-top: 15px;
-  }
+  }}
 
   .nav-item {{
     display: flex;
@@ -357,7 +357,7 @@ sidebar_html = f"""
     font-size: 0.88rem;
     white-space: nowrap;
     transition: background 0.2s, color 0.2s;
-  }
+  }}
 
   .nav-item:hover {{
     background: rgba(48, 54, 61, 0.5);
@@ -368,13 +368,13 @@ sidebar_html = f"""
     background: #21262d;
     color: #58a6ff;
     border-left: 3px solid #58a6ff;
-  }
+  }}
 
   .nav-item .icon {{
     font-size: 1.2rem;
     min-width: 24px;
     text-align: center;
-  }
+  }}
 
   .nav-item .label {{
     opacity: 0;
@@ -394,7 +394,7 @@ sidebar_html = f"""
     border-radius: 10px;
     border: 1px solid #30363d;
     white-space: nowrap;
-  }
+  }}
 
   .status-dot {{
     width: 10px;
