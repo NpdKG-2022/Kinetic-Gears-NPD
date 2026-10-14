@@ -376,12 +376,60 @@ with top_c2:
         """,
         height=55,
     )
-
 with top_c3:
-    elapsed = time.time() - st.session_state.get("login_time", time.time())
-    remaining_secs = max(0, int(SESSION_TIMEOUT - elapsed))
-    mins, secs = divmod(remaining_secs, 60)
-    st.markdown(f"<div style='color: white;'>⏳ Expires:<br><b>{mins:02d}:{secs:02d}</b></div>", unsafe_allow_html=True)
+    login_time = st.session_state.get("login_time", time.time())
+    st.components.v1.html(
+        f"""
+        <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+        <style>
+            body {{
+                margin: 0;
+                background-color: transparent;
+            }}
+            .expire-card {{
+                font-family: 'Orbitron', sans-serif;
+                color: #ffffff;
+                font-size: 12px;
+            }}
+            .expire-timer {{
+                font-size: 14px;
+                font-weight: 700;
+                color: #ff4081;
+                letter-spacing: 1px;
+            }}
+        </style>
+        <div class="expire-card">
+            ⏳ Expires:<br>
+            <div id="countdown-timer" class="expire-timer">00:00</div>
+        </div>
+        <script>
+            const loginTime = {login_time} * 1000;
+            const timeoutDuration = {SESSION_TIMEOUT} * 1000;
+
+            function updateExpiryCountdown() {{
+                const now = new Date().getTime();
+                const elapsed = now - loginTime;
+                const remaining = timeoutDuration - elapsed;
+
+                if (remaining <= 0) {{
+                    document.getElementById('countdown-timer').innerText = "00:00";
+                    window.location.reload();
+                    return;
+                }}
+
+                const totalSecs = Math.floor(remaining / 1000);
+                const mins = String(Math.floor(totalSecs / 60)).padStart(2, '0');
+                const secs = String(totalSecs % 60).padStart(2, '0');
+
+                document.getElementById('countdown-timer').innerText = `${mins}:${secs}`;
+            }
+
+            setInterval(updateExpiryCountdown, 1000);
+            updateExpiryCountdown();
+        </script>
+        """,
+        height=50,
+    )
 
 with top_c4:
     st.markdown("<br>", unsafe_allow_html=True)
