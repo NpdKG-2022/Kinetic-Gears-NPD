@@ -75,12 +75,14 @@ def logout():
 
 # --- LOGIN SCREEN ---
 if not st.session_state.logged_in:
-    # Display logo centered above login form
+    # Display logo centered above login form with a balanced width
     col1, col2, col3 = st.columns([1, 1, 1])
     with col2:
-        st.image("KG-Logo.png", use_container_width=True)
+        st.image("KG-Logo.png", width=120)
 
-    st.markdown("<h2 style='text-align: center;'>Kinetic Gears</h2>", unsafe_allow_html=True)
+    st.markdown(
+        "<h2 style='text-align: center;'>KINETIC GEARS</h2>", unsafe_allow_html=True
+    )
     st.markdown(
         "<p style='text-align: center; color: gray;'>Please enter credentials, solve the maths and start the work</p>",
         unsafe_allow_html=True,
