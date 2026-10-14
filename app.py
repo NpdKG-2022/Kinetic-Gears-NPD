@@ -88,16 +88,6 @@ st.markdown(
 """,
     unsafe_allow_html=True,
 )
-# List of core mechanical manufacturing wallpapers
-manufacturing_wallpapers = [
-    "https://images.unsplash.com/photo-1563770660941-20978e870e26?q=80&w=1920&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1616401784845-180882ba9ba8?q=80&w=1920&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1635835266854-a87d1c6bc1b8?q=80&w=1920&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1531297484001-80022131f5a1?q=80&w=1920&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1581092335397-9583fe92d232?q=80&w=1920&auto=format&fit=crop",
-]
-
-selected_wallpaper = random.choice(manufacturing_wallpapers)
 
 # --- INJECT CSS FOR TOP BAR & HORIZONTAL NAVIGATION ---
 st.markdown(
