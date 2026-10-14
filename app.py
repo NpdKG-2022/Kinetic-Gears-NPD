@@ -291,13 +291,14 @@ st.markdown(
 )
 st.markdown("---")
 
-# ================= TOP HEADER BAR =================
-top_c1, top_c2, top_c3, top_c4 = st.columns([1.2, 2.3, 1.1, 0.9])
+# ================= TOP HEADER BAR (COMPACT MINIMAL HEIGHT) =================
+top_c1, top_c2, top_c3, top_c4 = st.columns([1.5, 2.2, 1, 0.8])
 
 with top_c1:
     st.markdown(
-        f"<div style='color: white;'>👤 <b>{st.session_state['username']}</b><br>Role:"
-        f" <b>{st.session_state['role']}</b></div>",
+        f"<div style='color: white; font-size: 13px; line-height: 1.2; padding-top: 5px;'>"
+        f"👤 <b>{st.session_state['username']}</b> | Role: <b>{st.session_state['role']}</b>"
+        f"</div>",
         unsafe_allow_html=True,
     )
 
@@ -306,38 +307,30 @@ with top_c2:
         """
         <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
         <style>
-            body {
-                margin: 0;
-                background-color: transparent;
-            }
+            body { margin: 0; background-color: transparent; display: flex; justify-content: center; }
             .clock-card {
                 background: linear-gradient(135deg, #e91e63, #c2185b);
-                border-radius: 14px;
-                padding: 6px 14px;
+                border-radius: 10px;
+                padding: 2px 10px;
                 text-align: center;
-                box-shadow: 0 4px 15px rgba(233, 30, 99, 0.3);
+                box-shadow: 0 2px 10px rgba(233, 30, 99, 0.3);
                 font-family: 'Orbitron', sans-serif;
                 display: inline-block;
-                box-sizing: border-box;
             }
             .time-display {
-                font-size: 18px;
+                font-size: 14px;
                 font-weight: 700;
                 color: #ffffff;
-                letter-spacing: 2px;
-                text-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
+                letter-spacing: 1px;
             }
             .date-display {
-                font-size: 10px;
-                font-weight: 500;
+                font-size: 9px;
                 color: #fce4ec;
-                margin-top: 2px;
-                letter-spacing: 1px;
             }
         </style>
         <div class="clock-card">
             <div id="futuristic-time" class="time-display">00:00:00 AM</div>
-            <div id="futuristic-date" class="date-display">Loading date...</div>
+            <div id="futuristic-date" class="date-display">Loading...</div>
         </div>
         <script>
             function updateFuturisticClock() {
@@ -346,35 +339,35 @@ with top_c2:
                 const minutes = String(now.getMinutes()).padStart(2, '0');
                 const seconds = String(now.getSeconds()).padStart(2, '0');
                 const ampm = hours >= 12 ? 'PM' : 'AM';
-                
-                hours = hours % 12;
-                hours = hours ? hours : 12; 
-                const formattedHours = String(hours).padStart(2, '0');
-                
-                document.getElementById('futuristic-time').innerText = `${formattedHours}:${minutes}:${seconds} ${ampm}`;
-                
-                const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
-                document.getElementById('futuristic-date').innerText = now.toLocaleDateString('en-US', options);
+                hours = hours % 12 || 12;
+                document.getElementById('futuristic-time').innerText = `${String(hours).padStart(2, '0')}:${minutes}:${seconds} ${ampm}`;
+                document.getElementById('futuristic-date').innerText = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
             }
             setInterval(updateFuturisticClock, 1000);
             updateFuturisticClock();
         </script>
         """,
-        height=55,
+        height=38,
     )
 
 with top_c3:
     elapsed = time.time() - st.session_state.get("login_time", time.time())
     remaining_secs = max(0, int(SESSION_TIMEOUT - elapsed))
     mins, secs = divmod(remaining_secs, 60)
-    st.markdown(f"<div style='color: white;'>⏳ Expires:<br><b>{mins:02d}:{secs:02d}</b></div>", unsafe_allow_html=True)
+    st.markdown(
+        f"<div style='color: white; font-size: 12px; text-align: right; padding-top: 5px;'>"
+        f"⏳ <b>{mins:02d}:{secs:02d}</b> left"
+        f"</div>",
+        unsafe_allow_html=True,
+    )
 
 with top_c4:
-    st.markdown("<br>", unsafe_allow_html=True)
-    if st.button("🚪 Logout", use_container_width=True):
+    if st.button("Logout", use_container_width=True, key="compact_logout"):
         st.session_state["logged_in"] = False
         st.session_state["username"] = ""
         st.session_state["role"] = ""
         st.session_state["login_time"] = 0.0
         st.query_params.clear()
         st.rerun()
+
+st.markdown("<hr style='border-color: rgba(255,255,255,0.15); margin: 8px 0;'>", unsafe_allow_html=True)
