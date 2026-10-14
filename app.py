@@ -170,7 +170,7 @@ components.html(compact_clock_html, height=38, scrolling=False)
 # ----------------------------------------------------
 # STYLING & NAVIGATION (Post-Login)
 # ----------------------------------------------------
-st.sidebar.image("https://img.icons8.com/external-flat-design-circle/64/external-Gear-industrial-technology-flat-design-circle.png", width=50)
+st.sidebar.image("https://github.com/NpdKG-2022/Kinetic-Gears-NPD/blob/main/KG-Logo.png", width=50)
 st.sidebar.markdown("### KINETIC GEARS")
 st.sidebar.markdown("**New Product Development (N.P.D.)**")
 st.sidebar.markdown("---")
