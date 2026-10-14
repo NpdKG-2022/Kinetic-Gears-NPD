@@ -421,8 +421,8 @@ with top_c3:
                 const mins = String(Math.floor(totalSecs / 60)).padStart(2, '0');
                 const secs = String(totalSecs % 60).padStart(2, '0');
 
-                document.getElementById('countdown-timer').innerText = `${mins}:${secs}`;
-            }
+                document.getElementById('countdown-timer').innerText = `${{mins}}:${{secs}}`;
+            }}
 
             setInterval(updateExpiryCountdown, 1000);
             updateExpiryCountdown();
@@ -430,7 +430,7 @@ with top_c3:
         """,
         height=50,
     )
-
+    
 with top_c4:
     st.markdown("<br>", unsafe_allow_html=True)
     st.components.v1.html(
