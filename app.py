@@ -10,8 +10,7 @@ import streamlit as st
 st.set_page_config(
     page_title="Kinetic Gears",
     page_icon="KG-Logo.png",
-    layout="wide",
-    initial_sidebar_state="expanded"
+    layout="wide"
 )
 
 # Helper function to convert logo to base64
@@ -38,7 +37,7 @@ manufacturing_wallpapers = [
 # Select a random wallpaper for this session load
 selected_wallpaper = random.choice(manufacturing_wallpapers)
 
-# Custom CSS for Glassmorphism login, navigation cards, and hover effects
+# Custom CSS for Glassmorphism login, navigation cards, and expanding logout icon
 st.markdown(
     f"""
     <style>
@@ -151,17 +150,6 @@ st.markdown(
             background-color: #fff3e0 !important;
             color: #ef6c00 !important;
             border: 2px solid #ef6c00 !important;
-        }}
-
-        /* Hide logout button in top header bar column 4 by default, reveal on hover */
-        div.stHorizontalBlock > div:nth-child(4) button {{
-            opacity: 0 !important;
-            visibility: hidden !important;
-            transition: opacity 0.3s ease, visibility 0.3s ease !important;
-        }}
-        div.stHorizontalBlock > div:nth-child(4):hover button {{
-            opacity: 1 !important;
-            visibility: visible !important;
         }}
     </style>
 """,
@@ -308,6 +296,15 @@ with st.sidebar:
     st.markdown("---")
     st.markdown("<p style='font-size: 12px; color: rgba(255,255,255,0.7); text-align: center;'>System operational & secure.</p>", unsafe_allow_html=True)
 
+# Handle logout action query param or button click
+if st.query_params.get("do_logout") == "true":
+    st.session_state["logged_in"] = False
+    st.session_state["username"] = ""
+    st.session_state["role"] = ""
+    st.session_state["login_time"] = 0.0
+    st.query_params.clear()
+    st.rerun()
+
 # ================= TOP HEADER BAR =================
 top_c1, top_c2, top_c3, top_c4 = st.columns([1.2, 2.3, 1.1, 0.9])
 
@@ -388,12 +385,77 @@ with top_c3:
 
 with top_c4:
     st.markdown("<br>", unsafe_allow_html=True)
-    if st.button("🚪 Logout", use_container_width=True):
-        st.session_state["logged_in"] = False
-        st.session_state["username"] = ""
-        st.session_state["role"] = ""
-        st.session_state["login_time"] = 0.0
-        st.query_params.clear()
-        st.rerun()
+    st.components.v1.html(
+        """
+        <style>
+            body { margin: 0; background: transparent; display: flex; justify-content: flex-end; }
+            .logout-container {
+                display: flex;
+                align-items: center;
+                justify-content: flex-end;
+            }
+            .logout-btn {
+                display: flex;
+                align-items: center;
+                background-color: #f44336;
+                color: white;
+                text-decoration: none;
+                border-radius: 30px;
+                width: 42px;
+                height: 42px;
+                overflow: hidden;
+                box-shadow: 0 4px 15px rgba(244, 67, 54, 0.4);
+                transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease;
+                cursor: pointer;
+                white-space: nowrap;
+            }
+            .logout-btn:hover {
+                width: 135px;
+                background-color: #d32f2f;
+            }
+            .logout-icon {
+                min-width: 42px;
+                height: 42px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .logout-icon svg {
+                width: 22px;
+                height: 22px;
+                fill: none;
+                stroke: white;
+                stroke-width: 2.5;
+                stroke-linecap: round;
+                stroke-linejoin: round;
+            }
+            .logout-text {
+                font-family: sans-serif;
+                font-weight: 600;
+                font-size: 14px;
+                padding-left: 2px;
+                padding-right: 15px;
+                opacity: 0;
+                transition: opacity 0.3s ease 0.1s;
+            }
+            .logout-btn:hover .logout-text {
+                opacity: 1;
+            }
+        </style>
+        <div class="logout-container">
+            <a href="?do_logout=true" target="_self" class="logout-btn" title="Logout">
+                <div class="logout-icon">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                </div>
+                <div class="logout-text">Logout</div>
+            </a>
+        </div>
+        """,
+        height=50,
+    )
 
 st.markdown("---")
