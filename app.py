@@ -283,4 +283,4 @@ else:
         st.metric(label="Active Gear units", value="864")
 
     st.markdown("---")
-    )
+
