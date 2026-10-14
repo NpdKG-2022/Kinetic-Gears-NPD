@@ -2,12 +2,12 @@ import base64
 import random
 import streamlit as st
 
-# Set page configuration with collapsible sidebar support
+# Set page configuration with professional layout
 st.set_page_config(
     page_title="Kinetic Gears",
     page_icon="KG-Logo.png",
     layout="wide",
-    initial_sidebar_state="collapsed",
+    initial_sidebar_state="expanded"
 )
 
 
@@ -35,62 +35,21 @@ manufacturing_wallpapers = [
 
 selected_wallpaper = random.choice(manufacturing_wallpapers)
 
-# --- INJECT CSS WITH HOVER SIDEBAR FIX ---
+# --- PROFESSIONAL STYLING ---
 st.markdown(
     f"""
 <style>
     /* Full page background with dynamic mechanical wallpaper on login */
     .stApp {{
-        background: linear-gradient(rgba(15, 12, 29, 0.6), rgba(15, 12, 29, 0.8)),
+        background: linear-gradient(rgba(15, 12, 29, 0.65), rgba(15, 12, 29, 0.85)),
                     url('{selected_wallpaper}');
         background-size: cover;
         background-position: center;
         background-attachment: fixed;
     }}
 
-    /* Hide standard header & footer decoration */
-    header, footer {{
-        visibility: hidden;
-    }}
-
-    /* --- ROBUST HOVER-TO-EXPAND SIDEBAR --- */
-    /* Thin active trigger strip on the left edge when collapsed */
-    section[data-testid="stSidebar"][aria-expanded="false"] {{
-        width: 60px !important;
-        min-width: 60px !important;
-        transform: translateX(0px) !important;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-        background-color: rgba(15, 12, 29, 0.9) !important;
-        visibility: visible !important;
-        display: block !important;
-        z-index: 999999 !important;
-    }}
-
-    /* Hide text/contents gracefully while collapsed so it looks like a clean icon bar */
-    section[data-testid="stSidebar"][aria-expanded="false"] *:not(img) {{
-        opacity: 0;
-        transition: opacity 0.2s ease;
-    }}
-
-    /* Expand smoothly to full width when hovered */
-    section[data-testid="stSidebar"][aria-expanded="false"]:hover {{
-        width: 280px !important;
-        min-width: 280px !important;
-    }}
-
-    /* Bring back contents smoothly on hover */
-    section[data-testid="stSidebar"][aria-expanded="false"]:hover * {{
-        opacity: 1 !important;
-    }}
-
-    /* Normal expanded state */
-    section[data-testid="stSidebar"][aria-expanded="true"] {{
-        width: 280px !important;
-        min-width: 280px !important;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-        background-color: rgba(15, 12, 29, 0.95) !important;
-        z-index: 999999 !important;
-    }}
+    /* Hide unnecessary deployment elements while keeping the navigation toggle accessible */
+    .stDeployButton {{display: none !important;}}
 
     /* Style Streamlit Form for Glassmorphism */
     div[data-testid="stForm"] {{
@@ -250,22 +209,22 @@ if not st.session_state.logged_in:
             if submitted:
                 login()
 
-# --- DASHBOARD SCREEN (Post-Login with Hover Sidebar) ---
+# --- DASHBOARD SCREEN (Post-Login with Professional Collapsible Sidebar) ---
 else:
     # --- SIDEBAR NAVIGATION ---
     with st.sidebar:
         if logo_base64:
             st.markdown(
                 f"""
-                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px; overflow: hidden;">
-                    <img src="data:image/png;base64,{logo_base64}" width="35" style="flex-shrink: 0;" />
-                    <h3 style="margin: 0; white-space: nowrap;">Kinetic Gears</h3>
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+                    <img src="data:image/png;base64,{logo_base64}" width="36" />
+                    <h3 style="margin: 0;">Kinetic Gears</h3>
                 </div>
             """,
                 unsafe_allow_html=True,
             )
 
-        st.markdown("**MAIN**")
+        st.markdown("**MAIN MENU**")
         nav_selection = st.radio(
             "Navigation",
             [
@@ -283,7 +242,7 @@ else:
         )
 
         st.markdown("---")
-        st.markdown("**ACCOUNT**")
+        st.markdown("**SESSION**")
         if st.button("🚪 Log Out", use_container_width=True):
             logout()
             st.rerun()
@@ -304,5 +263,5 @@ else:
 
     st.markdown("---")
     st.info(
-        "Move your mouse to the far-left edge of the screen to reveal the navigation menu instantly!"
+        "💡 **Tip:** Use the collapse button (`<` or `>`) in the top-left corner anytime to cleanly hide or reveal the sidebar navigation."
     )
