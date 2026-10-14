@@ -11,14 +11,14 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 # ----------------------------------------------------
-# HOVER-COLLAPSIBLE SIDEBAR CSS (CLEAN HIDE & SLIDE)
+# HOVER-COLLAPSIBLE SIDEBAR WITH ICON-ONLY COLLAPSE
 # ----------------------------------------------------
 st.markdown("""
 <style>
   /* Default collapsed sidebar state */
   [data-testid="stSidebar"] {
-    width: 70px !important;
-    min-width: 70px !important;
+    width: 75px !important;
+    min-width: 75px !important;
     transition: width 0.3s ease-in-out !important;
     overflow-x: hidden !important;
   }
@@ -29,21 +29,32 @@ st.markdown("""
     min-width: 280px !important;
   }
 
-  /* Completely hide sidebar text and elements when collapsed */
-  [data-testid="stSidebar"] *:not(img) {
+  /* Fade out all text labels and descriptions by default */
+  [data-testid="stSidebar"] .stRadio label p,
+  [data-testid="stSidebar"] h3,
+  [data-testid="stSidebar"] p,
+  [data-testid="stSidebar"] .stInfo {
     opacity: 0;
     transition: opacity 0.2s ease-in-out;
     white-space: nowrap;
   }
 
-  /* Reveal all elements smoothly when hovering over the sidebar */
-  [data-testid="stSidebar"]:hover *:not(img) {
+  /* Reveal text labels and descriptions smoothly on sidebar hover */
+  [data-testid="stSidebar"]:hover .stRadio label p,
+  [data-testid="stSidebar"]:hover h3,
+  [data-testid="stSidebar"]:hover p,
+  [data-testid="stSidebar"]:hover .stInfo {
     opacity: 1;
   }
 
-  /* Always keep the sidebar logo visible */
+  /* Keep logo visible */
   [data-testid="stSidebar"] img {
     opacity: 1 !important;
+  }
+
+  /* Replace radio text with custom icon representations when collapsed */
+  [data-testid="stSidebar"] .stRadio div[role="radiogroup"] label div:nth-child(2) {
+    transition: all 0.2s ease;
   }
 </style>
 """, unsafe_allow_html=True)
