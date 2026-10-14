@@ -10,7 +10,8 @@ import streamlit as st
 st.set_page_config(
     page_title="Kinetic Gears",
     page_icon="KG-Logo.png",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
 
 # Helper function to convert logo to base64
@@ -152,15 +153,15 @@ st.markdown(
             border: 2px solid #ef6c00 !important;
         }}
 
-        /* Logout button hover reveal effect */
-        .logout-hover-area button {{
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
+        /* Hide logout button in top header bar column 4 by default, reveal on hover */
+        div.stHorizontalBlock > div:nth-child(4) button {{
+            opacity: 0 !important;
+            visibility: hidden !important;
+            transition: opacity 0.3s ease, visibility 0.3s ease !important;
         }}
-        .logout-hover-area:hover button {{
-            opacity: 1;
-            visibility: visible;
+        div.stHorizontalBlock > div:nth-child(4):hover button {{
+            opacity: 1 !important;
+            visibility: visible !important;
         }}
     </style>
 """,
@@ -291,6 +292,22 @@ if not st.session_state["logged_in"]:
     login_screen()
     st.stop()
 
+# ================= PROFESSIONAL SIDEBAR WITH LOGO =================
+with st.sidebar:
+    if logo_base64:
+        st.markdown(
+            f"""
+            <div style="text-align: center; padding: 10px 0 20px 0;">
+                <img src="data:image/png;base64,{logo_base64}" width="65" style="display: block; margin: 0 auto 10px auto;" />
+                <h3 style="margin: 0; font-size: 18px; color: #ffffff; letter-spacing: 1px;">KINETIC GEARS</h3>
+                <p style="margin: 2px 0 0 0; font-size: 11px; color: rgba(255,255,255,0.6);">Management System</p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+    st.markdown("---")
+    st.markdown("<p style='font-size: 12px; color: rgba(255,255,255,0.7); text-align: center;'>System operational & secure.</p>", unsafe_allow_html=True)
+
 # ================= TOP HEADER BAR =================
 top_c1, top_c2, top_c3, top_c4 = st.columns([1.2, 2.3, 1.1, 0.9])
 
@@ -371,7 +388,6 @@ with top_c3:
 
 with top_c4:
     st.markdown("<br>", unsafe_allow_html=True)
-    st.markdown('<div class="logout-hover-area">', unsafe_allow_html=True)
     if st.button("🚪 Logout", use_container_width=True):
         st.session_state["logged_in"] = False
         st.session_state["username"] = ""
@@ -379,6 +395,5 @@ with top_c4:
         st.session_state["login_time"] = 0.0
         st.query_params.clear()
         st.rerun()
-    st.markdown('</div>', unsafe_allow_html=True)
 
 st.markdown("---")
