@@ -11,7 +11,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 # ----------------------------------------------------
-# HOVER-COLLAPSIBLE SIDEBAR CSS
+# HOVER-COLLAPSIBLE SIDEBAR CSS (CLEAN HIDE & SLIDE)
 # ----------------------------------------------------
 st.markdown("""
 <style>
@@ -29,9 +29,21 @@ st.markdown("""
     min-width: 280px !important;
   }
 
-  /* Hide long text labels when collapsed, fade them in on hover */
-  [data-testid="stSidebar"] .sidebar-content {
+  /* Completely hide sidebar text and elements when collapsed */
+  [data-testid="stSidebar"] *:not(img) {
+    opacity: 0;
     transition: opacity 0.2s ease-in-out;
+    white-space: nowrap;
+  }
+
+  /* Reveal all elements smoothly when hovering over the sidebar */
+  [data-testid="stSidebar"]:hover *:not(img) {
+    opacity: 1;
+  }
+
+  /* Always keep the sidebar logo visible */
+  [data-testid="stSidebar"] img {
+    opacity: 1 !important;
   }
 </style>
 """, unsafe_allow_html=True)
