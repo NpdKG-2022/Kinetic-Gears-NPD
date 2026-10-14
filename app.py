@@ -8,7 +8,7 @@ import streamlit as st
 
 # Page Configuration
 st.set_page_config(
-    page_title="Kinetic Gears",
+    page_title="Kinetic Gears - Drawing Viewer",
     page_icon="KG-Logo.png",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -37,7 +37,7 @@ manufacturing_wallpapers = [
 
 selected_wallpaper = random.choice(manufacturing_wallpapers)
 
-# Custom CSS for Glassmorphism login, navigation cards, and layouts
+# Custom CSS for Glassmorphism login, layouts, and containers
 st.markdown(
     f"""
     <style>
@@ -103,54 +103,6 @@ st.markdown(
         [data-testid="stDataFrame"] > div {{
             width: 100% !important;
         }}
-        
-        /* Transform dashboard buttons into interactive navigation cards */
-        div[data-testid="column"] button {{
-            border-radius: 24px !important;
-            padding: 20px 10px !important;
-            height: 120px !important;
-            width: 100% !important;
-            font-weight: 600 !important;
-            font-size: 14px !important;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important;
-            transition: all 0.3s ease !important;
-            display: flex !important;
-            flex-direction: column !important;
-            align-items: center !important;
-            justify-content: center !important;
-            white-space: pre-wrap !important;
-        }}
-        div[data-testid="column"] button:hover {{
-            transform: translateY(-5px) !important;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.3) !important;
-        }}
-
-        /* Individual Card Colors & Borders based on Column Position */
-        div[data-testid="column"]:nth-child(1) button {{
-            background-color: #ffebee !important;
-            color: #c2185b !important;
-            border: 2px solid #c2185b !important;
-        }}
-        div[data-testid="column"]:nth-child(2) button {{
-            background-color: #e0f7fa !important;
-            color: #00838f !important;
-            border: 2px solid #00838f !important;
-        }}
-        div[data-testid="column"]:nth-child(3) button {{
-            background-color: #f3e5f5 !important;
-            color: #7b1fa2 !important;
-            border: 2px solid #7b1fa2 !important;
-        }}
-        div[data-testid="column"]:nth-child(4) button {{
-            background-color: #e8f5e9 !important;
-            color: #2e7d32 !important;
-            border: 2px solid #2e7d32 !important;
-        }}
-        div[data-testid="column"]:nth-child(5) button {{
-            background-color: #fff3e0 !important;
-            color: #ef6c00 !important;
-            border: 2px solid #ef6c00 !important;
-        }}
     </style>
 """,
     unsafe_allow_html=True,
@@ -188,9 +140,6 @@ if "logged_in" not in st.session_state:
         st.session_state["username"] = ""
         st.session_state["role"] = ""
         st.session_state["login_time"] = 0.0
-
-if "selected_tab" not in st.session_state:
-    st.session_state["selected_tab"] = "📊 Dashboard & Tracking"
 
 
 def login_screen():
@@ -271,7 +220,7 @@ with st.sidebar:
             <div style="text-align: center; padding: 10px 0 20px 0;">
                 <img src="data:image/png;base64,{logo_base64}" width="65" style="display: block; margin: 0 auto 10px auto;" />
                 <h3 style="margin: 0; font-size: 18px; color: #ffffff; letter-spacing: 1px;">KINETIC GEARS</h3>
-                <p style="margin: 2px 0 0 0; font-size: 11px; color: rgba(255,255,255,0.6);">Management System</p>
+                <p style="margin: 2px 0 0 0; font-size: 11px; color: rgba(255,255,255,0.6);">Drawing Management System</p>
             </div>
             """,
             unsafe_allow_html=True,
@@ -400,7 +349,7 @@ with top_c3:
                 const mins = String(Math.floor(totalSecs / 60)).padStart(2, '0');
                 const secs = String(totalSecs % 60).padStart(2, '0');
                 document.getElementById('countdown-timer').innerText = mins + ":" + secs;
-            }}
+            }
             setInterval(updateExpiryCountdown, 1000);
             updateExpiryCountdown();
         </script>
@@ -446,119 +395,60 @@ with top_c4:
 
 st.markdown("---")
 
-# ================= 5-TAB CARD-GRID NAVIGATION =================
-nav_cols = st.columns(5)
+# ================= DRAWING VIEWER INTERFACE =================
+st.subheader("📐 Technical Drawing Viewer")
 
-tabs = [
-    ("📊 Dashboard & Tracking", "📊", "Dashboard & metrics overview"),
-    ("📋 Dispatch Log", "📋", "Manage shipments & orders"),
-    ("➕ Custom Items", "➕", "Add & configure custom items"),
-    ("📐 Drawing View", "📐", "View technical item drawings"),
-    ("⚙️ Settings", "⚙️", "System configuration & preferences")
-]
+drawings_df = None
+if os.path.exists("item_drawings.csv"):
+    try:
+        drawings_df = pd.read_csv("item_drawings.csv")
+    except Exception:
+        pass
 
-for idx, (tab_name, icon, desc) in enumerate(tabs):
-    with nav_cols[idx]:
-        if st.button(f"{icon}\n{tab_name.split(' ', 1)[1]}\n{desc}", key=f"nav_btn_{idx}"):
-            st.session_state["selected_tab"] = tab_name
-            st.rerun()
+col_d1, col_d2 = st.columns([1, 2])
 
-st.markdown("<br>", unsafe_allow_html=True)
-
-active_tab = st.session_state["selected_tab"]
-
-# ================= TAB CONTENT RENDERING =================
-if active_tab == "📊 Dashboard & Tracking":
-    st.subheader("📊 Dashboard & Tracking")
-    st.info("Welcome to Kinetic Gears management portal. Use the navigation cards above to switch between modules.")
+with col_d1:
+    st.markdown("#### Select Item / Drawing")
+    drawing_files = []
+    if os.path.exists("drawings") and os.path.isdir("drawings"):
+        drawing_files = [f for f in os.listdir("drawings") if f.lower().endswith(('.png', '.jpg', '.jpeg', '.pdf', '.webp'))]
     
-    if os.path.exists("Book1.xlsx"):
-        try:
-            df_book1 = pd.read_excel("Book1.xlsx")
-            st.dataframe(df_book1, use_container_width=True)
-        except Exception as e:
-            st.warning(f"Could not load Book1.xlsx: {e}")
-    else:
-        st.write("No Book1.xlsx found in the directory.")
-
-elif active_tab == "📋 Dispatch Log":
-    st.subheader("📋 Dispatch Log Management")
-    if os.path.exists("dispatch_log.csv"):
-        df_dispatch = pd.read_csv("dispatch_log.csv")
-        st.dataframe(df_dispatch, use_container_width=True)
-    else:
-        st.write("No dispatch_log.csv found.")
-
-elif active_tab == "➕ Custom Items":
-    st.subheader("➕ Custom Items Management")
-    if os.path.exists("custom_items.csv"):
-        df_custom = pd.read_csv("custom_items.csv")
-        st.dataframe(df_custom, use_container_width=True)
-    else:
-        st.write("No custom_items.csv found.")
-
-elif active_tab == "📐 Drawing View":
-    st.subheader("📐 Technical Drawing Viewer")
-    
-    drawings_df = None
-    if os.path.exists("item_drawings.csv"):
-        try:
-            drawings_df = pd.read_csv("item_drawings.csv")
-        except Exception:
-            pass
-
-    col_d1, col_d2 = st.columns([1, 2])
-    
-    with col_d1:
-        st.markdown("#### Select Item / Drawing")
-        drawing_files = []
-        if os.path.exists("drawings") and os.path.isdir("drawings"):
-            drawing_files = [f for f in os.listdir("drawings") if f.lower().endswith(('.png', '.jpg', '.jpeg', '.pdf', '.webp'))]
+    if drawings_df is not None and not drawings_df.empty:
+        st.dataframe(drawings_df, use_container_width=True)
+        item_options = drawings_df.iloc[:, 0].astype(str).tolist()
+        selected_item = st.selectbox("Choose Item Code / Name:", item_options)
         
-        if drawings_df is not None and not drawings_df.empty:
-            st.dataframe(drawings_df, use_container_width=True)
-            item_options = drawings_df.iloc[:, 0].astype(str).tolist()
-            selected_item = st.selectbox("Choose Item Code / Name:", item_options)
-            
-            matched_row = drawings_df[drawings_df.iloc[:, 0].astype(str) == selected_item]
+        matched_row = drawings_df[drawings_df.iloc[:, 0].astype(str) == selected_item]
+        target_file = None
+        if not matched_row.empty:
+            for col in matched_row.columns:
+                val = str(matched_row[col].values[0])
+                if any(val.endswith(ext) for ext in ['.png', '.jpg', '.jpeg', '.pdf', '.webp']):
+                    target_file = val
+                    break
+        if not target_file and drawing_files:
+            target_file = drawing_files[0]
+    else:
+        if drawing_files:
+            selected_item = st.selectbox("Available Drawing Files:", drawing_files)
+            target_file = selected_item
+        else:
             target_file = None
-            if not matched_row.empty:
-                for col in matched_row.columns:
-                    val = str(matched_row[col].values[0])
-                    if any(val.endswith(ext) for ext in ['.png', '.jpg', '.jpeg', '.pdf', '.webp']):
-                        target_file = val
-                        break
-            if not target_file and drawing_files:
-                target_file = drawing_files[0]
-        else:
-            if drawing_files:
-                selected_item = st.selectbox("Available Drawing Files:", drawing_files)
-                target_file = selected_item
-            else:
-                target_file = None
-                st.warning("No drawings found in `drawings/` folder or `item_drawings.csv`.")
+            st.warning("No drawings found in `drawings/` folder or `item_drawings.csv`.")
 
-    with col_d2:
-        st.markdown("#### Drawing Preview & Specifications")
-        if target_file:
-            file_path = os.path.join("drawings", target_file) if not os.path.exists(target_file) else target_file
-            if os.path.exists(file_path):
-                if file_path.lower().endswith(('.png', '.jpg', '.jpeg', '.webp')):
-                    st.image(file_path, caption=f"Drawing: {target_file}", use_column_width=True)
-                elif file_path.lower().endswith('.pdf'):
-                    st.success(f"PDF Drawing loaded: {target_file}")
-                    with open(file_path, "rb") as pdf_file:
-                        PDFbyte = pdf_file.read()
-                    st.download_button(label="📥 Download Drawing PDF", data=PDFbyte, file_name=target_file, mime='application/pdf')
-            else:
-                st.error(f"Drawing file '{target_file}' could not be located in the drawings folder.")
+with col_d2:
+    st.markdown("#### Drawing Preview & Specifications")
+    if target_file:
+        file_path = os.path.join("drawings", target_file) if not os.path.exists(target_file) else target_file
+        if os.path.exists(file_path):
+            if file_path.lower().endswith(('.png', '.jpg', '.jpeg', '.webp')):
+                st.image(file_path, caption=f"Drawing: {target_file}", use_column_width=True)
+            elif file_path.lower().endswith('.pdf'):
+                st.success(f"PDF Drawing loaded: {target_file}")
+                with open(file_path, "rb") as pdf_file:
+                    PDFbyte = pdf_file.read()
+                st.download_button(label="📥 Download Drawing PDF", data=PDFbyte, file_name=target_file, mime='application/pdf')
         else:
-            st.info("Select an item to view its technical drawing.")
-
-elif active_tab == "⚙️ Settings":
-    st.subheader("⚙️ System Settings & Preferences")
-    st.write("Manage system configurations, user permissions, and directory links.")
-    st.text_input("Company Name", value="Kinetic Gears")
-    st.text_input("Session Timeout (seconds)", value=str(SESSION_TIMEOUT))
-    if st.button("Save Settings"):
-        st.success("Settings updated successfully!")
+            st.error(f"Drawing file '{target_file}' could not be located in the drawings folder.")
+    else:
+        st.info("Select an item to view its technical drawing.")
