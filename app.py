@@ -79,24 +79,35 @@ def check_credentials():
 
 if not check_credentials():
     st.stop()
-
 # ----------------------------------------------------
-# TOP-RIGHT MINIMAL LIVE CLOCK & WEATHER WIDGET
+# TOP-RIGHT MINIMAL LIVE CLOCK, WEATHER & HOVER LOGOUT
 # ----------------------------------------------------
 compact_clock_html = """
-<div id="compact-clock-widget">
-  <span id="c-day">---</span>, 
-  <span id="c-date">--- 00 0000</span> | 
-  <span id="c-time">00:00:00</span> <span id="c-ampm">--</span> | 
-  <span id="c-temp">--°C</span>
+<div id="top-right-container">
+  <div id="compact-clock-widget">
+    <span id="c-day">---</span>, 
+    <span id="c-date">--- 00 0000</span> | 
+    <span id="c-time">00:00:00</span> <span id="c-ampm">--</span> | 
+    <span id="c-temp">--°C</span>
+  </div>
+  <button id="logout-btn" onclick="triggerLogout()" title="Log Out">
+    <svg xmlns="http://www.w3.org/2000/svg" height="14" width="14" viewBox="0 0 512 512" fill="#f85149"><path d="M377.9 105.9L500.7 228.7c7.2 7.2 11.3 17.1 11.3 27.3s-4.1 20.1-11.3 27.3L377.9 406.1c-15 15-41 4.4-41-17.1l0-111-224 0c-17.7 0-32-14.3-32-32l0-32c0-17.7 14.3-32 32-32l224 0 0-111c0-21.5 26-32.1 41-17.1zM64 32c0-17.7 14.3-32 32-32l96 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L96 64c-17.7 0-32 14.3-32 32l0 320c0 17.7 14.3 32 32 32l96 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-96 0c-35.3 0-64-28.7-64-64L0 96C0 60.7 28.7 32 64 32z"/></svg>
+    <span class="logout-text">Log Out</span>
+  </button>
 </div>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap');
   body { background: transparent; margin: 0; }
-  #compact-clock-widget {
+  #top-right-container {
     position: absolute;
     top: 0px;
     right: 0px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 999999;
+  }
+  #compact-clock-widget {
     background: rgba(13, 17, 23, 0.95);
     border: 1px solid #30363d;
     border-radius: 6px;
@@ -110,17 +121,40 @@ compact_clock_html = """
     box-shadow: 0 3px 10px rgba(0,0,0,0.6);
     backdrop-filter: blur(4px);
   }
-  #compact-clock-widget #c-time {
-    color: #58a6ff;
-    font-weight: 700;
+  #compact-clock-widget #c-time { color: #58a6ff; font-weight: 700; }
+  #compact-clock-widget #c-ampm { color: #58a6ff; font-weight: 700; }
+  #compact-clock-widget #c-temp { color: #3fb950; font-weight: 700; }
+
+  #logout-btn {
+    background: rgba(13, 17, 23, 0.95);
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    color: #f85149;
+    padding: 7px 10px;
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.6);
+    backdrop-filter: blur(4px);
+    overflow: hidden;
+    white-space: nowrap;
+    width: 32px;
+    transition: width 0.25s ease, background 0.2s ease;
   }
-  #compact-clock-widget #c-ampm {
-    color: #58a6ff;
-    font-weight: 700;
+  #logout-btn .logout-text {
+    opacity: 0;
+    transition: opacity 0.2s ease;
   }
-  #compact-clock-widget #c-temp {
-    color: #3fb950;
-    font-weight: 700;
+  #logout-btn:hover {
+    width: 90px;
+    background: rgba(48, 54, 61, 0.95);
+  }
+  #logout-btn:hover .logout-text {
+    opacity: 1;
   }
 </style>
 <script>
@@ -163,9 +197,28 @@ compact_clock_html = """
   }
   fetchCompactWeather();
   setInterval(fetchCompactWeather, 600000);
+
+  function triggerLogout() {
+    window.parent.postMessage({type: 'streamlit:setComponentValue', value: 'logout'}, '*');
+    // Alternatively triggers reload with logout query param if needed
+    const url = new URL(window.parent.location.href);
+    url.searchParams.set('action', 'logout');
+    window.parent.location.href = url.toString();
+  }
 </script>
 """
 components.html(compact_clock_html, height=38, scrolling=False)
+
+# Handle logout trigger from top-right button click
+query_params = st.query_params
+if query_params.get("action") == "logout":
+    st.session_state["authenticated"] = False
+    st.query_params.clear()
+    if "captcha_num1" in st.session_state:
+        del st.session_state["captcha_num1"]
+    if "captcha_num2" in st.session_state:
+        del st.session_state["captcha_num2"]
+    st.rerun()
 
 # ----------------------------------------------------
 # STYLING & NAVIGATION (Post-Login)
