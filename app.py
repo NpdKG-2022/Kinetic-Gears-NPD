@@ -35,7 +35,7 @@ manufacturing_wallpapers = [
 
 selected_wallpaper = random.choice(manufacturing_wallpapers)
 
-# --- INJECT CSS WITH HIDDEN RADIO CIRCLES & GRADIENT PILL STYLING ---
+# --- INJECT CSS ---
 st.markdown(
     f"""
 <style>
@@ -49,39 +49,6 @@ st.markdown(
     }}
 
     .stDeployButton {{display: none !important;}}
-
-    /* --- HIDE RADIO DOTS & STYLE AS CLEAN MENU PILLS --- */
-    div[data-testid="stSidebar"] div[data-testid="stRadio"] input[type="radio"] {{
-        display: none !important;
-    }}
-    div[data-testid="stSidebar"] div[data-testid="stRadio"] [data-baseweb="radio"] {{
-        display: none !important;
-    }}
-
-    div[data-testid="stSidebar"] div[data-testid="stRadio"] div[role="radiogroup"] > label {{
-        background: transparent !important;
-        border-radius: 12px !important;
-        padding: 10px 14px !important;
-        margin-bottom: 4px !important;
-        cursor: pointer !important;
-        transition: all 0.2s ease-in-out !important;
-    }}
-
-    div[data-testid="stSidebar"] div[data-testid="stRadio"] div[role="radiogroup"] > label:hover {{
-        background: rgba(255, 255, 255, 0.06) !important;
-    }}
-
-    /* Apply smooth gradient background when the menu item is selected */
-    div[data-testid="stSidebar"] div[data-testid="stRadio"] div[role="radiogroup"] > label:has(input:checked) {{
-        background: linear-gradient(135deg, #7c3aed 0%, #3b82f6 100%) !important;
-        box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4) !important;
-    }}
-
-    /* Ensure text color turns crisp white for the selected option */
-    div[data-testid="stSidebar"] div[data-testid="stRadio"] div[role="radiogroup"] > label:has(input:checked) p {{
-        color: #ffffff !important;
-        font-weight: 600 !important;
-    }}
 
     /* Style Streamlit Form for Glassmorphism */
     div[data-testid="stForm"] {{
@@ -256,16 +223,6 @@ else:
                 unsafe_allow_html=True,
             )
 
-        st.markdown("**MAIN MENU**")
-        nav_selection = st.radio(
-            "Navigation",
-            [
-                "Dashboard",
-          
-            ],
-            label_visibility="collapsed",
-        )
-
         st.markdown("---")
         st.markdown("**SESSION**")
         if st.button("🚪 Log Out", use_container_width=True):
@@ -273,7 +230,7 @@ else:
             st.rerun()
 
     # --- MAIN DASHBOARD CONTENT AREA ---
-    st.title(f"📊 {nav_selection}")
+    st.title("📊 Dashboard")
     st.write("Welcome back, **admin**! You are logged into the Kinetic Gears management platform.")
 
     col1, col2, col3, col4 = st.columns(4)
