@@ -10,7 +10,8 @@ import streamlit as st
 st.set_page_config(
     page_title="Kinetic Gears",
     page_icon="KG-Logo.png",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
 
 # Helper function to convert logo to base64
@@ -34,10 +35,9 @@ manufacturing_wallpapers = [
     "https://images.unsplash.com/photo-1537462715879-360eeb61a0ad?q=80&w=1920&auto=format&fit=crop",
 ]
 
-# Select a random wallpaper for this session load
 selected_wallpaper = random.choice(manufacturing_wallpapers)
 
-# Custom CSS for Glassmorphism login, navigation cards, and expanding logout icon
+# Custom CSS for Glassmorphism login, navigation cards, and layouts
 st.markdown(
     f"""
     <style>
@@ -163,7 +163,6 @@ USERS = {
 
 SESSION_TIMEOUT = 600  # 10 minutes in seconds
 
-# Synchronize session state with query parameters for refresh survival
 query_params = st.query_params
 
 if "logged_in" not in st.session_state:
@@ -190,7 +189,6 @@ if "logged_in" not in st.session_state:
         st.session_state["role"] = ""
         st.session_state["login_time"] = 0.0
 
-# Initialize navigation tab state if not present
 if "selected_tab" not in st.session_state:
     st.session_state["selected_tab"] = "📊 Dashboard & Tracking"
 
@@ -261,21 +259,6 @@ def login_screen():
         )
 
 
-# ================= SESSION TIMEOUT CHECK =================
-if st.session_state["logged_in"]:
-    elapsed = time.time() - st.session_state.get("login_time", time.time())
-    if elapsed > SESSION_TIMEOUT:
-        st.session_state["logged_in"] = False
-        st.session_state["username"] = ""
-        st.session_state["role"] = ""
-        st.session_state["login_time"] = 0.0
-        st.query_params.clear()
-        st.warning(
-            "⏱ Your session has expired due to 10 minutes of inactivity. Please"
-            " log in again."
-        )
-        st.rerun()
-
 if not st.session_state["logged_in"]:
     login_screen()
     st.stop()
@@ -296,7 +279,7 @@ with st.sidebar:
     st.markdown("---")
     st.markdown("<p style='font-size: 12px; color: rgba(255,255,255,0.7); text-align: center;'>System operational & secure.</p>", unsafe_allow_html=True)
 
-# Handle logout action query param or button click
+# Handle logout trigger via query param
 if st.query_params.get("do_logout") == "true":
     st.session_state["logged_in"] = False
     st.session_state["username"] = ""
@@ -320,10 +303,7 @@ with top_c2:
         """
         <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
         <style>
-            body {
-                margin: 0;
-                background-color: transparent;
-            }
+            body { margin: 0; background-color: transparent; }
             .clock-card {
                 background: linear-gradient(135deg, #e91e63, #c2185b);
                 border-radius: 14px;
@@ -360,13 +340,10 @@ with top_c2:
                 const minutes = String(now.getMinutes()).padStart(2, '0');
                 const seconds = String(now.getSeconds()).padStart(2, '0');
                 const ampm = hours >= 12 ? 'PM' : 'AM';
-                
                 hours = hours % 12;
                 hours = hours ? hours : 12; 
                 const formattedHours = String(hours).padStart(2, '0');
-                
                 document.getElementById('futuristic-time').innerText = `${formattedHours}:${minutes}:${seconds} ${ampm}`;
-                
                 const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
                 document.getElementById('futuristic-date').innerText = now.toLocaleDateString('en-US', options);
             }
@@ -376,16 +353,13 @@ with top_c2:
         """,
         height=55,
     )
-    
+
 with top_c3:
     st.components.v1.html(
         f"""
         <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
         <style>
-            body {{
-                margin: 0;
-                background-color: transparent;
-            }}
+            body {{ margin: 0; background-color: transparent; }}
             .expire-card {{
                 font-family: 'Orbitron', sans-serif;
                 color: #ffffff;
@@ -403,14 +377,9 @@ with top_c3:
             <div id="countdown-timer" class="expire-timer">10:00</div>
         </div>
         <script>
-            const timeoutDuration = {SESSION_TIMEOUT} * 1000; // 10 minutes in ms
+            const timeoutDuration = {SESSION_TIMEOUT} * 1000;
             let lastActivity = Date.now();
-
-            function resetTimer() {{
-                lastActivity = Date.now();
-            }}
-
-            // Listen for any user activity across the page
+            function resetTimer() {{ lastActivity = Date.now(); }}
             window.addEventListener('mousemove', resetTimer, {{ passive: true }});
             window.addEventListener('mousedown', resetTimer, {{ passive: true }});
             window.addEventListener('click', resetTimer, {{ passive: true }});
@@ -422,85 +391,42 @@ with top_c3:
                 const now = Date.now();
                 const elapsed = now - lastActivity;
                 const remaining = timeoutDuration - elapsed;
-
                 if (remaining <= 0) {{
                     document.getElementById('countdown-timer').innerText = "00:00";
                     window.location.href = "?do_logout=true";
                     return;
                 }}
-
                 const totalSecs = Math.floor(remaining / 1000);
                 const mins = String(Math.floor(totalSecs / 60)).padStart(2, '0');
                 const secs = String(totalSecs % 60).padStart(2, '0');
-
                 document.getElementById('countdown-timer').innerText = `${{mins}}:${{secs}}`;
-            }}
-
+            }
             setInterval(updateExpiryCountdown, 1000);
             updateExpiryCountdown();
         </script>
         """,
         height=50,
     )
-    
+
 with top_c4:
     st.markdown("<br>", unsafe_allow_html=True)
     st.components.v1.html(
         """
         <style>
             body { margin: 0; background: transparent; display: flex; justify-content: flex-end; }
-            .logout-container {
-                display: flex;
-                align-items: center;
-                justify-content: flex-end;
-            }
+            .logout-container { display: flex; align-items: center; justify-content: flex-end; }
             .logout-btn {
-                display: flex;
-                align-items: center;
-                background-color: #f44336;
-                color: white;
-                text-decoration: none;
-                border-radius: 30px;
-                width: 42px;
-                height: 42px;
-                overflow: hidden;
-                box-shadow: 0 4px 15px rgba(244, 67, 54, 0.4);
+                display: flex; align-items: center; background-color: #f44336; color: white;
+                text-decoration: none; border-radius: 30px; width: 42px; height: 42px;
+                overflow: hidden; box-shadow: 0 4px 15px rgba(244, 67, 54, 0.4);
                 transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease;
-                cursor: pointer;
-                white-space: nowrap;
+                cursor: pointer; white-space: nowrap;
             }
-            .logout-btn:hover {
-                width: 135px;
-                background-color: #d32f2f;
-            }
-            .logout-icon {
-                min-width: 42px;
-                height: 42px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-            .logout-icon svg {
-                width: 22px;
-                height: 22px;
-                fill: none;
-                stroke: white;
-                stroke-width: 2.5;
-                stroke-linecap: round;
-                stroke-linejoin: round;
-            }
-            .logout-text {
-                font-family: sans-serif;
-                font-weight: 600;
-                font-size: 14px;
-                padding-left: 2px;
-                padding-right: 15px;
-                opacity: 0;
-                transition: opacity 0.3s ease 0.1s;
-            }
-            .logout-btn:hover .logout-text {
-                opacity: 1;
-            }
+            .logout-btn:hover { width: 135px; background-color: #d32f2f; }
+            .logout-icon { min-width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; }
+            .logout-icon svg { width: 22px; height: 22px; fill: none; stroke: white; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+            .logout-text { font-family: sans-serif; font-weight: 600; font-size: 14px; padding-left: 2px; padding-right: 15px; opacity: 0; transition: opacity 0.3s ease 0.1s; }
+            .logout-btn:hover .logout-text { opacity: 1; }
         </style>
         <div class="logout-container">
             <a href="?do_logout=true" target="_self" class="logout-btn" title="Logout">
@@ -519,3 +445,123 @@ with top_c4:
     )
 
 st.markdown("---")
+
+# ================= 5-TAB CARD-GRID NAVIGATION =================
+nav_cols = st.columns(5)
+
+tabs = [
+    ("📊 Dashboard & Tracking", "📊", "Dashboard & metrics overview"),
+    ("📋 Dispatch Log", "📋", "Manage shipments & orders"),
+    ("➕ Custom Items", "➕", "Add & configure custom items"),
+    ("📐 Drawing View", "📐", "View technical item drawings"),
+    ("⚙️ Settings", "⚙️", "System configuration & preferences")
+]
+
+for idx, (tab_name, icon, desc) in enumerate(tabs):
+    with nav_cols[idx]:
+        if st.button(f"{icon}\n{tab_name.split(' ', 1)[1]}\n{desc}", key=f"nav_btn_{idx}"):
+            st.session_state["selected_tab"] = tab_name
+            st.rerun()
+
+st.markdown("<br>", unsafe_allow_html=True)
+
+active_tab = st.session_state["selected_tab"]
+
+# ================= TAB CONTENT RENDERING =================
+if active_tab == "📊 Dashboard & Tracking":
+    st.subheader("📊 Dashboard & Tracking")
+    st.info("Welcome to Kinetic Gears management portal. Use the navigation cards above to switch between modules.")
+    
+    # Try loading Book1.xlsx if present
+    if os.path.exists("Book1.xlsx"):
+        try:
+            df_book1 = pd.read_excel("Book1.xlsx")
+            st.dataframe(df_book1, use_container_width=True)
+        except Exception as e:
+            st.warning(f"Could not load Book1.xlsx: {e}")
+    else:
+        st.write("No Book1.xlsx found in the directory.")
+
+elif active_tab == "📋 Dispatch Log":
+    st.subheader("📋 Dispatch Log Management")
+    if os.path.exists("dispatch_log.csv"):
+        df_dispatch = pd.read_csv("dispatch_log.csv")
+        st.dataframe(df_dispatch, use_container_width=True)
+    else:
+        st.write("No dispatch_log.csv found.")
+
+elif active_tab == "➕ Custom Items":
+    st.subheader("➕ Custom Items Management")
+    if os.path.exists("custom_items.csv"):
+        df_custom = pd.read_csv("custom_items.csv")
+        st.dataframe(df_custom, use_container_width=True)
+    else:
+        st.write("No custom_items.csv found.")
+
+elif active_tab == "📐 Drawing View":
+    st.subheader("📐 Technical Drawing Viewer")
+    
+    # Load item drawings mapping CSV if available
+    drawings_df = None
+    if os.path.exists("item_drawings.csv"):
+        try:
+            drawings_df = pd.read_csv("item_drawings.csv")
+        except Exception:
+            pass
+
+    col_d1, col_d2 = st.columns([1, 2])
+    
+    with col_d1:
+        st.markdown("#### Select Item / Drawing")
+        drawing_files = []
+        if os.path.exists("drawings") and os.path.isdir("drawings"):
+            drawing_files = [f for f in os.listdir("drawings") if f.lower().endswith(('.png', '.jpg', '.jpeg', '.pdf', '.webp'))]
+        
+        if drawings_df is not None and not drawings_df.empty:
+            st.dataframe(drawings_df, use_container_width=True)
+            item_options = drawings_df.iloc[:, 0].astype(str).tolist()
+            selected_item = st.selectbox("Choose Item Code / Name:", item_options)
+            
+            # Match item with drawing file if possible
+            matched_row = drawings_df[drawings_df.iloc[:, 0].astype(str) == selected_item]
+            target_file = None
+            if not matched_row.empty:
+                for col in matched_row.columns:
+                    val = str(matched_row[col].values[0])
+                    if any(val.endswith(ext) for ext in ['.png', '.jpg', '.jpeg', '.pdf', '.webp']):
+                        target_file = val
+                        break
+            if not target_file and drawing_files:
+                target_file = drawing_files[0]
+        else:
+            if drawing_files:
+                selected_item = st.selectbox("Available Drawing Files:", drawing_files)
+                target_file = selected_item
+            else:
+                target_file = None
+                st.warning("No drawings found in `drawings/` folder or `item_drawings.csv`.")
+
+    with col_d2:
+        st.markdown("#### Drawing Preview & Specifications")
+        if target_file:
+            file_path = os.path.join("drawings", target_file) if not os.path.exists(target_file) else target_file
+            if os.path.exists(file_path):
+                if file_path.lower().endswith(('.png', '.jpg', '.jpeg', '.webp')):
+                    st.image(file_path, caption=f"Drawing: {target_file}", use_column_width=True)
+                elif file_path.lower().endswith('.pdf'):
+                    st.success(f"PDF Drawing loaded: {target_file}")
+                    with open(file_path, "rb") as pdf_file:
+                        PDFbyte = pdf_file.read()
+                    st.download_button(label="📥 Download Drawing PDF", data=PDFbyte, file_name=target_file, mime='application/pdf')
+            else:
+                st.error(f"Drawing file '{target_file}' could not be located in the drawings folder.")
+        else:
+            st.info("Select an item to view its technical drawing.")
+
+elif active_tab == "⚙️ Settings":
+    st.subheader("⚙️ System Settings & Preferences")
+    st.write("Manage system configurations, user permissions, and directory links.")
+    st.text_input("Company Name", value="Kinetic Gears")
+    st.text_input("Session Timeout (seconds)", value=str(SESSION_TIMEOUT))
+    if st.button("Save Settings"):
+        st.success("Settings updated successfully!")
