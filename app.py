@@ -10,7 +10,31 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
+# ----------------------------------------------------
+# HOVER-COLLAPSIBLE SIDEBAR CSS
+# ----------------------------------------------------
+st.markdown("""
+<style>
+  /* Default collapsed sidebar state */
+  [data-testid="stSidebar"] {
+    width: 70px !important;
+    min-width: 70px !important;
+    transition: width 0.3s ease-in-out !important;
+    overflow-x: hidden !important;
+  }
+  
+  /* Expanded sidebar state on hover */
+  [data-testid="stSidebar"]:hover {
+    width: 280px !important;
+    min-width: 280px !important;
+  }
 
+  /* Hide long text labels when collapsed, fade them in on hover */
+  [data-testid="stSidebar"] .sidebar-content {
+    transition: opacity 0.2s ease-in-out;
+  }
+</style>
+""", unsafe_allow_html=True)
 # ----------------------------------------------------
 # USER DATABASE & CREDENTIALS
 # ----------------------------------------------------
