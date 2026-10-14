@@ -283,6 +283,4 @@ else:
         st.metric(label="Active Gear units", value="864")
 
     st.markdown("---")
-    st.info(
-        "💡 Now the selected sidebar item will correctly highlight with the purple-blue gradient pill background!"
     )
