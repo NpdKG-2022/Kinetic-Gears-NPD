@@ -343,7 +343,7 @@ with top_c2:
                 hours = hours % 12;
                 hours = hours ? hours : 12; 
                 const formattedHours = String(hours).padStart(2, '0');
-                document.getElementById('futuristic-time').innerText = `${formattedHours}:${minutes}:${seconds} ${ampm}`;
+                document.getElementById('futuristic-time').innerText = formattedHours + ":" + minutes + ":" + seconds + " " + ampm;
                 const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
                 document.getElementById('futuristic-date').innerText = now.toLocaleDateString('en-US', options);
             }
@@ -399,8 +399,8 @@ with top_c3:
                 const totalSecs = Math.floor(remaining / 1000);
                 const mins = String(Math.floor(totalSecs / 60)).padStart(2, '0');
                 const secs = String(totalSecs % 60).padStart(2, '0');
-                document.getElementById('countdown-timer').innerText = `${{mins}}:${{secs}}`;
-            }
+                document.getElementById('countdown-timer').innerText = mins + ":" + secs;
+            }}
             setInterval(updateExpiryCountdown, 1000);
             updateExpiryCountdown();
         </script>
@@ -472,7 +472,6 @@ if active_tab == "📊 Dashboard & Tracking":
     st.subheader("📊 Dashboard & Tracking")
     st.info("Welcome to Kinetic Gears management portal. Use the navigation cards above to switch between modules.")
     
-    # Try loading Book1.xlsx if present
     if os.path.exists("Book1.xlsx"):
         try:
             df_book1 = pd.read_excel("Book1.xlsx")
@@ -501,7 +500,6 @@ elif active_tab == "➕ Custom Items":
 elif active_tab == "📐 Drawing View":
     st.subheader("📐 Technical Drawing Viewer")
     
-    # Load item drawings mapping CSV if available
     drawings_df = None
     if os.path.exists("item_drawings.csv"):
         try:
@@ -522,7 +520,6 @@ elif active_tab == "📐 Drawing View":
             item_options = drawings_df.iloc[:, 0].astype(str).tolist()
             selected_item = st.selectbox("Choose Item Code / Name:", item_options)
             
-            # Match item with drawing file if possible
             matched_row = drawings_df[drawings_df.iloc[:, 0].astype(str) == selected_item]
             target_file = None
             if not matched_row.empty:
