@@ -3,11 +3,7 @@ import random
 import streamlit as st
 
 # Set page configuration
-st.set_page_config(
-    page_title="Kinetic Gears",
-    page_icon="KG-Logo.png",
-    layout="centered"
-)
+st.set_page_config(page_title="Kinetic Gears", page_icon="KG-Logo.png", layout="centered")
 
 
 # Helper function to convert logo to base64 for flawless HTML centering
@@ -23,25 +19,43 @@ def get_base64_image(image_path):
 
 logo_base64 = get_base64_image("KG-Logo.png")
 
-# --- INJECT GLASSMORPHISM CSS ---
-st.markdown("""
+# List of random mechanical manufacturing & engineering wallpapers
+manufacturing_wallpapers = [
+    # CNC / Machining / Metal cutting
+    "https://images.unsplash.com/photo-1565043589221-1a6fd9ae45c7?q=80&w=1920&auto=format&fit=crop",
+    # Precision gears / Industrial machinery
+    "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=1920&auto=format&fit=crop",
+    # Factory assembly line / Automation
+    "https://images.unsplash.com/photo-1581092160607-ee22621dd758?q=80&w=1920&auto=format&fit=crop",
+    # Heavy industrial metal manufacturing
+    "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?q=80&w=1920&auto=format&fit=crop",
+    # Mechanical engineering workshop / Blueprint & tools
+    "https://images.unsplash.com/photo-1537462715879-360eeb61a0ad?q=80&w=1920&auto=format&fit=crop",
+]
+
+# Select a random wallpaper for this session load
+selected_wallpaper = random.choice(manufacturing_wallpapers)
+
+# --- INJECT GLASSMORPHISM CSS WITH DYNAMIC WALLPAPER ---
+st.markdown(
+    f"""
 <style>
-    /* Full page background with mountain theme */
-    .stApp {
-        background: linear-gradient(rgba(15, 12, 29, 0.5), rgba(15, 12, 29, 0.7)),
-                    url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1920&auto=format&fit=crop');
+    /* Full page background with dynamic mechanical wallpaper */
+    .stApp {{
+        background: linear-gradient(rgba(15, 12, 29, 0.6), rgba(15, 12, 29, 0.8)),
+                    url('{selected_wallpaper}');
         background-size: cover;
         background-position: center;
         background-attachment: fixed;
-    }
+    }}
 
     /* Hide standard header & footer decoration */
-    header, footer {
+    header, footer {{
         visibility: hidden;
-    }
+    }}
 
     /* Style Streamlit Form to look like a Frosted Glass Card */
-    div[data-testid="stForm"] {
+    div[data-testid="stForm"] {{
         background: rgba(255, 255, 255, 0.08) !important;
         backdrop-filter: blur(16px) saturate(180%) !important;
         -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
@@ -49,26 +63,26 @@ st.markdown("""
         border-radius: 20px !important;
         padding: 40px 30px !important;
         box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4) !important;
-    }
+    }}
 
     /* Custom Title & Subtitle Styling */
-    .glass-title {
+    .glass-title {{
         color: #ffffff !important;
         text-align: center;
         font-size: 32px;
         font-weight: 700;
         margin-top: 15px;
         letter-spacing: 1px;
-    }
-    .glass-subtitle {
+    }}
+    .glass-subtitle {{
         color: rgba(255, 255, 255, 0.7) !important;
         text-align: center;
         font-size: 14px;
         margin-bottom: 25px;
-    }
+    }}
 
     /* Minimalist underline input fields */
-    div[data-testid="stTextInput"] input {
+    div[data-testid="stTextInput"] input {{
         background-color: transparent !important;
         border: none !important;
         border-bottom: 1px solid rgba(255, 255, 255, 0.5) !important;
@@ -76,18 +90,18 @@ st.markdown("""
         color: #ffffff !important;
         padding: 10px 5px !important;
         font-size: 15px !important;
-    }
-    div[data-testid="stTextInput"] input:focus {
+    }}
+    div[data-testid="stTextInput"] input:focus {{
         border-bottom: 2px solid #ffffff !important;
         box-shadow: none !important;
-    }
-    div[data-testid="stTextInput"] label {
+    }}
+    div[data-testid="stTextInput"] label {{
         color: rgba(255, 255, 255, 0.9) !important;
         font-weight: 500 !important;
-    }
+    }}
 
     /* White Solid Login Button */
-    div[data-testid="stFormSubmitButton"] button {
+    div[data-testid="stFormSubmitButton"] button {{
         background-color: #ffffff !important;
         color: #111111 !important;
         font-weight: 700 !important;
@@ -97,14 +111,16 @@ st.markdown("""
         font-size: 16px !important;
         margin-top: 15px !important;
         transition: all 0.3s ease !important;
-    }
-    div[data-testid="stFormSubmitButton"] button:hover {
+    }}
+    div[data-testid="stFormSubmitButton"] button:hover {{
         background-color: #e2e2e2 !important;
         color: #000000 !important;
         transform: translateY(-2px);
-    }
+    }}
 </style>
-""", unsafe_allow_html=True)
+""",
+    unsafe_allow_html=True,
+)
 
 
 # --- HELPER FUNCTIONS ---
@@ -172,13 +188,15 @@ def logout():
 # --- LOGIN SCREEN ---
 if not st.session_state.logged_in:
     with st.form("login_form"):
-        # Perfectly center the logo using base64 and HTML
         if logo_base64:
-            st.markdown(f"""
+            st.markdown(
+                f"""
                 <div style="text-align: center; margin-bottom: 5px;">
                     <img src="data:image/png;base64,{logo_base64}" width="90" style="display: block; margin: 0 auto;" />
                 </div>
-            """, unsafe_allow_html=True)
+            """,
+                unsafe_allow_html=True,
+            )
 
         st.markdown("<div class='glass-title'>KINETIC GEARS</div>", unsafe_allow_html=True)
         st.markdown(
@@ -189,7 +207,6 @@ if not st.session_state.logged_in:
         st.text_input("Username", key="username", placeholder="Enter username")
         st.text_input("Password", type="password", key="password", placeholder="Enter password")
 
-        # Display Arithmetic CAPTCHA question
         captcha_label = f"Solve: {st.session_state.captcha_num1} {st.session_state.captcha_op} {st.session_state.captcha_num2} = ?"
         st.text_input(captcha_label, key="captcha_input", placeholder="Enter the answer")
 
