@@ -2,16 +2,10 @@ import random
 import streamlit as st
 
 # Set page configuration
-st.set_page_config(page_title="Welcome to KINETIC GEARS", layout="centered")
-
-# Initialize session state variables
-if "logged_in" not in st.session_state:
-    st.session_state.logged_in = False
-
-if "captcha_num1" not in st.session_state:
-    generate_new_captcha()
+st.set_page_config(page_title="Admin Login with CAPTCHA", page_icon="🔒", layout="centered")
 
 
+# --- HELPER FUNCTIONS (Must be defined first) ---
 def generate_new_captcha():
     """Generates a random simple arithmetic question."""
     ops = [("+", lambda a, b: a + b), ("-", lambda a, b: a - b), ("*", lambda a, b: a * b)]
@@ -31,6 +25,14 @@ def generate_new_captcha():
     st.session_state.captcha_num2 = b
     st.session_state.captcha_op = op_symbol
     st.session_state.captcha_ans = op_func(a, b)
+
+
+# Initialize session state variables
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
+
+if "captcha_num1" not in st.session_state:
+    generate_new_captcha()
 
 
 # Function to handle login
