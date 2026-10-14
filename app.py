@@ -35,7 +35,7 @@ manufacturing_wallpapers = [
 
 selected_wallpaper = random.choice(manufacturing_wallpapers)
 
-# --- INJECT CSS ---
+# --- INJECT CSS WITH FIXED SIDEBAR ACTIVE PILL STYLING ---
 st.markdown(
     f"""
 <style>
@@ -50,22 +50,23 @@ st.markdown(
 
     .stDeployButton {{display: none !important;}}
 
-    /* --- SIDEBAR RADIO GRADIENT PILL STYLING --- */
-    div[data-testid="stSidebar"] div[data-testid="stRadio"] div[role="radiogroup"] > label {{
+    /* --- CORRECTED SIDEBAR RADIO GRADIENT PILL STYLING --- */
+    div[data-testid="stSidebar"] div[data-testid="stRadio"] [data-baseweb="radio"] {{
         border-radius: 12px !important;
-        padding: 8px 14px !important;
-        margin-bottom: 6px !important;
+        margin-bottom: 4px !important;
         transition: all 0.2s ease-in-out !important;
     }}
 
     /* Apply smooth gradient background when the radio option is checked */
-    div[data-testid="stSidebar"] div[data-testid="stRadio"] div[role="radiogroup"] > label:has(input:checked) {{
+    div[data-testid="stSidebar"] div[data-testid="stRadio"] [data-baseweb="radio"] input:checked + div {{
         background: linear-gradient(135deg, #7c3aed 0%, #3b82f6 100%) !important;
+        border-radius: 12px !important;
+        padding: 8px 12px !important;
         box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
     }}
 
     /* Ensure text color turns crisp white for the selected option */
-    div[data-testid="stSidebar"] div[data-testid="stRadio"] div[role="radiogroup"] > label:has(input:checked) p {{
+    div[data-testid="stSidebar"] div[data-testid="stRadio"] [data-baseweb="radio"] input:checked + div p {{
         color: #ffffff !important;
         font-weight: 600 !important;
     }}
