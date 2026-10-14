@@ -2,7 +2,7 @@ import random
 import streamlit as st
 
 # Set page configuration
-st.set_page_config(page_title="Welcome to KINETIC GEARS", page_icon="🔒", layout="centered")
+st.set_page_config(page_title="Welcome to KINETIC GEARS", layout="centered")
 
 # Initialize session state variables
 if "logged_in" not in st.session_state:
