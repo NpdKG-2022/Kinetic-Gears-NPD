@@ -238,36 +238,14 @@ if st.query_params.get("do_logout") == "true":
     st.rerun()
 
 # ================= TOP HEADER BAR =================
-top_c1, top_c2, top_c3 = st.columns([1.5, 1.2, 1.3])
+top_c1, top_c2 = st.columns([1.5, 2.0])
 
 with top_c1:
     st.markdown(
-        f"<div style='color: white;'>👤 <b>{st.session_state['username']}</b><br>Role:"
-        f" <b>{st.session_state['role']}</b></div>",
-        unsafe_allow_html=True,
-    )
-
-with top_c2:
-    st.components.v1.html(
         f"""
-        <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
-        <style>
-            body {{ margin: 0; background-color: transparent; }}
-            .expire-card {{
-                font-family: 'Orbitron', sans-serif;
-                color: #ffffff;
-                font-size: 12px;
-            }}
-            .expire-timer {{
-                font-size: 14px;
-                font-weight: 700;
-                color: #ff4081;
-                letter-spacing: 1px;
-            }}
-        </style>
-        <div class="expire-card">
-            ⏳ Expires:<br>
-            <div id="countdown-timer" class="expire-timer">10:00</div>
+        <div style="color: white; font-size: 15px; padding-top: 5px;">
+            ⏳ Session Expires In:<br>
+            <span id="countdown-timer" style="font-family: 'Orbitron', sans-serif; font-size: 18px; font-weight: 700; color: #ff4081; letter-spacing: 1px;">10:00</span>
         </div>
         <script>
             const timeoutDuration = {SESSION_TIMEOUT} * 1000;
@@ -298,17 +276,18 @@ with top_c2:
             updateExpiryCountdown();
         </script>
         """,
-        height=50,
+        unsafe_allow_html=True
     )
 
-with top_c3:
-    # Live Clock on top, Hover Logout Button below it
+with top_c2:
+    username_val = st.session_state['username']
+    role_val = st.session_state['role']
     st.components.v1.html(
-        """
+        f"""
         <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
         <style>
-            body { margin: 0; background-color: transparent; display: flex; flex-direction: column; align-items: flex-end; }
-            .clock-card {
+            body {{ margin: 0; background-color: transparent; display: flex; flex-direction: column; align-items: flex-end; }}
+            .clock-card {{
                 background: linear-gradient(135deg, #e91e63, #c2185b);
                 border-radius: 12px;
                 padding: 4px 10px;
@@ -316,38 +295,54 @@ with top_c3:
                 box-shadow: 0 4px 15px rgba(233, 30, 99, 0.3);
                 font-family: 'Orbitron', sans-serif;
                 margin-bottom: 6px;
-            }
-            .time-display {
+            }}
+            .time-display {{
                 font-size: 15px;
                 font-weight: 700;
                 color: #ffffff;
                 letter-spacing: 1.5px;
-            }
-            .date-display {
+            }}
+            .date-display {{
                 font-size: 9px;
                 font-weight: 500;
                 color: #fce4ec;
                 letter-spacing: 0.5px;
-            }
-            .logout-container { display: flex; align-items: center; justify-content: flex-end; width: 100%; }
-            .logout-btn {
+            }}
+            .user-logout-row {{
+                display: flex;
+                align-items: center;
+                justify-content: flex-end;
+                gap: 12px;
+                width: 100%;
+            }}
+            .user-info {{
+                color: white;
+                font-family: sans-serif;
+                font-size: 13px;
+                text-align: right;
+                line-height: 1.2;
+            }}
+            .logout-btn {{
                 display: flex; align-items: center; background-color: #f44336; color: white;
                 text-decoration: none; border-radius: 30px; width: 38px; height: 38px;
                 overflow: hidden; box-shadow: 0 4px 15px rgba(244, 67, 54, 0.4);
                 transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease;
-                cursor: pointer; white-space: nowrap;
-            }
-            .logout-btn:hover { width: 125px; background-color: #d32f2f; }
-            .logout-icon { min-width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; }
-            .logout-icon svg { width: 20px; height: 20px; fill: none; stroke: white; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
-            .logout-text { font-family: sans-serif; font-weight: 600; font-size: 13px; padding-left: 2px; padding-right: 12px; opacity: 0; transition: opacity 0.3s ease 0.1s; }
-            .logout-btn:hover .logout-text { opacity: 1; }
+                cursor: pointer; white-space: nowrap; flex-shrink: 0;
+            }}
+            .logout-btn:hover {{ width: 125px; background-color: #d32f2f; }}
+            .logout-icon {{ min-width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; }}
+            .logout-icon svg {{ width: 20px; height: 20px; fill: none; stroke: white; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }}
+            .logout-text {{ font-family: sans-serif; font-weight: 600; font-size: 13px; padding-left: 2px; padding-right: 12px; opacity: 0; transition: opacity 0.3s ease 0.1s; }}
+            .logout-btn:hover .logout-text {{ opacity: 1; }}
         </style>
         <div class="clock-card">
             <div id="futuristic-time" class="time-display">00:00:00 AM</div>
             <div id="futuristic-date" class="date-display">Loading date...</div>
         </div>
-        <div class="logout-container">
+        <div class="user-logout-row">
+            <div class="user-info">
+                👤 <b>{username_val}</b> | Role: <b>{role_val}</b>
+            </div>
             <a href="?do_logout=true" target="_self" class="logout-btn" title="Logout">
                 <div class="logout-icon">
                     <svg viewBox="0 0 24 24">
@@ -360,7 +355,7 @@ with top_c3:
             </a>
         </div>
         <script>
-            function updateFuturisticClock() {
+            function updateFuturisticClock() {{
                 const now = new Date();
                 let hours = now.getHours();
                 const minutes = String(now.getMinutes()).padStart(2, '0');
@@ -370,14 +365,14 @@ with top_c3:
                 hours = hours ? hours : 12; 
                 const formattedHours = String(hours).padStart(2, '0');
                 document.getElementById('futuristic-time').innerText = formattedHours + ":" + minutes + ":" + seconds + " " + ampm;
-                const options = { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' };
+                const options = {{ weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }};
                 document.getElementById('futuristic-date').innerText = now.toLocaleDateString('en-US', options);
-            }
+            }}
             setInterval(updateFuturisticClock, 1000);
             updateFuturisticClock();
         </script>
         """,
-        height=85,
+        height=95,
     )
 
 st.markdown("---")
