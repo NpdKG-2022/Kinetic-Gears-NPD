@@ -82,7 +82,7 @@ if not st.session_state.logged_in:
 
     st.markdown("<h2 style='text-align: center;'>Kinetic Gears</h2>", unsafe_allow_html=True)
     st.markdown(
-        "<p style='text-align: center; color: gray;'>Please sign in and solve the CAPTCHA</p>",
+        "<p style='text-align: center; color: gray;'>Please enter credentials, solve the maths and start the work</p>",
         unsafe_allow_html=True,
     )
 
