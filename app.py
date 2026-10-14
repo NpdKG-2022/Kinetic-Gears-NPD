@@ -7,9 +7,9 @@ import streamlit as st
 
 # Page Configuration
 st.set_page_config(
-    page_title="Plant Dispatch vs. Schedule Tracker",
-    page_icon="🏭",
-    layout="wide",
+    page_title="Kinetic Gears",
+    page_icon="KG-Logo.png",
+    layout="wide"
 )
 
 # Custom CSS for clean autofit table display and card button styling
