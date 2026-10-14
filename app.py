@@ -261,14 +261,7 @@ else:
             "Navigation",
             [
                 "Dashboard",
-                "Ticket List",
-                "Chat",
-                "Calendar",
-                "Forms",
-                "Tables",
-                "Charts",
-                "UI Elements",
-                "Cards",
+          
             ],
             label_visibility="collapsed",
         )
