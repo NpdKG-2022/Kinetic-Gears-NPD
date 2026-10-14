@@ -7,7 +7,7 @@ st.set_page_config(
     page_title="Kinetic Gears",
     page_icon="KG-Logo.png",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed"
 )
 
 
@@ -35,7 +35,7 @@ manufacturing_wallpapers = [
 
 selected_wallpaper = random.choice(manufacturing_wallpapers)
 
-# --- INJECT CSS ---
+# --- INJECT CSS FOR TOP BAR & HORIZONTAL NAVIGATION ---
 st.markdown(
     f"""
 <style>
@@ -49,6 +49,7 @@ st.markdown(
     }}
 
     .stDeployButton {{display: none !important;}}
+    [data-testid="stSidebar"] {{display: none !important;}}
 
     /* Style Streamlit Form for Glassmorphism */
     div[data-testid="stForm"] {{
@@ -141,6 +142,9 @@ def generate_new_captcha():
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 
+if "nav_choice" not in st.session_state:
+    st.session_state.nav_choice = "Dashboard & Tracking"
+
 if "captcha_num1" not in st.session_state:
     generate_new_captcha()
 
@@ -208,30 +212,92 @@ if not st.session_state.logged_in:
             if submitted:
                 login()
 
-# --- DASHBOARD SCREEN ---
+# --- DASHBOARD SCREEN WITH CUSTOM TOP BAR & HORIZONTAL NAVIGATION ---
 else:
-    # --- SIDEBAR NAVIGATION ---
-    with st.sidebar:
-        if logo_base64:
-            st.markdown(
-                f"""
-                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
-                    <img src="data:image/png;base64,{logo_base64}" width="36" />
-                    <h3 style="margin: 0;">Kinetic Gears</h3>
-                </div>
-            """,
-                unsafe_allow_html=True,
-            )
+    # --- TOP HEADER BAR ---
+    top_c1, top_c2, top_c3, top_c4 = st.columns([1.5, 2, 1.5, 1])
 
-        st.markdown("---")
-        st.markdown("**SESSION**")
-        if st.button("🚪 Log Out", use_container_width=True):
+    with top_c1:
+        st.markdown(
+            """
+            <div style="color: #ffffff; font-size: 15px; font-weight: 600;">👤 admin</div>
+            <div style="color: rgba(255, 255, 255, 0.7); font-size: 13px;">Role: Admin</div>
+        """,
+            unsafe_allow_html=True,
+        )
+
+    with top_c2:
+        st.markdown(
+            """
+            <div style="display: flex; justify-content: center;">
+                <div style="background: linear-gradient(135deg, #7c3aed 0%, #3b82f6 100%); padding: 6px 18px; border-radius: 20px; text-align: center; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);">
+                    <div style="color: #ffffff; font-weight: 700; font-size: 16px; letter-spacing: 1px;">12:37:23 AM</div>
+                    <div style="color: rgba(255, 255, 255, 0.9); font-size: 11px;">Thursday, October 15, 2026</div>
+                </div>
+            </div>
+        """,
+            unsafe_allow_html=True,
+        )
+
+    with top_c3:
+        st.markdown(
+            """
+            <div style="text-align: right; color: rgba(255, 255, 255, 0.8); font-size: 13px;">
+                ⏳ <b>Expires:</b><br/>09:59
+            </div>
+        """,
+            unsafe_allow_html=True,
+        )
+
+    with top_c4:
+        if st.button("🚪 Logout", use_container_width=True):
             logout()
             st.rerun()
 
-    # --- MAIN DASHBOARD CONTENT AREA ---
-    st.title("📊 Dashboard")
-    st.write("Welcome back, **admin**! You are logged into the Kinetic Gears management platform.")
+    st.markdown("<hr style='border-color: rgba(255,255,255,0.15); margin: 15px 0;'>", unsafe_allow_html=True)
+
+    # --- HORIZONTAL NAVIGATION MENU ---
+    st.markdown(
+        "<div style='color: #ffffff; font-size: 18px; font-weight: 700; margin-bottom: 10px;'>📌 Navigation Menu</div>",
+        unsafe_allow_html=True,
+    )
+
+    nav_cols = st.columns(5)
+    menu_items = [
+        ("Dashboard & Tracking", "📊"),
+        ("View Drawing (In-Browser)", "🔍"),
+        ("Enter Dispatches", "📝"),
+        ("Manage Drawings", "📐"),
+        ("Add New Item Schedule", "➕"),
+    ]
+
+    for i, (item, icon) in enumerate(menu_items):
+        with nav_cols[i]:
+            is_selected = st.session_state.nav_choice == item
+            btn_label = f"{icon} {item}"
+
+            if is_selected:
+                # Active button with gradient styling via custom markdown container
+                st.markdown(
+                    f"""
+                    <div style="background: linear-gradient(135deg, #7c3aed 0%, #3b82f6 100%); 
+                                padding: 10px 14px; border-radius: 10px; text-align: center; 
+                                color: white; font-weight: 600; font-size: 13px; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);">
+                        {btn_label}
+                    </div>
+                """,
+                    unsafe_allow_html=True,
+                )
+            else:
+                if st.button(btn_label, key=f"nav_{i}", use_container_width=True):
+                    st.session_state.nav_choice = item
+                    st.rerun()
+
+    st.markdown("<hr style='border-color: rgba(255,255,255,0.15); margin: 20px 0;'>", unsafe_allow_html=True)
+
+    # --- MAIN CONTENT AREA ---
+    st.title(f"📊 {st.session_state.nav_choice}")
+    st.write(f"Welcome back, **admin**! You are viewing the **{st.session_state.nav_choice}** module.")
 
     col1, col2, col3, col4 = st.columns(4)
     with col1:
