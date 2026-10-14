@@ -8,9 +8,17 @@ st.set_page_config(
     page_title="KINETIC GEARS | NPD Portal",
     page_icon="⚙️",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed"
 )
 
+# Completely hide Streamlit's native sidebar and collapse button globally
+st.markdown("""
+<style>
+  [data-testid="stSidebar"] { display: none !important; }
+  [data-testid="collapsedControl"] { display: none !important; }
+  .main .block-container { padding-left: 90px; }
+</style>
+""", unsafe_allow_html=True)
 # ----------------------------------------------------
 # USER DATABASE & CREDENTIALS
 # ----------------------------------------------------
