@@ -29,31 +29,27 @@ st.markdown("""
     min-width: 280px !important;
   }
 
-  /* Hide headers, descriptions, and system status when collapsed */
+  /* Fade out text labels by default when collapsed */
   [data-testid="stSidebar"] h3,
   [data-testid="stSidebar"] p,
   [data-testid="stSidebar"] .stInfo,
-  [data-testid="stSidebar"] label[data-baseweb="radio"] span:not(:first-child) {
+  [data-testid="stSidebar"] div[data-baseweb="radio"] span {
     opacity: 0;
     transition: opacity 0.2s ease-in-out;
+    white-space: nowrap;
   }
 
-  /* Reveal all labels and text smoothly when hovering over the sidebar */
+  /* Reveal text labels and headings smoothly when hovering over the sidebar */
   [data-testid="stSidebar"]:hover h3,
   [data-testid="stSidebar"]:hover p,
   [data-testid="stSidebar"]:hover .stInfo,
-  [data-testid="stSidebar"]:hover label[data-baseweb="radio"] span:not(:first-child) {
+  [data-testid="stSidebar"]:hover div[data-baseweb="radio"] span {
     opacity: 1;
   }
 
-  /* Ensure logo remains visible */
+  /* Keep logo visible always */
   [data-testid="stSidebar"] img {
     opacity: 1 !important;
-  }
-
-  /* Keep radio button layout clean during transition */
-  [data-testid="stSidebar"] .stRadio div[role="radiogroup"] {
-    overflow: hidden;
   }
 </style>
 """, unsafe_allow_html=True)
