@@ -37,7 +37,7 @@ manufacturing_wallpapers = [
 
 selected_wallpaper = random.choice(manufacturing_wallpapers)
 
-# Custom CSS for Glassmorphism login, layouts, and containers
+# Custom CSS for Glassmorphism login, layouts, and compact top padding
 st.markdown(
     f"""
     <style>
@@ -48,6 +48,12 @@ st.markdown(
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
+        }}
+
+        /* Remove excess top padding above header */
+        .block-container {{
+            padding-top: 1.5rem !important;
+            padding-bottom: 2rem !important;
         }}
 
         /* --- GLASSMORPHISM LOGIN FORM STYLING --- */
@@ -271,7 +277,7 @@ with top_c1:
                 const mins = String(Math.floor(totalSecs / 60)).padStart(2, '0');
                 const secs = String(totalSecs % 60).padStart(2, '0');
                 document.getElementById('countdown-timer').innerText = mins + ":" + secs;
-            }}
+            }
             setInterval(updateExpiryCountdown, 1000);
             updateExpiryCountdown();
         </script>
@@ -367,7 +373,7 @@ with top_c2:
                 document.getElementById('futuristic-time').innerText = formattedHours + ":" + minutes + ":" + seconds + " " + ampm;
                 const options = {{ weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }};
                 document.getElementById('futuristic-date').innerText = now.toLocaleDateString('en-US', options);
-            }}
+            }
             setInterval(updateFuturisticClock, 1000);
             updateFuturisticClock();
         </script>
