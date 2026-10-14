@@ -1,11 +1,15 @@
 import random
 import streamlit as st
 
-# Set page configuration
-st.set_page_config(page_title="Admin Login with CAPTCHA", page_icon="🔒", layout="centered")
+# Set page configuration with title and logo favicon
+st.set_page_config(
+    page_title="Kinetic Gears",
+    page_icon="KG-Logo.png",
+    layout="centered"
+)
 
 
-# --- HELPER FUNCTIONS (Must be defined first) ---
+# --- HELPER FUNCTIONS ---
 def generate_new_captcha():
     """Generates a random simple arithmetic question."""
     ops = [("+", lambda a, b: a + b), ("-", lambda a, b: a - b), ("*", lambda a, b: a * b)]
@@ -71,7 +75,12 @@ def logout():
 
 # --- LOGIN SCREEN ---
 if not st.session_state.logged_in:
-    st.markdown("<h2 style='text-align: center;'>🔒 Admin Login</h2>", unsafe_allow_html=True)
+    # Display logo centered above login form
+    col1, col2, col3 = st.columns([1, 1, 1])
+    with col2:
+        st.image("KG-Logo.png", use_container_width=True)
+
+    st.markdown("<h2 style='text-align: center;'>Kinetic Gears</h2>", unsafe_allow_html=True)
     st.markdown(
         "<p style='text-align: center; color: gray;'>Please sign in and solve the CAPTCHA</p>",
         unsafe_allow_html=True,
@@ -91,9 +100,14 @@ if not st.session_state.logged_in:
 
 # --- DASHBOARD SCREEN (Post-Login) ---
 else:
-    st.title("📊 Welcome to the Admin Dashboard")
-    st.write("You have successfully logged in as **admin** with CAPTCHA verification.")
+    # Header with logo
+    col1, col2 = st.columns([1, 5])
+    with col1:
+        st.image("KG-Logo.png", width=80)
+    with col2:
+        st.title("Kinetic Gears Dashboard")
 
+    st.write("You have successfully logged in as **admin**.")
     st.info("This is where your core application features will go.")
 
     if st.button("Log Out", type="secondary"):
