@@ -22,17 +22,14 @@ USERS = {
 # AUTHENTICATION & CAPTCHA MODULE
 # ----------------------------------------------------
 def generate_new_captcha():
-    """Forces generation of new random numbers for the math CAPTCHA."""
     st.session_state["captcha_num1"] = random.randint(1, 9)
     st.session_state["captcha_num2"] = random.randint(1, 9)
 
 def init_captcha():
-    """Initializes CAPTCHA numbers if not already present."""
     if "captcha_num1" not in st.session_state or "captcha_num2" not in st.session_state:
         generate_new_captcha()
 
 def check_credentials():
-    """Handles login form with username, password, and dynamic CAPTCHA validation."""
     if "authenticated" not in st.session_state:
         st.session_state["authenticated"] = False
 
@@ -60,7 +57,6 @@ def check_credentials():
                 
                 if submit_login:
                     expected_captcha = str(num1 + num2)
-                    
                     if user_captcha.strip() != expected_captcha:
                         st.error("❌ Incorrect CAPTCHA answer. A new verification has been generated.")
                         generate_new_captcha()
@@ -73,17 +69,36 @@ def check_credentials():
                         st.error("❌ Invalid username or password. A new verification has been generated.")
                         generate_new_captcha()
                         st.rerun()
-            
         return False
     return True
 
 if not check_credentials():
     st.stop()
 
+# Initialize Navigation Session State
+if "nav_sel" not in st.session_state:
+    st.session_state["nav_sel"] = "Dashboard"
+
+# Handle Navigation & Logout query parameters from custom HTML components
+query_params = st.query_params
+if query_params.get("nav"):
+    st.session_state["nav_sel"] = query_params.get("nav")
+    st.query_params.clear()
+    st.rerun()
+
+if query_params.get("action") == "logout":
+    st.session_state["authenticated"] = False
+    st.query_params.clear()
+    if "captcha_num1" in st.session_state:
+        del st.session_state["captcha_num1"]
+    if "captcha_num2" in st.session_state:
+        del st.session_state["captcha_num2"]
+    st.rerun()
+
 # ----------------------------------------------------
-# TOP-RIGHT MINIMAL LIVE CLOCK, WEATHER & HOVER LOGOUT
+# TOP-RIGHT MINIMAL LIVE CLOCK, WEATHER & LOGOUT
 # ----------------------------------------------------
-compact_clock_html = """
+top_bar_html = """
 <div id="top-right-container">
   <div id="compact-clock-widget">
     <span id="c-day">---</span>, 
@@ -171,17 +186,14 @@ compact_clock_html = """
     const now = new Date();
     const days = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
     document.getElementById("c-day").innerText = days[now.getDay()];
-    
     let hours = now.getHours();
     const ampm = hours >= 12 ? "PM" : "AM";
     hours = hours % 12;
     hours = hours ? hours : 12;
     const minutes = String(now.getMinutes()).padStart(2, '0');
     const seconds = String(now.getSeconds()).padStart(2, '0');
-    
     document.getElementById("c-time").innerText = `${String(hours).padStart(2, '0')}:${minutes}:${seconds}`;
     document.getElementById("c-ampm").innerText = ampm;
-    
     const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
     document.getElementById("c-date").innerText = `${months[now.getMonth()]} ${String(now.getDate()).padStart(2, '0')} ${now.getFullYear()}`;
   }
@@ -214,82 +226,215 @@ compact_clock_html = """
   }
 </script>
 """
-components.html(compact_clock_html, height=38, scrolling=False)
-
-# Handle logout trigger from top-right button click
-query_params = st.query_params
-if query_params.get("action") == "logout":
-    st.session_state["authenticated"] = False
-    st.query_params.clear()
-    if "captcha_num1" in st.session_state:
-        del st.session_state["captcha_num1"]
-    if "captcha_num2" in st.session_state:
-        del st.session_state["captcha_num2"]
-    st.rerun()
+components.html(top_bar_html, height=38, scrolling=False)
 
 # ----------------------------------------------------
-# STYLING & COLLAPSIBLE HOVER SIDEBAR
+# MODERN HOVER-EXPANDABLE SIDEBAR (HTML/CSS Component)
 # ----------------------------------------------------
-st.markdown("""
+current_nav = st.session_state["nav_sel"]
+
+sidebar_html = f"""
+<div class="custom-sidebar">
+  <div class="brand-container">
+    <div class="brand-logo">KG</div>
+    <div class="brand-text">
+      <div class="brand-title">KINETIC GEARS</div>
+      <div class="brand-subtitle">NPD Portal</div>
+    </div>
+  </div>
+  
+  <div class="nav-menu">
+    <a href="?nav=Dashboard" target="_self" class="nav-item {'active' if current_nav == 'Dashboard' else ''}">
+      <span class="icon">📊</span>
+      <span class="label">Dashboard</span>
+    </a>
+    <a href="?nav=ISO 8.3.3.1 Design Inputs" target="_self" class="nav-item {'active' if current_nav == 'ISO 8.3.3.1 Design Inputs' else ''}">
+      <span class="icon">📋</span>
+      <span class="label">ISO 8.3.3.1 Inputs</span>
+    </a>
+    <a href="?nav=Material & Standards Matrix" target="_self" class="nav-item {'active' if current_nav == 'Material & Standards Matrix' else ''}">
+      <span class="icon">🔬</span>
+      <span class="label">Materials Matrix</span>
+    </a>
+    <a href="?nav=Prototype Cost Estimator" target="_self" class="nav-item {'active' if current_nav == 'Prototype Cost Estimator' else ''}">
+      <span class="icon">🧮</span>
+      <span class="label">Cost Estimator</span>
+    </a>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="status-dot"></div>
+    <span class="status-text">System Online</span>
+  </div>
+</div>
+
 <style>
-  /* Collapsible Sidebar on Hover */
-  [data-testid="stSidebar"] {
-    width: 75px !important;
-    min-width: 75px !important;
-    transition: width 0.3s ease-in-out !important;
-    overflow-x: hidden !important;
-  }
-  [data-testid="stSidebar"]:hover {
-    width: 280px !important;
-    min-width: 280px !important;
-  }
-
-  /* Smooth text appearance on hover */
-  [data-testid="stSidebar"] .sidebar-content {
+  body {{ background: transparent; margin: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }}
+  
+  .custom-sidebar {{
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    width: 68px;
+    height: calc(100vh - 20px);
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 16px;
+    box-shadow: 4px 0 20px rgba(0,0,0,0.5);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 20px 12px;
+    box-sizing: border-box;
     overflow: hidden;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 99999;
   }
   
-  /* Hide sidebar text/labels when collapsed, show on hover */
-  [data-testid="stSidebar"] .stRadio label span,
-  [data-testid="stSidebar"] h3,
-  [data-testid="stSidebar"] p,
-  [data-testid="stSidebar"] .stInfo {
-    visibility: hidden;
-    transition: visibility 0.2s ease-in-out;
+  .custom-sidebar:hover {{
+    width: 260px;
+  }}
+
+  .brand-container {{
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #30363d;
     white-space: nowrap;
   }
-  [data-testid="stSidebar"]:hover .stRadio label span,
-  [data-testid="stSidebar"]:hover h3,
-  [data-testid="stSidebar"]:hover p,
-  [data-testid="stSidebar"]:hover .stInfo {
-    visibility: visible;
+
+  .brand-logo {{
+    min-width: 44px;
+    height: 44px;
+    background: linear-gradient(135deg, #f85149, #da3633);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 800;
+    font-size: 1.1rem;
+    box-shadow: 0 4px 12px rgba(248, 81, 73,.4);
   }
 
-  /* Always keep icons & logo visible */
-  [data-testid="stSidebar"] img {
-    visibility: visible !important;
+  .brand-text {{
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }}
+
+  .custom-sidebar:hover .brand-text {{
+    opacity: 1;
+  }}
+
+  .brand-title {{
+    color: #e6edf3;
+    font-weight: 700;
+    font-size: 0.95rem;
   }
+
+  .brand-subtitle {{
+    color: #8b949e;
+    font-size: 0.75rem;
+  }
+
+  .nav-menu {{
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 15px;
+  }
+
+  .nav-item {{
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    color: #8b949e;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.88rem;
+    white-space: nowrap;
+    transition: background 0.2s, color 0.2s;
+  }
+
+  .nav-item:hover {{
+    background: rgba(48, 54, 61, 0.5);
+    color: #e6edf3;
+  }}
+
+  .nav-item.active {{
+    background: #21262d;
+    color: #58a6ff;
+    border-left: 3px solid #58a6ff;
+  }
+
+  .nav-item .icon {{
+    font-size: 1.2rem;
+    min-width: 24px;
+    text-align: center;
+  }
+
+  .nav-item .label {{
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }}
+
+  .custom-sidebar:hover .nav-item .label {{
+    opacity: 1;
+  }}
+
+  .sidebar-footer {{
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 14px;
+    background: #0d1117;
+    border-radius: 10px;
+    border: 1px solid #30363d;
+    white-space: nowrap;
+  }
+
+  .status-dot {{
+    width: 10px;
+    height: 10px;
+    min-width: 10px;
+    background: #3fb950;
+    border-radius: 50%;
+    box-shadow: 0 0 8px #3fb950;
+  }
+
+  .status-text {{
+    color: #8b949e;
+    font-size: 0.8rem;
+    font-weight: 600;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }}
+
+  .custom-sidebar:hover .status-text {{
+    opacity: 1;
+  }}
+</style>
+"""
+
+# Render custom sidebar and hide Streamlit's default sidebar
+st.sidebar.markdown("""
+<style>
+  [data-testid="stSidebar"] { display: none; }
+  .main { margin-left: 40px; }
 </style>
 """, unsafe_allow_html=True)
 
-# Sidebar Navigation
-st.sidebar.image("https://raw.githubusercontent.com/NpdKG-2022/Kinetic-Gears-NPD/main/KG-Logo.png", width=100)
-st.sidebar.markdown("### KINETIC GEARS")
-st.sidebar.markdown("**New Product Development (N.P.D.)**")
-st.sidebar.markdown("---")
+components.html(sidebar_html, height=700, scrolling=False)
 
-nav_selection = st.sidebar.radio(
-    "Select Module",
-    ["📊 Dashboard", "📋 ISO 8.3.3.1 Inputs", "🔬 Materials Matrix", "🧮 Cost Estimator"]
-)
-
-st.sidebar.markdown("---")
-st.sidebar.info("System Status: **Online**")
+nav_selection = st.session_state["nav_sel"]
 
 # ----------------------------------------------------
 # 1. DASHBOARD MODULE
 # ----------------------------------------------------
-if nav_selection == "📊 Dashboard":
+if nav_selection == "Dashboard":
     st.markdown("## 📊 NPD Project Dashboard")
     st.markdown("Monitor active gear development pipelines across Stage-Gate milestones.")
 
@@ -316,7 +461,7 @@ if nav_selection == "📊 Dashboard":
 # ----------------------------------------------------
 # 2. ISO 8.3.3.1 DESIGN INPUTS MANAGER
 # ----------------------------------------------------
-elif nav_selection == "📋 ISO 8.3.3.1 Inputs":
+elif nav_selection == "ISO 8.3.3.1 Design Inputs":
     st.markdown("## 📋 Product Design Inputs (Clause 8.3.3.1)")
     st.markdown("Capture functional, performance, safety, and statutory requirements for new gear mechanisms.")
 
@@ -338,7 +483,7 @@ elif nav_selection == "📋 ISO 8.3.3.1 Inputs":
 # ----------------------------------------------------
 # 3. MATERIAL & STANDARDS MATRIX
 # ----------------------------------------------------
-elif nav_selection == "🔬 Materials Matrix":
+elif nav_selection == "Material & Standards Matrix":
     st.markdown("## 🔬 Material & Standards Cross-Reference")
     st.markdown("Quick lookup matrix for carbon steels, spring wires, industrial sealing elements, and international standards.")
 
@@ -385,7 +530,7 @@ elif nav_selection == "🔬 Materials Matrix":
 # ----------------------------------------------------
 # 4. PROTOTYPE COST ESTIMATOR
 # ----------------------------------------------------
-elif nav_selection == "🧮 Cost Estimator":
+elif nav_selection == "Prototype Cost Estimator":
     st.markdown("## 🧮 Prototype & Feasibility Cost Calculator")
     st.markdown("Estimate raw material, cutting/machining time, and scrap overhead for new gear prototypes.")
 
