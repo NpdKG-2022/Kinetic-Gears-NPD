@@ -10,7 +10,8 @@ import streamlit as st
 st.set_page_config(
     page_title="Kinetic Gears",
     page_icon="KG-Logo.png",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
 
 # Helper function to convert logo to base64
@@ -280,98 +281,108 @@ if not st.session_state["logged_in"]:
     login_screen()
     st.stop()
 
-# ================= TOP PAGE TITLE =================
-st.markdown(
-    """
-    <div style="text-align: center; margin-bottom: 0px;">
-        <h1 style="font-size: 50px; margin-bottom: 0px; color: white;">Welcome to KINETIC GEARS</h1>
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
-st.markdown("---")
+# ================= PROFESSIONAL SIDEBAR WITH LOGO =================
+with st.sidebar:
+    if logo_base64:
+        st.markdown(
+            f"""
+            <div style="text-align: center; padding: 10px 0 20px 0;">
+                <img src="data:image/png;base64,{logo_base64}" width="65" style="display: block; margin: 0 auto 10px auto;" />
+                <h3 style="margin: 0; font-size: 18px; color: #ffffff; letter-spacing: 1px;">KINETIC GEARS</h3>
+                <p style="margin: 2px 0 0 0; font-size: 11px; color: rgba(255,255,255,0.6);">Management System</p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+    st.markdown("---")
+    st.markdown("<p style='font-size: 12px; color: rgba(255,255,255,0.7); text-align: center;'>System operational & secure.</p>", unsafe_allow_html=True)
 
-# ================= TOP HEADER BAR (COMPACT RIGHT-ALIGNED) =================
-top_c1, top_c2 = st.columns([1.5, 2.5])
+# ================= TOP HEADER BAR =================
+top_c1, top_c2, top_c3, top_c4 = st.columns([1.2, 2.3, 1.1, 0.9])
 
 with top_c1:
     st.markdown(
-        f"<div style='color: white; font-size: 13px; padding-top: 8px;'>"
-        f"👤 <b>{st.session_state['username']}</b> | Role: <b>{st.session_state['role']}</b>"
-        f"</div>",
+        f"<div style='color: white;'>👤 <b>{st.session_state['username']}</b><br>Role:"
+        f" <b>{st.session_state['role']}</b></div>",
         unsafe_allow_html=True,
     )
 
 with top_c2:
-    # Using columns inside the right section to pack clock, timer, and logout button tightly
-    r_col1, r_col2, r_col3 = st.columns([1.5, 1.2, 1.2])
+    st.components.v1.html(
+        """
+        <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+        <style>
+            body {
+                margin: 0;
+                background-color: transparent;
+            }
+            .clock-card {
+                background: linear-gradient(135deg, #e91e63, #c2185b);
+                border-radius: 14px;
+                padding: 6px 14px;
+                text-align: center;
+                box-shadow: 0 4px 15px rgba(233, 30, 99, 0.3);
+                font-family: 'Orbitron', sans-serif;
+                display: inline-block;
+                box-sizing: border-box;
+            }
+            .time-display {
+                font-size: 18px;
+                font-weight: 700;
+                color: #ffffff;
+                letter-spacing: 2px;
+                text-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
+            }
+            .date-display {
+                font-size: 10px;
+                font-weight: 500;
+                color: #fce4ec;
+                margin-top: 2px;
+                letter-spacing: 1px;
+            }
+        </style>
+        <div class="clock-card">
+            <div id="futuristic-time" class="time-display">00:00:00 AM</div>
+            <div id="futuristic-date" class="date-display">Loading date...</div>
+        </div>
+        <script>
+            function updateFuturisticClock() {
+                const now = new Date();
+                let hours = now.getHours();
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                const seconds = String(now.getSeconds()).padStart(2, '0');
+                const ampm = hours >= 12 ? 'PM' : 'AM';
+                
+                hours = hours % 12;
+                hours = hours ? hours : 12; 
+                const formattedHours = String(hours).padStart(2, '0');
+                
+                document.getElementById('futuristic-time').innerText = `${formattedHours}:${minutes}:${seconds} ${ampm}`;
+                
+                const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+                document.getElementById('futuristic-date').innerText = now.toLocaleDateString('en-US', options);
+            }
+            setInterval(updateFuturisticClock, 1000);
+            updateFuturisticClock();
+        </script>
+        """,
+        height=55,
+    )
 
-    with r_col1:
-        st.components.v1.html(
-            """
-            <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
-            <style>
-                body { margin: 0; background-color: transparent; display: flex; justify-content: flex-end; }
-                .clock-card {
-                    background: linear-gradient(135deg, #e91e63, #c2185b);
-                    border-radius: 10px;
-                    padding: 2px 8px;
-                    text-align: center;
-                    box-shadow: 0 2px 10px rgba(233, 30, 99, 0.3);
-                    font-family: 'Orbitron', sans-serif;
-                    display: inline-block;
-                }
-                .time-display {
-                    font-size: 13px;
-                    font-weight: 700;
-                    color: #ffffff;
-                    letter-spacing: 1px;
-                }
-                .date-display {
-                    font-size: 8px;
-                    color: #fce4ec;
-                }
-            </style>
-            <div class="clock-card">
-                <div id="futuristic-time" class="time-display">00:00:00 AM</div>
-                <div id="futuristic-date" class="date-display">Loading...</div>
-            </div>
-            <script>
-                function updateFuturisticClock() {
-                    const now = new Date();
-                    let hours = now.getHours();
-                    const minutes = String(now.getMinutes()).padStart(2, '0');
-                    const seconds = String(now.getSeconds()).padStart(2, '0');
-                    const ampm = hours >= 12 ? 'PM' : 'AM';
-                    hours = hours % 12 || 12;
-                    document.getElementById('futuristic-time').innerText = `${String(hours).padStart(2, '0')}:${minutes}:${seconds} ${ampm}`;
-                    document.getElementById('futuristic-date').innerText = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
-                }
-                setInterval(updateFuturisticClock, 1000);
-                updateFuturisticClock();
-            </script>
-            """,
-            height=38,
-        )
+with top_c3:
+    elapsed = time.time() - st.session_state.get("login_time", time.time())
+    remaining_secs = max(0, int(SESSION_TIMEOUT - elapsed))
+    mins, secs = divmod(remaining_secs, 60)
+    st.markdown(f"<div style='color: white;'>⏳ Expires:<br><b>{mins:02d}:{secs:02d}</b></div>", unsafe_allow_html=True)
 
-    with r_col2:
-        elapsed = time.time() - st.session_state.get("login_time", time.time())
-        remaining_secs = max(0, int(SESSION_TIMEOUT - elapsed))
-        mins, secs = divmod(remaining_secs, 60)
-        st.markdown(
-            f"<div style='color: white; font-size: 11px; text-align: center; padding-top: 6px;'>"
-            f"⏳ <b>{mins:02d}:{secs:02d}</b> left"
-            f"</div>",
-            unsafe_allow_html=True,
-        )
+with top_c4:
+    st.markdown("<br>", unsafe_allow_html=True)
+    if st.button("🚪 Logout", use_container_width=True):
+        st.session_state["logged_in"] = False
+        st.session_state["username"] = ""
+        st.session_state["role"] = ""
+        st.session_state["login_time"] = 0.0
+        st.query_params.clear()
+        st.rerun()
 
-    with r_col3:
-        if st.button("Logout", use_container_width=True, key="compact_logout"):
-            st.session_state["logged_in"] = False
-            st.session_state["username"] = ""
-            st.session_state["role"] = ""
-            st.session_state["login_time"] = 0.0
-            st.query_params.clear()
-            st.rerun()
-
-st.markdown("<hr style='border-color: rgba(255,255,255,0.15); margin: 8px 0;'>", unsafe_allow_html=True)
+st.markdown("---")
