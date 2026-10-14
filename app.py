@@ -244,92 +244,95 @@ if st.query_params.get("do_logout") == "true":
     st.rerun()
 
 # ================= TOP HEADER BAR =================
-top_c1, top_c2 = st.columns([1.5, 2.0])
+# Background session timeout listener script
+st.markdown(
+    f"""
+    <script>
+        const timeoutDuration = {SESSION_TIMEOUT} * 1000;
+        let lastActivity = Date.now();
+        function resetTimer() {{ lastActivity = Date.now(); }}
+        window.addEventListener('mousemove', resetTimer, {{ passive: true }});
+        window.addEventListener('mousedown', resetTimer, {{ passive: true }});
+        window.addEventListener('click', resetTimer, {{ passive: true }});
+        window.addEventListener('keypress', resetTimer, {{ passive: true }});
+        window.addEventListener('scroll', resetTimer, {{ passive: true }});
+        window.addEventListener('touchstart', resetTimer, {{ passive: true }});
 
-with top_c1:
-    # Invisible background script handling session activity timeout
-    st.markdown(
-        f"""
-        <script>
-            const timeoutDuration = {SESSION_TIMEOUT} * 1000;
-            let lastActivity = Date.now();
-            function resetTimer() {{ lastActivity = Date.now(); }}
-            window.addEventListener('mousemove', resetTimer, {{ passive: true }});
-            window.addEventListener('mousedown', resetTimer, {{ passive: true }});
-            window.addEventListener('click', resetTimer, {{ passive: true }});
-            window.addEventListener('keypress', resetTimer, {{ passive: true }});
-            window.addEventListener('scroll', resetTimer, {{ passive: true }});
-            window.addEventListener('touchstart', resetTimer, {{ passive: true }});
+        function checkExpiry() {{
+            const now = Date.now();
+            const elapsed = now - lastActivity;
+            if ((timeoutDuration - elapsed) <= 0) {{
+                window.location.href = "?do_logout=true";
+            }}
+        }}
+        setInterval(checkExpiry, 1000);
+    </script>
+    """,
+    unsafe_allow_html=True
+)
 
-            function checkExpiry() {{
-                const now = Date.now();
-                const elapsed = now - lastActivity;
-                if ((timeoutDuration - elapsed) <= 0) {{
-                    window.location.href = "?do_logout=true";
-                }}
-            }}
-            setInterval(checkExpiry, 1000);
-        </script>
-        """,
-        unsafe_allow_html=True
-    )
+username_val = st.session_state['username']
+role_val = st.session_state['role']
 
-with top_c2:
-    username_val = st.session_state['username']
-    role_val = st.session_state['role']
-    st.components.v1.html(
-        f"""
-        <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
-        <style>
-            body {{ margin: 0; background-color: transparent; display: flex; flex-direction: column; align-items: flex-end; }}
-            .clock-card {{
-                background: linear-gradient(135deg, #e91e63, #c2185b);
-                border-radius: 12px;
-                padding: 4px 10px;
-                text-align: center;
-                box-shadow: 0 4px 15px rgba(233, 30, 99, 0.3);
-                font-family: 'Orbitron', sans-serif;
-                margin-bottom: 6px;
-            }}
-            .time-display {{
-                font-size: 15px;
-                font-weight: 700;
-                color: #ffffff;
-                letter-spacing: 1.5px;
-            }}
-            .date-display {{
-                font-size: 9px;
-                font-weight: 500;
-                color: #fce4ec;
-                letter-spacing: 0.5px;
-            }}
-            .user-logout-row {{
-                display: flex;
-                align-items: center;
-                justify-content: flex-end;
-                gap: 12px;
-                width: 100%;
-            }}
-            .user-info {{
-                color: white;
-                font-family: sans-serif;
-                font-size: 13px;
-                text-align: right;
-                line-height: 1.2;
-            }}
-            .logout-btn {{
-                display: flex; align-items: center; background-color: #f44336; color: white;
-                text-decoration: none; border-radius: 30px; width: 38px; height: 38px;
-                overflow: hidden; box-shadow: 0 4px 15px rgba(244, 67, 54, 0.4);
-                transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease;
-                cursor: pointer; white-space: nowrap; flex-shrink: 0;
-            }}
-            .logout-btn:hover {{ width: 125px; background-color: #d32f2f; }}
-            .logout-icon {{ min-width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; }}
-            .logout-icon svg {{ width: 20px; height: 20px; fill: none; stroke: white; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }}
-            .logout-text {{ font-family: sans-serif; font-weight: 600; font-size: 13px; padding-left: 2px; padding-right: 12px; opacity: 0; transition: opacity 0.3s ease 0.1s; }}
-            .logout-btn:hover .logout-text {{ opacity: 1; }}
-        </style>
+# Single consolidated header component aligned to the right
+st.components.v1.html(
+    f"""
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        body {{ margin: 0; background-color: transparent; display: flex; justify-content: flex-end; align-items: flex-start; }}
+        .header-wrapper {{
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 6px;
+        }}
+        .clock-card {{
+            background: linear-gradient(135deg, #e91e63, #c2185b);
+            border-radius: 12px;
+            padding: 4px 12px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(233, 30, 99, 0.3);
+            font-family: 'Orbitron', sans-serif;
+        }}
+        .time-display {{
+            font-size: 15px;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: 1.5px;
+        }}
+        .date-display {{
+            font-size: 9px;
+            font-weight: 500;
+            color: #fce4ec;
+            letter-spacing: 0.5px;
+        }}
+        .user-logout-row {{
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 12px;
+        }}
+        .user-info {{
+            color: white;
+            font-family: sans-serif;
+            font-size: 13px;
+            text-align: right;
+            line-height: 1.2;
+        }}
+        .logout-btn {{
+            display: flex; align-items: center; background-color: #f44336; color: white;
+            text-decoration: none; border-radius: 30px; width: 38px; height: 38px;
+            overflow: hidden; box-shadow: 0 4px 15px rgba(244, 67, 54, 0.4);
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease;
+            cursor: pointer; white-space: nowrap; flex-shrink: 0;
+        }}
+        .logout-btn:hover {{ width: 125px; background-color: #d32f2f; }}
+        .logout-icon {{ min-width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; }}
+        .logout-icon svg {{ width: 20px; height: 20px; fill: none; stroke: white; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }}
+        .logout-text {{ font-family: sans-serif; font-weight: 600; font-size: 13px; padding-left: 2px; padding-right: 12px; opacity: 0; transition: opacity 0.3s ease 0.1s; }}
+        .logout-btn:hover .logout-text {{ opacity: 1; }}
+    </style>
+    <div class="header-wrapper">
         <div class="clock-card">
             <div id="futuristic-time" class="time-display">00:00:00 AM</div>
             <div id="futuristic-date" class="date-display">Loading date...</div>
@@ -349,26 +352,27 @@ with top_c2:
                 <div class="logout-text">Logout</div>
             </a>
         </div>
-        <script>
-            function updateFuturisticClock() {{
-                const now = new Date();
-                let hours = now.getHours();
-                const minutes = String(now.getMinutes()).padStart(2, '0');
-                const seconds = String(now.getSeconds()).padStart(2, '0');
-                const ampm = hours >= 12 ? 'PM' : 'AM';
-                hours = hours % 12;
-                hours = hours ? hours : 12; 
-                const formattedHours = String(hours).padStart(2, '0');
-                document.getElementById('futuristic-time').innerText = formattedHours + ":" + minutes + ":" + seconds + " " + ampm;
-                const options = {{ weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }};
-                document.getElementById('futuristic-date').innerText = now.toLocaleDateString('en-US', options);
-            }}
-            setInterval(updateFuturisticClock, 1000);
-            updateFuturisticClock();
-        </script>
-        """,
-        height=95,
-    )
+    </div>
+    <script>
+        function updateFuturisticClock() {{
+            const now = new Date();
+            let hours = now.getHours();
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12; 
+            const formattedHours = String(hours).padStart(2, '0');
+            document.getElementById('futuristic-time').innerText = formattedHours + ":" + minutes + ":" + seconds + " " + ampm;
+            const options = {{ weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }};
+            document.getElementById('futuristic-date').innerText = now.toLocaleDateString('en-US', options);
+        }}
+        setInterval(updateFuturisticClock, 1000);
+        updateFuturisticClock();
+    </script>
+    """,
+    height=90,
+)
 
 st.markdown("---")
 
