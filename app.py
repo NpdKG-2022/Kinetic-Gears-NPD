@@ -91,7 +91,7 @@ compact_clock_html = """
     <span id="c-temp">--°C</span>
   </div>
   <button id="logout-btn" onclick="triggerLogout()" title="Log Out">
-    <svg xmlns="http://www.w3.org/2000/svg" height="14" width="14" viewBox="0 0 512 512" fill="#f85149"><path d="M377.9 105.9L500.7 228.7c7.2 7.2 11.3 17.1 11.3 27.3s-4.1 20.1-11.3 27.3L377.9 406.1c-15 15-41 4.4-41-17.1l0-111-224 0c-17.7 0-32-14.3-32-32l0-32c0-17.7 14.3-32 32-32l224 0 0-111c0-21.5 26-32.1 41-17.1zM64 32c0-17.7 14.3-32 32-32l96 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L96 64c-17.7 0-32 14.3-32 32l0 320c0 17.7 14.3 32 32 32l96 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-96 0c-35.3 0-64-28.7-64-64L0 96C0 60.7 28.7 32 64 32z"/></svg>
+    <span style="font-size: 1rem; line-height: 1;">⏻</span>
     <span class="logout-text">Log Out</span>
   </button>
 </div>
@@ -120,6 +120,7 @@ compact_clock_html = """
     align-items: center;
     box-shadow: 0 3px 10px rgba(0,0,0,0.6);
     backdrop-filter: blur(4px);
+    height: 30px;
   }
   #compact-clock-widget #c-time { color: #58a6ff; font-weight: 700; }
   #compact-clock-widget #c-ampm { color: #58a6ff; font-weight: 700; }
@@ -130,7 +131,7 @@ compact_clock_html = """
     border: 1px solid #30363d;
     border-radius: 6px;
     color: #f85149;
-    padding: 6px 10px;
+    padding: 0 10px;
     font-family: -apple-system, BlinkMacSystemFont, sans-serif;
     font-size: 0.75rem;
     font-weight: 600;
@@ -143,19 +144,20 @@ compact_clock_html = """
     backdrop-filter: blur(4px);
     overflow: hidden;
     white-space: nowrap;
-    width: 32px;
-    min-width: 32px;
+    width: 34px;
+    min-width: 34px;
+    height: 30px;
     transition: width 0.25s ease, background 0.2s ease, padding 0.25s ease;
   }
   #logout-btn .logout-text {
     opacity: 0;
-    width: 100px;
+    width: 0px;
     overflow: hidden;
     transition: opacity 0.2s ease, width 0.25s ease;
   }
   #logout-btn:hover {
-    width: 96px;
-    padding: 6px 12px;
+    width: 94px;
+    padding: 0 12px;
     background: rgba(48, 54, 61, 0.95);
   }
   #logout-btn:hover .logout-text {
@@ -205,8 +207,6 @@ compact_clock_html = """
   setInterval(fetchCompactWeather, 600000);
 
   function triggerLogout() {
-    window.parent.postMessage({type: 'streamlit:setComponentValue', value: 'logout'}, '*');
-    // Alternatively triggers reload with logout query param if needed
     const url = new URL(window.parent.location.href);
     url.searchParams.set('action', 'logout');
     window.parent.location.href = url.toString();
