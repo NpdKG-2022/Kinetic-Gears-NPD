@@ -2,12 +2,12 @@ import base64
 import random
 import streamlit as st
 
-# Set page configuration with collapsible sidebar support
+# Set page configuration
 st.set_page_config(
     page_title="Kinetic Gears",
     page_icon="KG-Logo.png",
     layout="wide",
-    initial_sidebar_state="collapsed",
+    initial_sidebar_state="expanded"
 )
 
 
@@ -35,7 +35,7 @@ manufacturing_wallpapers = [
 
 selected_wallpaper = random.choice(manufacturing_wallpapers)
 
-# --- INJECT ADVANCED HOVER SIDEBAR CSS ---
+# --- INJECT CSS ---
 st.markdown(
     f"""
 <style>
@@ -49,45 +49,6 @@ st.markdown(
     }}
 
     .stDeployButton {{display: none !important;}}
-
-    /* --- HOVER-TO-EXPAND & COLLAPSE SIDEBAR LOGIC --- */
-    
-    /* 1. Collapsed state: Thin hover activation strip on the left edge */
-    section[data-testid="stSidebar"][aria-expanded="false"] {{
-        width: 65px !important;
-        min-width: 65px !important;
-        transform: translateX(0px) !important;
-        transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-        background-color: rgba(15, 12, 29, 0.95) !important;
-        z-index: 999999 !important;
-        overflow: hidden !important;
-    }}
-
-    /* Hide text labels and buttons when collapsed so it looks like an icon rail */
-    section[data-testid="stSidebar"][aria-expanded="false"] *:not(img) {{
-        opacity: 0;
-        transition: opacity 0.15s ease-in-out;
-    }}
-
-    /* 2. Expanded state on hover */
-    section[data-testid="stSidebar"][aria-expanded="false"]:hover {{
-        width: 280px !important;
-        min-width: 280px !important;
-    }}
-
-    /* Fade contents back in smoothly when expanded via hover */
-    section[data-testid="stSidebar"][aria-expanded="false"]:hover * {{
-        opacity: 1 !important;
-    }}
-
-    /* Standard fully open state styling */
-    section[data-testid="stSidebar"][aria-expanded="true"] {{
-        width: 280px !important;
-        min-width: 280px !important;
-        transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-        background-color: rgba(15, 12, 29, 0.98) !important;
-        z-index: 999999 !important;
-    }}
 
     /* Style Streamlit Form for Glassmorphism */
     div[data-testid="stForm"] {{
@@ -247,7 +208,7 @@ if not st.session_state.logged_in:
             if submitted:
                 login()
 
-# --- DASHBOARD SCREEN (Post-Login with Hover Sidebar) ---
+# --- DASHBOARD SCREEN ---
 else:
     # --- SIDEBAR NAVIGATION ---
     with st.sidebar:
@@ -255,8 +216,8 @@ else:
             st.markdown(
                 f"""
                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
-                    <img src="data:image/png;base64,{logo_base64}" width="36" style="flex-shrink: 0;" />
-                    <h3 style="margin: 0; white-space: nowrap;">Kinetic Gears</h3>
+                    <img src="data:image/png;base64,{logo_base64}" width="36" />
+                    <h3 style="margin: 0;">Kinetic Gears</h3>
                 </div>
             """,
                 unsafe_allow_html=True,
@@ -301,5 +262,5 @@ else:
 
     st.markdown("---")
     st.info(
-        "💡 **Hover Feature Active:** Simply move your mouse to the far left edge of the screen to smoothly expand the navigation sidebar, and move your mouse away to collapse it!"
+        "💡 Use the sidebar toggle arrow in the top-left corner anytime to cleanly open or close your navigation menu."
     )
