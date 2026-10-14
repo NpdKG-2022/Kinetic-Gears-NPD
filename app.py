@@ -1,5 +1,8 @@
 import base64
-import random
+import io
+import os
+import time
+import pandas as pd
 import streamlit as st
 
 # Set page configuration
@@ -7,7 +10,6 @@ st.set_page_config(
     page_title="Kinetic Gears",
     page_icon="KG-Logo.png",
     layout="wide",
-    initial_sidebar_state="collapsed"
 )
 
 
@@ -23,7 +25,69 @@ def get_base64_image(image_path):
 
 
 logo_base64 = get_base64_image("KG-Logo.png")
+# Custom CSS for clean autofit table display and card button styling
+st.markdown(
+    """
+    <style>
+        /* Make dataframes take full width and wrap cleanly */
+        [data-testid="stDataFrame"] {
+            width: 100% !important;
+        }
+        [data-testid="stDataFrame"] > div {
+            width: 100% !important;
+        }
+        
+        /* Transform Streamlit buttons into gorgeous interactive navigation cards */
+        div[data-testid="column"] button {
+            border-radius: 24px !important;
+            padding: 20px 10px !important;
+            height: 120px !important;
+            width: 100% !important;
+            font-weight: 600 !important;
+            font-size: 14px !important;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03) !important;
+            transition: all 0.3s ease !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+            white-space: pre-wrap !important;
+        }
+        div[data-testid="column"] button:hover {
+            transform: translateY(-5px) !important;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08) !important;
+        }
 
+        /* Individual Card Colors & Borders based on Column Position */
+        div[data-testid="column"]:nth-child(1) button {
+            background-color: #ffebee !important;
+            color: #c2185b !important;
+            border: 2px solid #c2185b !important;
+        }
+        div[data-testid="column"]:nth-child(2) button {
+            background-color: #e0f7fa !important;
+            color: #00838f !important;
+            border: 2px solid #00838f !important;
+        }
+        div[data-testid="column"]:nth-child(3) button {
+            background-color: #f3e5f5 !important;
+            color: #7b1fa2 !important;
+            border: 2px solid #7b1fa2 !important;
+        }
+        div[data-testid="column"]:nth-child(4) button {
+            background-color: #e8f5e9 !important;
+            color: #2e7d32 !important;
+            border: 2px solid #2e7d32 !important;
+        }
+        div[data-testid="column"]:nth-child(5) button {
+            background-color: #fff3e0 !important;
+            color: #ef6c00 !important;
+            border: 2px solid #ef6c00 !important;
+        }
+    </style>
+""",
+    unsafe_allow_html=True,
+)
 # List of core mechanical manufacturing wallpapers
 manufacturing_wallpapers = [
     "https://images.unsplash.com/photo-1563770660941-20978e870e26?q=80&w=1920&auto=format&fit=crop",
