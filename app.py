@@ -39,8 +39,8 @@ st.markdown("""
     /* Perfectly center the logo inside the form container */
     div[data-testid="stForm"] img {
         display: block;
-        margin-left: auto;
-        margin-right: auto;
+        margin-left: centered;
+        margin-right: centered;
     }
 
     /* Custom Title & Subtitle Styling */
