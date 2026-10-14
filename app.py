@@ -234,15 +234,6 @@ nav_selection = st.sidebar.radio(
     ["Dashboard", "ISO 8.3.3.1 Design Inputs", "Material & Standards Matrix", "Prototype Cost Estimator"]
 )
 
-st.sidebar.markdown("---")
-if st.sidebar.button("Log Out"):
-    st.session_state["authenticated"] = False
-    if "captcha_num1" in st.session_state:
-        del st.session_state["captcha_num1"]
-    if "captcha_num2" in st.session_state:
-        del st.session_state["captcha_num2"]
-    st.rerun()
-
 st.sidebar.info("System Status: **Online**")
 
 # ----------------------------------------------------
