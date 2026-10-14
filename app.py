@@ -5,26 +5,13 @@ import time
 import pandas as pd
 import streamlit as st
 
-# Set page configuration
+# Page Configuration
 st.set_page_config(
-    page_title="Kinetic Gears",
-    page_icon="KG-Logo.png",
+    page_title="Plant Dispatch vs. Schedule Tracker",
+    page_icon="🏭",
     layout="wide",
 )
 
-
-# Helper function to convert logo to base64
-@st.cache_data
-def get_base64_image(image_path):
-    try:
-        with open(image_path, "rb") as f:
-            data = f.read()
-        return base64.b64encode(data).decode()
-    except Exception:
-        return ""
-
-
-logo_base64 = get_base64_image("KG-Logo.png")
 # Custom CSS for clean autofit table display and card button styling
 st.markdown(
     """
@@ -89,278 +76,787 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# --- INJECT CSS FOR TOP BAR & HORIZONTAL NAVIGATION ---
+# ================= USER AUTHENTICATION & PERSISTENCE SETUP =================
+USERS = {
+    "admin": {"password": "admin123", "role": "Admin"},
+    "operator1": {"password": "password1", "role": "Operator"},
+    "manager": {"password": "manager123", "role": "Manager"},
+}
+
+SESSION_TIMEOUT = 600  # 10 minutes in seconds
+
+# Synchronize session state with query parameters for refresh survival
+query_params = st.query_params
+
+if "logged_in" not in st.session_state:
+    qp_logged_in = query_params.get("logged_in") == "True"
+    qp_username = query_params.get("username", "")
+    qp_login_time = float(query_params.get("login_time", 0.0))
+
+    if qp_logged_in and qp_username in USERS:
+        elapsed = time.time() - qp_login_time
+        if elapsed < SESSION_TIMEOUT:
+            st.session_state["logged_in"] = True
+            st.session_state["username"] = qp_username
+            st.session_state["role"] = USERS[qp_username]["role"]
+            st.session_state["login_time"] = qp_login_time
+        else:
+            st.session_state["logged_in"] = False
+            st.session_state["username"] = ""
+            st.session_state["role"] = ""
+            st.session_state["login_time"] = 0.0
+            st.query_params.clear()
+    else:
+        st.session_state["logged_in"] = False
+        st.session_state["username"] = ""
+        st.session_state["role"] = ""
+        st.session_state["login_time"] = 0.0
+
+# Initialize navigation tab state if not present
+if "selected_tab" not in st.session_state:
+    st.session_state["selected_tab"] = "📊 Dashboard & Tracking"
+
+
+def login_screen():
+    st.markdown("<br><br>", unsafe_allow_html=True)
+    _, col2, _ = st.columns([1, 1.5, 1])
+
+    with col2:
+        st.markdown(
+            "<h2 style='text-align: center;'>🏭 CENTURY DESIGNS Login</h2>",
+            unsafe_allow_html=True,
+        )
+        st.markdown(
+            "<p style='text-align: center; color: gray;'>Please log in to access"
+            " the tracking system.</p>",
+            unsafe_allow_html=True,
+        )
+
+        with st.form("login_form"):
+            username_input = st.text_input("Username")
+            password_input = st.text_input("Password", type="password")
+            submit_button = st.form_submit_button("Login", use_container_width=True)
+
+            if submit_button:
+                if (
+                    username_input in USERS
+                    and USERS[username_input]["password"] == password_input
+                ):
+                    current_time = time.time()
+                    st.session_state["logged_in"] = True
+                    st.session_state["username"] = username_input
+                    st.session_state["role"] = USERS[username_input]["role"]
+                    st.session_state["login_time"] = current_time
+
+                    st.query_params["logged_in"] = "True"
+                    st.query_params["username"] = username_input
+                    st.query_params["login_time"] = str(current_time)
+
+                    st.success(f"Welcome back, {username_input}!")
+                    st.rerun()
+                else:
+                    st.error("Invalid username or password. Please try again.")
+
+
+# ================= SESSION TIMEOUT CHECK =================
+if st.session_state["logged_in"]:
+    elapsed = time.time() - st.session_state.get("login_time", time.time())
+    if elapsed > SESSION_TIMEOUT:
+        st.session_state["logged_in"] = False
+        st.session_state["username"] = ""
+        st.session_state["role"] = ""
+        st.session_state["login_time"] = 0.0
+        st.query_params.clear()
+        st.warning(
+            "⏱ Your session has expired due to 10 minutes of inactivity. Please"
+            " log in again."
+        )
+        st.rerun()
+
+if not st.session_state["logged_in"]:
+    login_screen()
+    st.stop()
+
+# ================= TOP PAGE TITLE =================
 st.markdown(
-    f"""
-<style>
-    /* Full page background with dynamic mechanical wallpaper on login */
-    .stApp {{
-        background: linear-gradient(rgba(15, 12, 29, 0.65), rgba(15, 12, 29, 0.85)),
-                    url('{selected_wallpaper}');
-        background-size: cover;
-        background-position: center;
-        background-attachment: fixed;
-    }}
-
-    .stDeployButton {{display: none !important;}}
-    [data-testid="stSidebar"] {{display: none !important;}}
-
-    /* Style Streamlit Form for Glassmorphism */
-    div[data-testid="stForm"] {{
-        background: rgba(255, 255, 255, 0.08) !important;
-        backdrop-filter: blur(16px) saturate(180%) !important;
-        -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
-        border: 1px solid rgba(255, 255, 255, 0.2) !important;
-        border-radius: 20px !important;
-        padding: 40px 30px !important;
-        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4) !important;
-    }}
-
-    .glass-title {{
-        color: #ffffff !important;
-        text-align: center;
-        font-size: 32px;
-        font-weight: 700;
-        margin-top: 15px;
-        letter-spacing: 1px;
-    }}
-    .glass-subtitle {{
-        color: rgba(255, 255, 255, 0.7) !important;
-        text-align: center;
-        font-size: 14px;
-        margin-bottom: 25px;
-    }}
-
-    div[data-testid="stTextInput"] input {{
-        background-color: transparent !important;
-        border: none !important;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.5) !important;
-        border-radius: 0px !important;
-        color: #ffffff !important;
-        padding: 10px 5px !important;
-        font-size: 15px !important;
-    }}
-    div[data-testid="stTextInput"] input:focus {{
-        border-bottom: 2px solid #ffffff !important;
-        box-shadow: none !important;
-    }}
-    div[data-testid="stTextInput"] label {{
-        color: rgba(255, 255, 255, 0.9) !important;
-        font-weight: 500 !important;
-    }}
-
-    div[data-testid="stFormSubmitButton"] button {{
-        background-color: #ffffff !important;
-        color: #111111 !important;
-        font-weight: 700 !important;
-        border-radius: 8px !important;
-        border: none !important;
-        height: 48px !important;
-        font-size: 16px !important;
-        margin-top: 15px !important;
-        transition: all 0.3s ease !important;
-    }}
-    div[data-testid="stFormSubmitButton"] button:hover {{
-        background-color: #e2e2e2 !important;
-        color: #000000 !important;
-        transform: translateY(-2px);
-    }}
-</style>
-""",
+    """
+    <div style="text-align: center; margin-bottom: 0px;">
+        <h1 style="font-size: 50px; margin-bottom: 0px;">🏭 CENTURY DESIGNS Tracking System</h1>
+    </div>
+    """,
     unsafe_allow_html=True,
 )
+st.markdown("---")
 
+# ================= TOP HEADER BAR =================
+top_c1, top_c2, top_c3, top_c4 = st.columns([1.2, 2.3, 1.1, 0.9])
 
-# --- HELPER FUNCTIONS ---
-def generate_new_captcha():
-    ops = [("+", lambda a, b: a + b), ("-", lambda a, b: a - b), ("*", lambda a, b: a * b)]
-    op_symbol, op_func = random.choice(ops)
-
-    if op_symbol == "-":
-        a = random.randint(5, 20)
-        b = random.randint(1, a)
-    elif op_symbol == "*":
-        a = random.randint(2, 9)
-        b = random.randint(2, 9)
-    else:
-        a = random.randint(1, 20)
-        b = random.randint(1, 20)
-
-    st.session_state.captcha_num1 = a
-    st.session_state.captcha_num2 = b
-    st.session_state.captcha_op = op_symbol
-    st.session_state.captcha_ans = op_func(a, b)
-
-
-# Initialize session state variables
-if "logged_in" not in st.session_state:
-    st.session_state.logged_in = False
-
-if "nav_choice" not in st.session_state:
-    st.session_state.nav_choice = "Dashboard & Tracking"
-
-if "captcha_num1" not in st.session_state:
-    generate_new_captcha()
-
-
-def login():
-    entered_user = st.session_state.get("username", "")
-    entered_pass = st.session_state.get("password", "")
-    entered_captcha_str = st.session_state.get("captcha_input", "").strip()
-
-    try:
-        entered_captcha = int(entered_captcha_str)
-    except ValueError:
-        st.error("Please enter a valid number for the CAPTCHA.")
-        generate_new_captcha()
-        return
-
-    if entered_captcha != st.session_state.captcha_ans:
-        st.error("Incorrect CAPTCHA answer. Please try again.")
-        generate_new_captcha()
-    elif entered_user == "admin" and entered_pass == "admin123":
-        st.session_state.logged_in = True
-        st.success("Login successful!")
-        st.rerun()
-    else:
-        st.error("Invalid username or password. Please try again.")
-        generate_new_captcha()
-
-
-def logout():
-    st.session_state.logged_in = False
-    st.session_state.username = ""
-    st.session_state.password = ""
-    st.session_state.captcha_input = ""
-    generate_new_captcha()
-
-
-# --- LOGIN SCREEN ---
-if not st.session_state.logged_in:
-    col1, col2, col3 = st.columns([1, 1.2, 1])
-    with col2:
-        with st.form("login_form"):
-            if logo_base64:
-                st.markdown(
-                    f"""
-                    <div style="text-align: center; margin-bottom: 5px;">
-                        <img src="data:image/png;base64,{logo_base64}" width="90" style="display: block; margin: 0 auto;" />
-                    </div>
-                """,
-                    unsafe_allow_html=True,
-                )
-
-            st.markdown("<div class='glass-title'>KINETIC GEARS</div>", unsafe_allow_html=True)
-            st.markdown(
-                "<div class='glass-subtitle'>Please enter credentials, solve the maths and start the work</div>",
-                unsafe_allow_html=True,
-            )
-
-            st.text_input("Username", key="username", placeholder="Enter username")
-            st.text_input("Password", type="password", key="password", placeholder="Enter password")
-
-            captcha_label = f"Solve: {st.session_state.captcha_num1} {st.session_state.captcha_op} {st.session_state.captcha_num2} = ?"
-            st.text_input(captcha_label, key="captcha_input", placeholder="Enter the answer")
-
-            submitted = st.form_submit_button("Log In", use_container_width=True)
-            if submitted:
-                login()
-
-# --- DASHBOARD SCREEN WITH CUSTOM TOP BAR & HORIZONTAL NAVIGATION ---
-else:
-    # --- TOP HEADER BAR ---
-    top_c1, top_c2, top_c3, top_c4 = st.columns([1.5, 2, 1.5, 1])
-
-    with top_c1:
-        st.markdown(
-            """
-            <div style="color: #ffffff; font-size: 15px; font-weight: 600;">👤 admin</div>
-            <div style="color: rgba(255, 255, 255, 0.7); font-size: 13px;">Role: Admin</div>
-        """,
-            unsafe_allow_html=True,
-        )
-
-    with top_c2:
-        st.markdown(
-            """
-            <div style="display: flex; justify-content: center;">
-                <div style="background: linear-gradient(135deg, #7c3aed 0%, #3b82f6 100%); padding: 6px 18px; border-radius: 20px; text-align: center; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);">
-                    <div style="color: #ffffff; font-weight: 700; font-size: 16px; letter-spacing: 1px;">12:37:23 AM</div>
-                    <div style="color: rgba(255, 255, 255, 0.9); font-size: 11px;">Thursday, October 15, 2026</div>
-                </div>
-            </div>
-        """,
-            unsafe_allow_html=True,
-        )
-
-    with top_c3:
-        st.markdown(
-            """
-            <div style="text-align: right; color: rgba(255, 255, 255, 0.8); font-size: 13px;">
-                ⏳ <b>Expires:</b><br/>09:59
-            </div>
-        """,
-            unsafe_allow_html=True,
-        )
-
-    with top_c4:
-        if st.button("🚪 Logout", use_container_width=True):
-            logout()
-            st.rerun()
-
-    st.markdown("<hr style='border-color: rgba(255,255,255,0.15); margin: 15px 0;'>", unsafe_allow_html=True)
-
-    # --- HORIZONTAL NAVIGATION MENU ---
+with top_c1:
     st.markdown(
-        "<div style='color: #ffffff; font-size: 18px; font-weight: 700; margin-bottom: 10px;'>📌 Navigation Menu</div>",
+        f"👤 **{st.session_state['username']}**<br>Role:"
+        f" **{st.session_state['role']}**",
         unsafe_allow_html=True,
     )
 
-    nav_cols = st.columns(5)
-    menu_items = [
-        ("Dashboard & Tracking", "📊"),
-        ("View Drawing (In-Browser)", "🔍"),
-        ("Enter Dispatches", "📝"),
-        ("Manage Drawings", "📐"),
-        ("Add New Item Schedule", "➕"),
+with top_c2:
+    st.components.v1.html(
+        """
+        <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+        <style>
+            body {
+                margin: 0;
+                background-color: transparent;
+            }
+            .clock-card {
+                background: linear-gradient(135deg, #e91e63, #c2185b);
+                border-radius: 14px;
+                padding: 6px 14px;
+                text-align: center;
+                box-shadow: 0 4px 15px rgba(233, 30, 99, 0.3);
+                font-family: 'Orbitron', sans-serif;
+                display: inline-block;
+                box-sizing: border-box;
+            }
+            .time-display {
+                font-size: 18px;
+                font-weight: 700;
+                color: #ffffff;
+                letter-spacing: 2px;
+                text-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
+            }
+            .date-display {
+                font-size: 10px;
+                font-weight: 500;
+                color: #fce4ec;
+                margin-top: 2px;
+                letter-spacing: 1px;
+            }
+        </style>
+        <div class="clock-card">
+            <div id="futuristic-time" class="time-display">00:00:00 AM</div>
+            <div id="futuristic-date" class="date-display">Loading date...</div>
+        </div>
+        <script>
+            function updateFuturisticClock() {
+                const now = new Date();
+                let hours = now.getHours();
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                const seconds = String(now.getSeconds()).padStart(2, '0');
+                const ampm = hours >= 12 ? 'PM' : 'AM';
+                
+                hours = hours % 12;
+                hours = hours ? hours : 12; 
+                const formattedHours = String(hours).padStart(2, '0');
+                
+                document.getElementById('futuristic-time').innerText = `${formattedHours}:${minutes}:${seconds} ${ampm}`;
+                
+                const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+                document.getElementById('futuristic-date').innerText = now.toLocaleDateString('en-US', options);
+            }
+            setInterval(updateFuturisticClock, 1000);
+            updateFuturisticClock();
+        </script>
+        """,
+        height=55,
+    )
+
+with top_c3:
+    elapsed = time.time() - st.session_state.get("login_time", time.time())
+    remaining_secs = max(0, int(SESSION_TIMEOUT - elapsed))
+    mins, secs = divmod(remaining_secs, 60)
+    st.markdown(f"⏳ Expires:<br>**{mins:02d}:{secs:02d}**", unsafe_allow_html=True)
+
+with top_c4:
+    st.markdown("<br>", unsafe_allow_html=True)
+    if st.button("🚪 Logout", use_container_width=True):
+        st.session_state["logged_in"] = False
+        st.session_state["username"] = ""
+        st.session_state["role"] = ""
+        st.session_state["login_time"] = 0.0
+        st.query_params.clear()
+        st.rerun()
+
+st.markdown("---")
+
+EXCEL_FILE = "Book1.xlsx"
+LOG_FILE = "dispatch_log.csv"
+CUSTOM_ITEMS_FILE = "custom_items.csv"
+DRAWINGS_MAP_FILE = "item_drawings.csv"
+DRAWINGS_DIR = "drawings"
+
+os.makedirs(DRAWINGS_DIR, exist_ok=True)
+
+months_list = [
+    "Apr", "May", "Jun", "Jul", "Aug", "Sep",
+    "Oct", "Nov", "Dec", "Jan", "Feb", "Mar"
+]
+
+
+@st.cache_data
+def load_schedule_data():
+    if not os.path.exists(EXCEL_FILE):
+        return None
+    df_raw = pd.read_excel(EXCEL_FILE, sheet_name="KMC TOTAL")
+    df = df_raw.iloc[1:].copy()
+    df = df.dropna(subset=["Plant", "CODE NO."])
+
+    for m in months_list:
+        df[m] = pd.to_numeric(df[m], errors="coerce").fillna(0)
+
+    df["PRICE"] = pd.to_numeric(df["PRICE"], errors="coerce").fillna(0.0)
+
+    if os.path.exists(CUSTOM_ITEMS_FILE):
+        df_custom = pd.read_csv(CUSTOM_ITEMS_FILE)
+        if not df_custom.empty:
+            for m in months_list:
+                if m in df_custom.columns:
+                    df_custom[m] = pd.to_numeric(df_custom[m], errors="coerce").fillna(0)
+            df = pd.concat([df, df_custom], ignore_index=True)
+
+    if os.path.exists(DRAWINGS_MAP_FILE):
+        df_drawings = pd.read_csv(DRAWINGS_MAP_FILE)
+        if not df_drawings.empty:
+            df = pd.merge(df, df_drawings, on="CODE NO.", how="left", suffixes=("", "_map"))
+            if "Drawing_map" in df.columns:
+                df["Drawing"] = df["Drawing_map"].combine_first(
+                    df.get("Drawing", pd.Series([None] * len(df)))
+                )
+                df = df.drop(columns=[c for c in df.columns if "_map" in c])
+
+    if "Drawing" not in df.columns:
+        df["Drawing"] = ""
+
+    df["Total_Schedule"] = df[months_list].sum(axis=1)
+    return df
+
+
+df_schedule = load_schedule_data()
+
+if df_schedule is None:
+    st.error(
+        f"Could not find '{EXCEL_FILE}' in the directory. Please place it in the folder."
+    )
+else:
+    if not os.path.exists(LOG_FILE):
+        pd.DataFrame(
+            columns=[
+                "Date", "Plant", "CODE NO.", "ITEM NAME",
+                "Month", "Dispatched Qty", "Logged By"
+            ]
+        ).to_csv(LOG_FILE, index=False)
+
+    log_df = pd.read_csv(LOG_FILE)
+
+    if not log_df.empty and "Dispatched Qty" in log_df.columns:
+        disp_summary = (
+            log_df.groupby(["Plant", "CODE NO."])["Dispatched Qty"]
+            .sum()
+            .reset_index()
+            .rename(columns={"Dispatched Qty": "Disp. Till date"})
+        )
+    else:
+        disp_summary = pd.DataFrame(
+            columns=["Plant", "CODE NO.", "Disp. Till date"]
+        )
+
+    df_tracker = pd.merge(
+        df_schedule, disp_summary, on=["Plant", "CODE NO."], how="left"
+    )
+    df_tracker["Disp. Till date"] = (
+        df_tracker["Disp. Till date"].fillna(0).astype(int)
+    )
+    df_tracker["Balance"] = (
+        df_tracker["Total_Schedule"] - df_tracker["Disp. Till date"]
+    )
+
+    # ================= CARD GRID NAVIGATION MENU =================
+    st.markdown("### 📌 Navigation Menu")
+
+    tabs_config = [
+        {"title": "Dashboard & Tracking", "icon": "📊", "bg": "#ffebee", "color": "#c2185b"},
+        {"title": "View Drawing (In-Browser)", "icon": "🔍", "bg": "#e0f7fa", "color": "#00838f"},
+        {"title": "Enter Dispatches", "icon": "📝", "bg": "#f3e5f5", "color": "#7b1fa2"},
+        {"title": "Manage Drawings", "icon": "📐", "bg": "#e8f5e9", "color": "#2e7d32"},
+        {"title": "Add New Item Schedule", "icon": "➕", "bg": "#fff3e0", "color": "#ef6c00"}
     ]
 
-    for i, (item, icon) in enumerate(menu_items):
-        with nav_cols[i]:
-            is_selected = st.session_state.nav_choice == item
-            btn_label = f"{icon} {item}"
-
-            if is_selected:
-                # Active button with gradient styling via custom markdown container
-                st.markdown(
-                    f"""
-                    <div style="background: linear-gradient(135deg, #7c3aed 0%, #3b82f6 100%); 
-                                padding: 10px 14px; border-radius: 10px; text-align: center; 
-                                color: white; font-weight: 600; font-size: 13px; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);">
-                        {btn_label}
-                    </div>
-                """,
-                    unsafe_allow_html=True,
-                )
-            else:
-                if st.button(btn_label, key=f"nav_{i}", use_container_width=True):
-                    st.session_state.nav_choice = item
-                    st.rerun()
-
-    st.markdown("<hr style='border-color: rgba(255,255,255,0.15); margin: 20px 0;'>", unsafe_allow_html=True)
-
-    # --- MAIN CONTENT AREA ---
-    st.title(f"📊 {st.session_state.nav_choice}")
-    st.write(f"Welcome back, **admin**! You are viewing the **{st.session_state.nav_choice}** module.")
-
-    col1, col2, col3, col4 = st.columns(4)
-    with col1:
-        st.metric(label="New Clients", value="236", delta="+12.3%")
-    with col2:
-        st.metric(label="Earnings of Month", value="$18,306", delta="+4.2%")
-    with col3:
-        st.metric(label="New Projects", value="1538", delta="-1.5%")
-    with col4:
-        st.metric(label="Active Gear units", value="864")
+    cols = st.columns(5)
+    for i, tab in enumerate(tabs_config):
+        with cols[i]:
+            tab_full_name = f"{tab['icon']}\n{tab['title']}"
+            if st.button(tab_full_name, key=f"nav_btn_{i}", use_container_width=True):
+                st.session_state["selected_tab"] = f"{tab['icon']} {tab['title']}"
+                st.rerun()
 
     st.markdown("---")
+    selected_tab = st.session_state["selected_tab"]
+
+    # ================= TAB 1: DASHBOARD =================
+    if selected_tab == "📊 Dashboard & Tracking":
+        st.subheader("📊 Live Tracking Summary")
+        st.markdown(
+            "*(Note: Monthly columns are color-coded: 🟩 Green = Complete, 🟨 Yellow = Partial)*"
+        )
+
+        f_col1, f_col2, f_col3 = st.columns(3)
+        plants = ["All"] + list(df_tracker["Plant"].dropna().unique())
+        with f_col1:
+            selected_plant = st.selectbox("Select Plant", options=plants, key="dash_plant")
+
+        filtered_by_plant = (
+            df_tracker
+            if selected_plant == "All"
+            else df_tracker[df_tracker["Plant"] == selected_plant]
+        )
+
+        code_options = ["All"] + sorted(
+            filtered_by_plant["CODE NO."].astype(str).unique().tolist()
+        )
+        with f_col2:
+            selected_code = st.selectbox("Select Code No.", options=code_options, key="dash_code")
+
+        item_options = ["All"] + sorted(
+            filtered_by_plant["ITEM NAME"].astype(str).unique().tolist()
+        )
+        with f_col3:
+            selected_item = st.selectbox("Select Item Name", options=item_options, key="dash_item")
+
+        view_df = filtered_by_plant.copy()
+        if selected_code != "All":
+            view_df = view_df[view_df["CODE NO."].astype(str) == selected_code]
+        if selected_item != "All":
+            view_df = view_df[view_df["ITEM NAME"].astype(str) == selected_item]
+
+        def highlight_schedule_completion(row):
+            styles = [""] * len(row)
+            total_disp = float(row.get("Disp. Till date", 0))
+            remaining_disp = total_disp
+
+            for i, col_name in enumerate(row.index):
+                if col_name in months_list:
+                    try:
+                        sched_val = float(row[col_name])
+                    except ValueError:
+                        sched_val = 0.0
+
+                    if sched_val > 0:
+                        if remaining_disp >= sched_val:
+                            styles[i] = "background-color: rgba(102, 255, 0, 1.0); color: black;"
+                            remaining_disp -= sched_val
+                        elif remaining_disp > 0:
+                            styles[i] = "background-color: rgba(241, 196, 15, 0.6); color: black;"
+                            remaining_disp = 0
+            return styles
+
+        display_table_df = view_df.drop(columns=["Drawing"], errors="ignore")
+        st.markdown("---")
+
+        numeric_cols = months_list + ["Total_Schedule", "Disp. Till date", "Balance"]
+        format_dict = {}
+        for col in display_table_df.columns:
+            if col in numeric_cols or col == "PRICE":
+                format_dict[col] = (
+                    lambda val: f"{int(val)}"
+                    if pd.notna(val) and float(val).is_integer()
+                    else f"{val}"
+                )
+
+        styled_df = (
+            display_table_df.style.apply(highlight_schedule_completion, axis=1)
+            .format(format_dict, na_rep="")
+        )
+        st.dataframe(styled_df, use_container_width=True, hide_index=True)
+
+        # ================= EXPORT OPTIONS =================
+        st.markdown("### 📥 Export Tracking Data")
+        e_col1, e_col2 = st.columns([1, 2])
+
+        with e_col1:
+            export_format = st.selectbox(
+                "Choose Export Format", options=[".xlsx", ".xls", ".pdf"], key="exp_fmt"
+            )
+
+        with e_col2:
+            st.markdown("<br>", unsafe_allow_html=True)
+            if export_format in [".xlsx", ".xls"]:
+                output = io.BytesIO()
+                engine = "openpyxl" if export_format == ".xlsx" else "xlwt"
+                try:
+                    with pd.ExcelWriter(output, engine=engine) as writer:
+                        current_timestamp = pd.Timestamp.now().strftime("%A, %Y-%m-%d %H:%M:%S")
+                        current_user = st.session_state.get("username", "Unknown")
+
+                        metadata_df = pd.DataFrame([
+                            ["Century Designs - Plant Dispatch Tracking Report"],
+                            [f"Generated on: {current_timestamp}"],
+                            [f"Exported by User: {current_user}"],
+                            [""]
+                        ])
+                        metadata_df.to_excel(writer, index=False, header=False, sheet_name="Tracking")
+                        display_table_df.to_excel(writer, index=False, startrow=4, sheet_name="Tracking")
+
+                    excel_data = output.getvalue()
+                    st.download_button(
+                        label=f"Download File ({export_format})",
+                        data=excel_data,
+                        file_name=f"dispatch_tracker{export_format}",
+                        mime=(
+                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                            if export_format == ".xlsx"
+                            else "application/vnd.ms-excel"
+                        ),
+                        use_container_width=True,
+                    )
+                except Exception as ex:
+                    st.error(f"Error generating Excel file: {ex}")
+
+            elif export_format == ".pdf":
+                from reportlab.lib import colors
+                from reportlab.lib.pagesizes import A4, landscape
+                from reportlab.platypus import Paragraph, SimpleDocTemplate, Table, TableStyle
+                from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+
+                pdf_buffer = io.BytesIO()
+                doc = SimpleDocTemplate(
+                    pdf_buffer,
+                    pagesize=landscape(A4),
+                    rightMargin=20,
+                    leftMargin=20,
+                    topMargin=20,
+                    bottomMargin=20,
+                )
+                story = []
+                styles = getSampleStyleSheet()
+
+                title_style = ParagraphStyle(
+                    "TitleStyle",
+                    parent=styles["Heading1"],
+                    fontSize=16,
+                    textColor=colors.HexColor("#1f4e78"),
+                    spaceAfter=4,
+                )
+
+                meta_style = ParagraphStyle(
+                    "MetaStyle",
+                    parent=styles["Normal"],
+                    fontSize=9,
+                    textColor=colors.HexColor("#555555"),
+                    spaceAfter=12,
+                )
+
+                story.append(
+                    Paragraph("Century Designs - Plant Dispatch Tracking Report", title_style)
+                )
+
+                current_timestamp = pd.Timestamp.now().strftime("%A, %B %d, %Y - %H:%M:%S")
+                current_user = st.session_state.get("username", "Unknown")
+
+                meta_text = f"<b>Generated on:</b> {current_timestamp} &nbsp;&nbsp;|&nbsp;&nbsp; <b>Exported by:</b> {current_user}"
+                story.append(Paragraph(meta_text, meta_style))
+
+                headers = list(display_table_df.columns)
+                table_data = [headers]
+                for _, row in display_table_df.iterrows():
+                    table_data.append([str(row[col]) if pd.notna(row[col]) else "" for col in headers])
+
+                t = Table(table_data)
+                t.setStyle(
+                    TableStyle([
+                        ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#1f4e78")),
+                        ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
+                        ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+                        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                        ("FONTSIZE", (0, 0), (-1, 0), 8),
+                        ("BOTTOMPADDING", (0, 0), (-1, 0), 6),
+                        ("BACKGROUND", (0, 1), (-1, -1), colors.HexColor("#f9f9f9")),
+                        ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#d3d3d3")),
+                        ("FONTNAME", (0, 1), (-1, -1), "Helvetica"),
+                        ("FONTSIZE", (0, 1), (-1, -1), 7),
+                    ])
+                )
+                story.append(t)
+                doc.build(story)
+                pdf_data = pdf_buffer.getvalue()
+
+                st.download_button(
+                    label="Download File (.pdf)",
+                    data=pdf_data,
+                    file_name="dispatch_tracker.pdf",
+                    mime="application/pdf",
+                    use_container_width=True,
+                )
+
+    # ================= TAB 2: VIEW DRAWING =================
+    elif selected_tab == "🔍 View Drawing (In-Browser)":
+        st.subheader("🔍 In-Browser Engineering Drawing Viewer")
+        v_col1, v_col2 = st.columns(2)
+
+        all_codes = sorted(df_tracker["CODE NO."].astype(str).unique().tolist())
+        all_items = sorted(df_tracker["ITEM NAME"].astype(str).unique().tolist())
+
+        with v_col1:
+            search_by_code = st.selectbox(
+                "Select by Code No.",
+                options=["-- Select --"] + all_codes,
+                key="draw_search_code",
+            )
+        with v_col2:
+            search_by_item = st.selectbox(
+                "Select by Item Name",
+                options=["-- Select --"] + all_items,
+                key="draw_search_item",
+            )
+
+        matched_rows = pd.DataFrame()
+        if search_by_code != "-- Select --":
+            matched_rows = df_tracker[df_tracker["CODE NO."].astype(str) == search_by_code]
+        elif search_by_item != "-- Select --":
+            matched_rows = df_tracker[df_tracker["ITEM NAME"].astype(str) == search_by_item]
+
+        if not matched_rows.empty:
+            row = matched_rows.iloc[0]
+            c_code = row["CODE NO."]
+            c_item = row["ITEM NAME"]
+            c_plant = row["Plant"]
+            drawing_path = row.get("Drawing", "")
+
+            st.markdown("---")
+            st.info(
+                f"**Plant:** {c_plant} | **Code No:** `{c_code}` | **Item Name:** `{c_item}`"
+            )
+
+            if (
+                pd.notna(drawing_path)
+                and str(drawing_path).strip() != ""
+                and os.path.exists(str(drawing_path))
+            ):
+                st.success("Drawing loaded successfully in viewer:")
+                if drawing_path.lower().endswith((".png", ".jpg", ".jpeg")):
+                    st.image(
+                        drawing_path,
+                        caption=f"Drawing: {c_code} - {c_item}",
+                        use_container_width=True,
+                    )
+                elif drawing_path.lower().endswith(".pdf"):
+                    with open(drawing_path, "rb") as f:
+                        base64_pdf = base64.b64encode(f.read()).decode("utf-8")
+                    pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="100%" height="700px" type="application/pdf"></iframe>'
+                    st.markdown(pdf_display, unsafe_allow_html=True)
+            else:
+                st.warning(
+                    "No drawing file attached to this item. Go to **'Manage Drawings'** tab to upload one."
+                )
+        else:
+            st.info("Please select a Code No. or Item Name above to view its drawing.")
+
+    # ================= TAB 3: ENTER DISPATCHES =================
+    elif selected_tab == "📝 Enter Dispatches":
+        st.subheader("📝 Record Monthly Dispatch")
+
+        if "d_qty" not in st.session_state:
+            st.session_state["d_qty"] = 0
+
+        with st.form("dispatch_entry_form"):
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                form_plant = st.selectbox(
+                    "Plant Name",
+                    options=df_tracker["Plant"].dropna().unique(),
+                    key="d_plant",
+                )
+
+            plant_items = df_tracker[df_tracker["Plant"] == form_plant]
+            item_options_dict = dict(
+                zip(plant_items["ITEM NAME"], plant_items["CODE NO."])
+            )
+
+            with col2:
+                form_item = st.selectbox(
+                    "Item Name", options=list(item_options_dict.keys()), key="d_item"
+                )
+                form_code = item_options_dict.get(form_item, "")
+
+            with col3:
+                form_month = st.selectbox(
+                    "Target Month", options=months_list, key="d_month"
+                )
+
+            dispatch_qty = st.number_input(
+                "Dispatched Quantity", min_value=0, step=1, key="d_qty"
+            )
+            submitted = st.form_submit_button("Save Dispatch Entry")
+
+            if submitted:
+                new_entry = pd.DataFrame({
+                    "Date": [pd.Timestamp.now().strftime("%Y-%m-%d %H:%M")],
+                    "Plant": [form_plant],
+                    "CODE NO.": [form_code],
+                    "ITEM NAME": [form_item],
+                    "Month": [form_month],
+                    "Dispatched Qty": [dispatch_qty],
+                    "Logged By": [st.session_state["username"]],
+                })
+                new_entry.to_csv(LOG_FILE, mode="a", header=False, index=False)
+                st.success(
+                    f"Successfully recorded {dispatch_qty} units for {form_item} "
+                    f"({form_plant}) in {form_month}!"
+                )
+                st.session_state["d_qty"] = 0
+                st.rerun()
+
+        st.markdown("---")
+        st.subheader("📋 Raw Dispatch Entry History")
+        if not log_df.empty:
+            st.dataframe(log_df, use_container_width=True, hide_index=True)
+            if st.session_state["role"] == "Admin":
+                if st.button("🗑️ Clear All Dispatch Logs"):
+                    if os.path.exists(LOG_FILE):
+                        os.remove(LOG_FILE)
+                    st.success("Dispatch log history cleared!")
+                    st.rerun()
+        else:
+            st.info("No dispatch entries logged yet.")
+
+    # ================= TAB 4: MANAGE DRAWINGS =================
+    elif selected_tab == "📐 Manage Drawings":
+        st.subheader("📐 Attach or Update Drawings for Code Numbers")
+        all_unique_codes = sorted(
+            df_tracker["CODE NO."].astype(str).unique().tolist()
+        )
+
+        with st.form("drawing_manager_form"):
+            selected_code_for_drawing = st.selectbox(
+                "Select Code No.", options=all_unique_codes
+            )
+            match_row = df_tracker[
+                df_tracker["CODE NO."].astype(str) == selected_code_for_drawing
+            ]
+            if not match_row.empty:
+                st.markdown(f"**Associated Item Name:** `{match_row.iloc[0]['ITEM NAME']}`")
+
+            uploaded_file = st.file_uploader(
+                "Upload Drawing File (PDF, PNG, JPG)",
+                type=["pdf", "png", "jpg", "jpeg"],
+            )
+            drawing_submitted = st.form_submit_button("Save Drawing Link")
+
+            if drawing_submitted:
+                if uploaded_file is not None:
+                    file_save_path = os.path.join(DRAWINGS_DIR, uploaded_file.name)
+                    with open(file_save_path, "wb") as f:
+                        f.write(uploaded_file.getbuffer())
+
+                    df_d_map = (
+                        pd.read_csv(DRAWINGS_MAP_FILE)
+                        if os.path.exists(DRAWINGS_MAP_FILE)
+                        else pd.DataFrame(columns=["CODE NO.", "Drawing"])
+                    )
+                    df_d_map = df_d_map[
+                        df_d_map["CODE NO."].astype(str)
+                        != str(selected_code_for_drawing)
+                    ]
+                    pd.concat(
+                        [
+                            df_d_map,
+                            pd.DataFrame({
+                                "CODE NO.": [selected_code_for_drawing],
+                                "Drawing": [file_save_path],
+                            }),
+                        ],
+                        ignore_index=True,
+                    ).to_csv(DRAWINGS_MAP_FILE, index=False)
+
+                    st.success(
+                        f"Successfully linked drawing to Code No: {selected_code_for_drawing}!"
+                    )
+                    st.rerun()
+                else:
+                    st.error("Please upload a drawing file first.")
+
+    # ================= TAB 5: ADD NEW ITEM SCHEDULE =================
+    elif selected_tab == "➕ Add New Item Schedule":
+        st.subheader("➕ Add New Item & Plant Requirement Schedule")
+        with st.form("new_item_form"):
+            c1, c2, c3 = st.columns(3)
+            with c1:
+                new_plant = st.text_input("Plant Name (e.g. KMC-AT)")
+            with c2:
+                new_code = st.text_input("Code No. (e.g. 1109999-00)")
+            with c3:
+                new_item_name = st.text_input("Item Name / Description")
+
+            c4, _ = st.columns(2)
+            with c4:
+                new_price = st.number_input(
+                    "Unit Price", min_value=0.0, value=1.0, step=0.01
+                )
+
+            st.markdown("##### Monthly Firm Schedules (Apr – Mar)")
+            m_cols = st.columns(6)
+            new_schedules = {}
+            for i, m in enumerate(months_list):
+                with m_cols[i % 6]:
+                    new_schedules[m] = st.number_input(
+                        m, min_value=0, value=0, step=1, key=f"sch_{m}"
+                    )
+
+            uploaded_drawing = st.file_uploader(
+                "Choose a drawing file",
+                type=["pdf", "png", "jpg", "jpeg"],
+                key="new_item_drawing",
+            )
+            add_submitted = st.form_submit_button("Save New Item")
+
+            if add_submitted:
+                if not new_plant or not new_code or not new_item_name:
+                    st.error("Please fill in Plant, Code No., and Item Name.")
+                else:
+                    drawing_saved_path = ""
+                    if uploaded_drawing is not None:
+                        drawing_saved_path = os.path.join(
+                            DRAWINGS_DIR, uploaded_drawing.name
+                        )
+                        with open(drawing_saved_path, "wb") as f:
+                            f.write(uploaded_drawing.getbuffer())
+
+                        df_d_map = (
+                            pd.read_csv(DRAWINGS_MAP_FILE)
+                            if os.path.exists(DRAWINGS_MAP_FILE)
+                            else pd.DataFrame(columns=["CODE NO.", "Drawing"])
+                        )
+                        df_d_map = df_d_map[
+                            df_d_map["CODE NO."].astype(str) != str(new_code)
+                        ]
+                        pd.concat(
+                            [
+                                df_d_map,
+                                pd.DataFrame({
+                                    "CODE NO.": [new_code],
+                                    "Drawing": [drawing_saved_path],
+                                }),
+                            ],
+                            ignore_index=True,
+                        ).to_csv(DRAWINGS_MAP_FILE, index=False)
+
+                    row_data = {
+                        "Plant": [new_plant],
+                        "CODE NO.": [new_code],
+                        "ITEM NAME": [new_item_name.upper()],
+                        "PRICE": [new_price],
+                        "Drawing": [drawing_saved_path],
+                    }
+                    for m in months_list:
+                        row_data[m] = [new_schedules[m]]
+
+                    df_new_row = pd.DataFrame(row_data)
+                    if os.path.exists(CUSTOM_ITEMS_FILE):
+                        df_new_row.to_csv(
+                            CUSTOM_ITEMS_FILE, mode="a", header=False, index=False
+                        )
+                    else:
+                        df_new_row.to_csv(CUSTOM_ITEMS_FILE, index=False)
+
+                    st.success(
+                        f"Successfully added new item '{new_item_name}' (Code: {new_code}) for plant {new_plant}!"
+                    )
+                    st.rerun()
