@@ -274,17 +274,19 @@ st.markdown(
 username_val = st.session_state['username']
 role_val = st.session_state['role']
 
-# Single consolidated header component aligned to the right
+# Single full-width consolidated top component (Clock on top, user info & expanding logout button below)
 st.components.v1.html(
     f"""
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
     <style>
-        body {{ margin: 0; background-color: transparent; display: flex; justify-content: flex-end; align-items: flex-start; }}
-        .header-wrapper {{
+        body {{ margin: 0; background-color: transparent; }}
+        .top-container {{
             display: flex;
-            flex-direction: column;
+            justify-content: flex-end;
             align-items: flex-end;
-            gap: 6px;
+            flex-direction: column;
+            width: 100%;
+            padding-right: 5px;
         }}
         .clock-card {{
             background: linear-gradient(135deg, #e91e63, #c2185b);
@@ -293,6 +295,7 @@ st.components.v1.html(
             text-align: center;
             box-shadow: 0 4px 15px rgba(233, 30, 99, 0.3);
             font-family: 'Orbitron', sans-serif;
+            margin-bottom: 6px;
         }}
         .time-display {{
             font-size: 15px;
@@ -332,7 +335,7 @@ st.components.v1.html(
         .logout-text {{ font-family: sans-serif; font-weight: 600; font-size: 13px; padding-left: 2px; padding-right: 12px; opacity: 0; transition: opacity 0.3s ease 0.1s; }}
         .logout-btn:hover .logout-text {{ opacity: 1; }}
     </style>
-    <div class="header-wrapper">
+    <div class="top-container">
         <div class="clock-card">
             <div id="futuristic-time" class="time-display">00:00:00 AM</div>
             <div id="futuristic-date" class="date-display">Loading date...</div>
