@@ -52,7 +52,7 @@ st.markdown(
 
         /* Remove excess top padding above header */
         .block-container {{
-            padding-top: 1.5rem !important;
+            padding-top: 1.0rem !important;
             padding-bottom: 2rem !important;
         }}
 
@@ -277,7 +277,7 @@ with top_c1:
                 const mins = String(Math.floor(totalSecs / 60)).padStart(2, '0');
                 const secs = String(totalSecs % 60).padStart(2, '0');
                 document.getElementById('countdown-timer').innerText = mins + ":" + secs;
-            }
+            }}
             setInterval(updateExpiryCountdown, 1000);
             updateExpiryCountdown();
         </script>
@@ -373,7 +373,7 @@ with top_c2:
                 document.getElementById('futuristic-time').innerText = formattedHours + ":" + minutes + ":" + seconds + " " + ampm;
                 const options = {{ weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }};
                 document.getElementById('futuristic-date').innerText = now.toLocaleDateString('en-US', options);
-            }
+            }}
             setInterval(updateFuturisticClock, 1000);
             updateFuturisticClock();
         </script>
