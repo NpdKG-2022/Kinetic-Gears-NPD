@@ -35,7 +35,7 @@ manufacturing_wallpapers = [
 
 selected_wallpaper = random.choice(manufacturing_wallpapers)
 
-# --- INJECT CSS WITH FIXED SIDEBAR ACTIVE PILL STYLING ---
+# --- INJECT CSS ---
 st.markdown(
     f"""
 <style>
@@ -50,15 +50,15 @@ st.markdown(
 
     .stDeployButton {{display: none !important;}}
 
-    /* --- CORRECTED SIDEBAR RADIO GRADIENT PILL STYLING --- */
+    /* --- SIDEBAR RADIO GRADIENT PILL STYLING --- */
     div[data-testid="stSidebar"] div[data-testid="stRadio"] div[role="radiogroup"] > label {{
         border-radius: 12px !important;
-        padding: 6px 12px !important;
-        margin-bottom: 4px !important;
+        padding: 8px 14px !important;
+        margin-bottom: 6px !important;
         transition: all 0.2s ease-in-out !important;
     }}
 
-    /* Apply gradient background when the radio option is checked */
+    /* Apply smooth gradient background when the radio option is checked */
     div[data-testid="stSidebar"] div[data-testid="stRadio"] div[role="radiogroup"] > label:has(input:checked) {{
         background: linear-gradient(135deg, #7c3aed 0%, #3b82f6 100%) !important;
         box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
@@ -138,8 +138,6 @@ st.markdown(
 
 # --- HELPER FUNCTIONS ---
 def generate_new_captcha():
-    ops = [("+", lambda a, b: a + b), ("-", lambda a, b: a - b), ("*", lambda a, b: a - b)]
-    # Fixed lambda for multiplication operator in captcha
     ops = [("+", lambda a, b: a + b), ("-", lambda a, b: a - b), ("*", lambda a, b: a * b)]
     op_symbol, op_func = random.choice(ops)
 
@@ -283,4 +281,3 @@ else:
         st.metric(label="Active Gear units", value="864")
 
     st.markdown("---")
-
