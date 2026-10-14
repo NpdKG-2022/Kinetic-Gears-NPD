@@ -12,6 +12,19 @@ st.set_page_config(
     layout="wide"
 )
 
+# Helper function to convert logo to base64
+@st.cache_data
+def get_base64_image(image_path):
+    try:
+        with open(image_path, "rb") as f:
+            data = f.read()
+        return base64.b64encode(data).decode()
+    except Exception:
+        return ""
+
+
+logo_base64 = get_base64_image("KG-Logo.png")
+
 # Custom CSS for clean autofit table display and card button styling
 st.markdown(
     """
