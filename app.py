@@ -158,10 +158,10 @@ def logout():
 # --- LOGIN SCREEN ---
 if not st.session_state.logged_in:
     with st.form("login_form"):
-        # Display logo inside glass card
+        # Display logo centered inside glass card with balanced width
         col1, col2, col3 = st.columns([1, 1, 1])
         with col2:
-            st.image("KG-Logo.png", width=100)
+            st.image("KG-Logo.png", width=90)
 
         st.markdown("<div class='glass-title'>KINETIC GEARS</div>", unsafe_allow_html=True)
         st.markdown(
