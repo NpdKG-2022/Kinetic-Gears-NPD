@@ -196,10 +196,10 @@ def login_screen():
 
             st.markdown(
                 """
-                <div style="text-align: center; margin-bottom: 10px;">
+                <div style="text-align: center; margin-bottom: 5px;">
                     <h1 style="margin: 0; font-size: 30px; color: #ffffff; letter-spacing: 2px; font-weight: 700;">KINETIC GEARS</h1>
                 </div>
-                <h2 style='text-align: center; color: white; font-weight: 600; font-size: 20px; margin-bottom: 25px;'>Login, solve maths and start your work !</h2>
+                <h2 style='text-align: center; color: white; font-weight: 600; font-size: 20px; margin-bottom: 10px;'>Login, solve maths and start your work !</h2>
                 """,
                 unsafe_allow_html=True,
             )
