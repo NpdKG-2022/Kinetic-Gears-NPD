@@ -323,7 +323,7 @@ st.components.v1.html(
                 .clock-card {
                     background: linear-gradient(135deg, #e91e63, #c2185b);
                     border-radius: 10px;
-                    padding: 2px 8px;
+                    padding: 8px 15px;
                     text-align: center;
                     box-shadow: 0 2px 10px rgba(233, 30, 99, 0.3);
                     font-family: 'Orbitron', sans-serif;
