@@ -280,7 +280,6 @@ if st.query_params.get("do_logout") == "true":
     st.session_state["login_time"] = 0.0
     st.query_params.clear()
     st.rerun()
-
 # ================= TOP HEADER BAR =================
 # Background session timeout listener script
 st.markdown(
@@ -375,8 +374,8 @@ st.markdown(
     
     <div class="custom-header-container">
         <div class="clock-card">
-            <div id="live-clock-time" class="time-display">00:00:00 AM</div>
-            <div id="live-clock-date" class="date-display">Loading date...</div>
+            <div class="time-display" id="kg-live-time">--:--:-- --</div>
+            <div class="date-display" id="kg-live-date">Loading date...</div>
         </div>
         <div class="user-logout-row">
             <div class="user-info">
@@ -396,30 +395,36 @@ st.markdown(
     </div>
     
     <script>
-        function updateLiveClock() {{
-            const now = new Date();
-            let hours = now.getHours();
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            const seconds = String(now.getSeconds()).padStart(2, '0');
-            const ampm = hours >= 12 ? 'PM' : 'AM';
-            hours = hours % 12;
-            hours = hours ? hours : 12; 
-            const formattedHours = String(hours).padStart(2, '0');
-            const timeEl = document.getElementById('live-clock-time');
-            const dateEl = document.getElementById('live-clock-date');
-            if (timeEl) timeEl.innerText = formattedHours + ":" + minutes + ":" + seconds + " " + ampm;
-            if (dateEl) {{
-                const options = {{ weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }};
-                dateEl.innerText = now.toLocaleDateString('en-US', options);
+        (function() {{
+            function updateClock() {{
+                const now = new Date();
+                let hours = now.getHours();
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                const seconds = String(now.getSeconds()).padStart(2, '0');
+                const ampm = hours >= 12 ? 'PM' : 'AM';
+                hours = hours % 12;
+                hours = hours ? hours : 12;
+                const formattedHours = String(hours).padStart(2, '0');
+                
+                const timeEl = document.getElementById('kg-live-time');
+                const dateEl = document.getElementById('kg-live-date');
+                
+                if (timeEl) {{
+                    timeEl.innerText = formattedHours + ":" + minutes + ":" + seconds + " " + ampm;
+                }}
+                if (dateEl) {{
+                    const options = {{ weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }};
+                    dateEl.innerText = now.toLocaleDateString('en-US', options);
+                }}
             }}
-        }}
-        setInterval(updateLiveClock, 1000);
-        updateLiveClock();
+            updateClock();
+            if (window.kgClockInterval) clearInterval(window.kgClockInterval);
+            window.kgClockInterval = setInterval(updateClock, 1000);
+        }})();
     </script>
     """,
     unsafe_allow_html=True
 )
-
 st.markdown("---")
 
 # ================= DRAWING VIEWER INTERFACE =================
