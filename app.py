@@ -172,16 +172,6 @@ def login_screen():
             username_input = st.text_input("Email", placeholder="Enter username or email")
             password_input = st.text_input("Password", type="password", placeholder="Enter password")
             
-            st.markdown(
-                """
-                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 13px; margin: 10px 0 15px 0;">
-                    <span style="color: rgba(255,255,255,0.8);"><input type="checkbox" style="margin-right: 5px;"> Remember me</span>
-                    <a href="#" style="color: #ffffff; text-decoration: none;">Forget Password</a>
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
-
             submit_button = st.form_submit_button("Log in", use_container_width=True)
 
             if submit_button:
@@ -203,8 +193,6 @@ def login_screen():
                     st.rerun()
                 else:
                     st.error("Invalid username or password. Please try again.")
-
-      
 
 
 if not st.session_state["logged_in"]:
