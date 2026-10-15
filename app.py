@@ -312,123 +312,66 @@ username_val = st.session_state['username']
 role_val = st.session_state['role']
 
 # Render header using clean markdown, flexbox, and robust live clock script
-st.markdown(
-    f"""
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
-    <style>
-        .custom-header-container {{
-            display: flex;
-            justify-content: flex-end;
-            align-items: flex-end;
-            flex-direction: column;
-            width: 100%;
-            margin-bottom: 10px;
-        }}
-        .clock-card {{
-            background: linear-gradient(135deg, #e91e63, #c2185b);
-            border-radius: 12px;
-            padding: 6px 14px;
-            text-align: center;
-            box-shadow: 0 4px 15px rgba(233, 30, 99, 0.3);
-            font-family: 'Orbitron', sans-serif;
-            margin-bottom: 6px;
-        }}
-        .time-display {{
-            font-size: 16px;
-            font-weight: 700;
-            color: #ffffff;
-            letter-spacing: 1.5px;
-        }}
-        .date-display {{
-            font-size: 10px;
-            font-weight: 500;
-            color: #fce4ec;
-            letter-spacing: 0.5px;
-        }}
-        .user-logout-row {{
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            gap: 12px;
-        }}
-        .user-info {{
-            color: white;
-            font-family: sans-serif;
-            font-size: 13px;
-            text-align: right;
-            line-height: 1.2;
-        }}
-        .logout-btn {{
-            display: flex; align-items: center; background-color: #f44336; color: white;
-            text-decoration: none; border-radius: 30px; width: 38px; height: 38px;
-            overflow: hidden; box-shadow: 0 4px 15px rgba(244, 67, 54, 0.4);
-            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease;
-            cursor: pointer; white-space: nowrap; flex-shrink: 0;
-        }}
-        .logout-btn:hover {{ width: 125px; background-color: #d32f2f; }}
-        .logout-icon {{ min-width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; }}
-        .logout-icon svg {{ width: 20px; height: 20px; fill: none; stroke: white; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }}
-        .logout-text {{ font-family: sans-serif; font-weight: 600; font-size: 13px; padding-left: 2px; padding-right: 12px; opacity: 0; transition: opacity 0.3s ease 0.1s; }}
-        .logout-btn:hover .logout-text {{ opacity: 1; }}
-    </style>
-    
-    <div class="custom-header-container">
+st.components.v1.html(
+        """
+        <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+        <style>
+            body {
+                margin: 0;
+                background-color: transparent;
+            }
+            .clock-card {
+                background: linear-gradient(135deg, #e91e63, #c2185b);
+                border-radius: 14px;
+                padding: 6px 14px;
+                text-align: center;
+                box-shadow: 0 4px 15px rgba(233, 30, 99, 0.3);
+                font-family: 'Orbitron', sans-serif;
+                display: inline-block;
+                box-sizing: border-box;
+            }
+            .time-display {
+                font-size: 18px;
+                font-weight: 700;
+                color: #ffffff;
+                letter-spacing: 2px;
+                text-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
+            }
+            .date-display {
+                font-size: 10px;
+                font-weight: 500;
+                color: #fce4ec;
+                margin-top: 2px;
+                letter-spacing: 1px;
+            }
+        </style>
         <div class="clock-card">
-            <div class="time-display" id="live-clock-time">00:00:00 AM</div>
-            <div class="date-display" id="live-clock-date">Loading date...</div>
+            <div id="futuristic-time" class="time-display">00:00:00 AM</div>
+            <div id="futuristic-date" class="date-display">Loading date...</div>
         </div>
-        <div class="user-logout-row">
-            <div class="user-info">
-                👤 <b>{username_val}</b> | Role: <b>{role_val}</b>
-            </div>
-            <a href="?do_logout=true" target="_self" class="logout-btn" title="Logout">
-                <div class="logout-icon">
-                    <svg viewBox="0 0 24 24">
-                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                        <polyline points="16 17 21 12 16 7"></polyline>
-                        <line x1="21" y1="12" x2="9" y2="12"></line>
-                    </svg>
-                </div>
-                <div class="logout-text">Logout</div>
-            </a>
-        </div>
-    </div>
-    
-    <script>
-        (function() {{
-            function updateClock() {{
+        <script>
+            function updateFuturisticClock() {
                 const now = new Date();
                 let hours = now.getHours();
                 const minutes = String(now.getMinutes()).padStart(2, '0');
                 const seconds = String(now.getSeconds()).padStart(2, '0');
                 const ampm = hours >= 12 ? 'PM' : 'AM';
+                
                 hours = hours % 12;
                 hours = hours ? hours : 12; 
                 const formattedHours = String(hours).padStart(2, '0');
                 
-                const timeEl = document.getElementById('live-clock-time');
-                const dateEl = document.getElementById('live-clock-date');
+                document.getElementById('futuristic-time').innerText = `${formattedHours}:${minutes}:${seconds} ${ampm}`;
                 
-                if (timeEl) {{
-                    timeEl.innerText = formattedHours + ":" + minutes + ":" + seconds + " " + ampm;
-                }}
-                if (dateEl) {{
-                    const options = {{ weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }};
-                    dateEl.innerText = now.toLocaleDateString('en-US', options);
-                }}
-            }}
-            
-            // Run immediately and set interval
-            updateClock();
-            if (window._clockInterval) clearInterval(window._clockInterval);
-            window._clockInterval = setInterval(updateClock, 1000);
-        }})();
-    </script>
-    """,
-    unsafe_allow_html=True
-)
-
-st.markdown("---")
+                const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+                document.getElementById('futuristic-date').innerText = now.toLocaleDateString('en-US', options);
+            }
+            setInterval(updateFuturisticClock, 1000);
+            updateFuturisticClock();
+        </script>
+        """,
+        height=55,
+    )
 
 # ================= DRAWING VIEWER INTERFACE =================
 st.subheader("📐 Technical Drawing Viewer")
