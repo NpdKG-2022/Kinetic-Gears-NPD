@@ -147,10 +147,35 @@ if "logged_in" not in st.session_state:
         st.session_state["role"] = ""
         st.session_state["login_time"] = 0.0
 
-# Initialize CAPTCHA numbers in session state if not present
-if "captcha_num1" not in st.session_state:
-    st.session_state["captcha_num1"] = random.randint(1, 9)
-    st.session_state["captcha_num2"] = random.randint(1, 9)
+# Helper to generate randomized arithmetic CAPTCHA
+def generate_captcha():
+    op = random.choice(['+', '-', '*', '/'])
+    if op == '+':
+        n1 = random.randint(1, 20)
+        n2 = random.randint(1, 20)
+        ans = n1 + n2
+        question = f"{n1} + {n2}"
+    elif op == '-':
+        n1 = random.randint(1, 20)
+        n2 = random.randint(1, n1)  # Keeps subtraction result non-negative
+        ans = n1 - n2
+        question = f"{n1} - {n2}"
+    elif op == '*':
+        n1 = random.randint(1, 10)
+        n2 = random.randint(1, 10)
+        ans = n1 * n2
+        question = f"{n1} × {n2}"
+    else:  # '/'
+        n2 = random.randint(1, 10)
+        ans = random.randint(1, 10)
+        n1 = n2 * ans  # Ensures clean division without remainders
+        question = f"{n1} ÷ {n2}"
+    return question, ans
+
+if "captcha_question" not in st.session_state:
+    q, a = generate_captcha()
+    st.session_state["captcha_question"] = q
+    st.session_state["captcha_answer"] = a
 
 
 def login_screen():
@@ -177,19 +202,21 @@ def login_screen():
             username_input = st.text_input("Email", placeholder="Enter username or email")
             password_input = st.text_input("Password", type="password", placeholder="Enter password")
             
-            # CAPTCHA Field
-            num1 = st.session_state["captcha_num1"]
-            num2 = st.session_state["captcha_num2"]
-            captcha_input = st.number_input(f"Solve CAPTCHA: What is {num1} + {num2}?", min_value=0, max_value=20, step=1, value=0)
+            # Arithmetic CAPTCHA Field
+            captcha_input = st.number_input(
+                f"Solve CAPTCHA: What is {st.session_state['captcha_question']}?",
+                min_value=-100, max_value=200, step=1, value=0
+            )
 
             submit_button = st.form_submit_button("Log in", use_container_width=True)
 
             if submit_button:
-                if captcha_input != (num1 + num2):
+                if captcha_input != st.session_state["captcha_answer"]:
                     st.error("Incorrect CAPTCHA answer. Please try again.")
-                    # Refresh CAPTCHA numbers on failure
-                    st.session_state["captcha_num1"] = random.randint(1, 9)
-                    st.session_state["captcha_num2"] = random.randint(1, 9)
+                    # Regenerate CAPTCHA on failure
+                    q, a = generate_captcha()
+                    st.session_state["captcha_question"] = q
+                    st.session_state["captcha_answer"] = a
                 elif (
                     username_input in USERS
                     and USERS[username_input]["password"] == password_input
@@ -208,9 +235,10 @@ def login_screen():
                     st.rerun()
                 else:
                     st.error("Invalid username or password. Please try again.")
-                    # Refresh CAPTCHA numbers on failure
-                    st.session_state["captcha_num1"] = random.randint(1, 9)
-                    st.session_state["captcha_num2"] = random.randint(1, 9)
+                    # Regenerate CAPTCHA on failure
+                    q, a = generate_captcha()
+                    st.session_state["captcha_question"] = q
+                    st.session_state["captcha_answer"] = a
 
 
 if not st.session_state["logged_in"]:
