@@ -353,7 +353,7 @@ st.components.v1.html(
                     const ampm = hours >= 12 ? 'PM' : 'AM';
                     hours = hours % 12 || 12;
                     document.getElementById('futuristic-time').innerText = `${String(hours).padStart(2, '0')}:${minutes}:${seconds} ${ampm}`;
-                    document.getElementById('futuristic-date').innerText = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+                    document.getElementById('futuristic-date').innerText = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
                 }
                 setInterval(updateFuturisticClock, 1000);
                 updateFuturisticClock();
