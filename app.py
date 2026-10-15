@@ -256,6 +256,7 @@ if not st.session_state["logged_in"]:
     login_screen()
     st.stop()
 
+
 # ================= PROFESSIONAL SIDEBAR WITH LOGO =================
 with st.sidebar:
     if logo_base64:
@@ -280,6 +281,8 @@ if st.query_params.get("do_logout") == "true":
     st.session_state["login_time"] = 0.0
     st.query_params.clear()
     st.rerun()
+
+
 # ================= TOP HEADER BAR =================
 # Background session timeout listener script
 st.markdown(
@@ -316,10 +319,14 @@ st.components.v1.html(
         """
         <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
         <style>
-            body {
-                margin: 0;
-                background-color: transparent;
-            }
+            .custom-header-container {{
+            display: flex;
+            justify-content: flex-end;
+            align-items: flex-end;
+            flex-direction: column;
+            width: 100%;
+            margin-bottom: 10px;
+        }}
             .clock-card {
                 background: linear-gradient(135deg, #e91e63, #c2185b);
                 border-radius: 14px;
