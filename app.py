@@ -8,7 +8,7 @@ import streamlit as st
 
 # Page Configuration
 st.set_page_config(
-    page_title="Kinetic Gears - Drawing Viewer",
+    page_title="Kinetic Gears",
     page_icon="KG-Logo.png",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -52,8 +52,8 @@ st.markdown(
 
         /* Remove excess top padding above header */
         .block-container {{
-            padding-top: 1.0rem !important;
-            padding-bottom: 2rem !important;
+            padding-top: 1.5rem !important;
+            padding-bottom: 1.5rem !important;
         }}
 
         /* --- GLASSMORPHISM LOGIN FORM STYLING --- */
