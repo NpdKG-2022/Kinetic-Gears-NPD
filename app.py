@@ -316,69 +316,51 @@ role_val = st.session_state['role']
 
 # Render header using clean markdown, flexbox, and robust live clock script
 st.components.v1.html(
-        """
-        <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
-        <style>
-            .custom-header-container {{
-            display: flex;
-            justify-content: flex-end;
-            align-items: flex-end;
-            flex-direction: column;
-            width: 100%;
-            margin-bottom: 10px;
-        }}
-            .clock-card {
-                background: linear-gradient(135deg, #e91e63, #c2185b);
-                border-radius: 14px;
-                padding: 6px 14px;
-                text-align: center;
-                box-shadow: 0 4px 15px rgba(233, 30, 99, 0.3);
-                font-family: 'Orbitron', sans-serif;
-                display: inline-block;
-                box-sizing: border-box;
-            }
-            .time-display {
-                font-size: 18px;
-                font-weight: 700;
-                color: #ffffff;
-                letter-spacing: 2px;
-                text-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
-            }
-            .date-display {
-                font-size: 10px;
-                font-weight: 500;
-                color: #fce4ec;
-                margin-top: 2px;
-                letter-spacing: 1px;
-            }
-        </style>
-        <div class="clock-card">
-            <div id="futuristic-time" class="time-display">00:00:00 AM</div>
-            <div id="futuristic-date" class="date-display">Loading date...</div>
-        </div>
-        <script>
-            function updateFuturisticClock() {
-                const now = new Date();
-                let hours = now.getHours();
-                const minutes = String(now.getMinutes()).padStart(2, '0');
-                const seconds = String(now.getSeconds()).padStart(2, '0');
-                const ampm = hours >= 12 ? 'PM' : 'AM';
-                
-                hours = hours % 12;
-                hours = hours ? hours : 12; 
-                const formattedHours = String(hours).padStart(2, '0');
-                
-                document.getElementById('futuristic-time').innerText = `${formattedHours}:${minutes}:${seconds} ${ampm}`;
-                
-                const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
-                document.getElementById('futuristic-date').innerText = now.toLocaleDateString('en-US', options);
-            }
-            setInterval(updateFuturisticClock, 1000);
-            updateFuturisticClock();
-        </script>
-        """,
-        height=55,
-    )
+            """
+            <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+            <style>
+                body { margin: 0; background-color: transparent; display: flex; justify-content: flex-end; }
+                .clock-card {
+                    background: linear-gradient(135deg, #e91e63, #c2185b);
+                    border-radius: 10px;
+                    padding: 2px 8px;
+                    text-align: center;
+                    box-shadow: 0 2px 10px rgba(233, 30, 99, 0.3);
+                    font-family: 'Orbitron', sans-serif;
+                    display: inline-block;
+                }
+                .time-display {
+                    font-size: 13px;
+                    font-weight: 700;
+                    color: #ffffff;
+                    letter-spacing: 1px;
+                }
+                .date-display {
+                    font-size: 8px;
+                    color: #fce4ec;
+                }
+            </style>
+            <div class="clock-card">
+                <div id="futuristic-time" class="time-display">00:00:00 AM</div>
+                <div id="futuristic-date" class="date-display">Loading...</div>
+            </div>
+            <script>
+                function updateFuturisticClock() {
+                    const now = new Date();
+                    let hours = now.getHours();
+                    const minutes = String(now.getMinutes()).padStart(2, '0');
+                    const seconds = String(now.getSeconds()).padStart(2, '0');
+                    const ampm = hours >= 12 ? 'PM' : 'AM';
+                    hours = hours % 12 || 12;
+                    document.getElementById('futuristic-time').innerText = `${String(hours).padStart(2, '0')}:${minutes}:${seconds} ${ampm}`;
+                    document.getElementById('futuristic-date').innerText = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+                }
+                setInterval(updateFuturisticClock, 1000);
+                updateFuturisticClock();
+            </script>
+            """,
+            height=38,
+        )
 
 # ================= DRAWING VIEWER INTERFACE =================
 st.subheader("📐 Technical Drawing Viewer")
