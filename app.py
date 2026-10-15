@@ -67,7 +67,7 @@ st.markdown(
             box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4) !important;
         }}
 
-        div[data-testid="stTextInput"] input {{
+        div[data-testid="stTextInput"] input, div[data-testid="stNumberInput"] input {{
             background-color: transparent !important;
             border: none !important;
             border-bottom: 1px solid rgba(255, 255, 255, 0.5) !important;
@@ -76,11 +76,11 @@ st.markdown(
             padding: 10px 5px !important;
             font-size: 15px !important;
         }}
-        div[data-testid="stTextInput"] input:focus {{
+        div[data-testid="stTextInput"] input:focus, div[data-testid="stNumberInput"] input:focus {{
             border-bottom: 2px solid #ffffff !important;
             box-shadow: none !important;
         }}
-        div[data-testid="stTextInput"] label {{
+        div[data-testid="stTextInput"] label, div[data-testid="stNumberInput"] label {{
             color: rgba(255, 255, 255, 0.9) !important;
             font-weight: 500 !important;
         }}
@@ -147,6 +147,11 @@ if "logged_in" not in st.session_state:
         st.session_state["role"] = ""
         st.session_state["login_time"] = 0.0
 
+# Initialize CAPTCHA numbers in session state if not present
+if "captcha_num1" not in st.session_state:
+    st.session_state["captcha_num1"] = random.randint(1, 9)
+    st.session_state["captcha_num2"] = random.randint(1, 9)
+
 
 def login_screen():
     st.markdown("<br>", unsafe_allow_html=True)
@@ -172,10 +177,20 @@ def login_screen():
             username_input = st.text_input("Email", placeholder="Enter username or email")
             password_input = st.text_input("Password", type="password", placeholder="Enter password")
             
+            # CAPTCHA Field
+            num1 = st.session_state["captcha_num1"]
+            num2 = st.session_state["captcha_num2"]
+            captcha_input = st.number_input(f"Solve CAPTCHA: What is {num1} + {num2}?", min_value=0, max_value=20, step=1, value=0)
+
             submit_button = st.form_submit_button("Log in", use_container_width=True)
 
             if submit_button:
-                if (
+                if captcha_input != (num1 + num2):
+                    st.error("Incorrect CAPTCHA answer. Please try again.")
+                    # Refresh CAPTCHA numbers on failure
+                    st.session_state["captcha_num1"] = random.randint(1, 9)
+                    st.session_state["captcha_num2"] = random.randint(1, 9)
+                elif (
                     username_input in USERS
                     and USERS[username_input]["password"] == password_input
                 ):
@@ -193,6 +208,9 @@ def login_screen():
                     st.rerun()
                 else:
                     st.error("Invalid username or password. Please try again.")
+                    # Refresh CAPTCHA numbers on failure
+                    st.session_state["captcha_num1"] = random.randint(1, 9)
+                    st.session_state["captcha_num2"] = random.randint(1, 9)
 
 
 if not st.session_state["logged_in"]:
