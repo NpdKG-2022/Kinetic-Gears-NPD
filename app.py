@@ -187,15 +187,20 @@ def login_screen():
             if logo_base64:
                 st.markdown(
                     f"""
-                    <div style="text-align: center; margin-bottom: 5px;">
-                        <img src="data:image/png;base64,{logo_base64}" width="70" style="display: block; margin: 0 auto;" />
+                    <div style="text-align: center; margin-bottom: 2px;">
+                        <img src="data:image/png;base64,{logo_base64}" width="65" style="display: block; margin: 0 auto;" />
                     </div>
                 """,
                     unsafe_allow_html=True,
                 )
 
             st.markdown(
-                "<h1 style='text-align: center; color: white; font-weight: 700; margin-bottom: 25px;'>Login</h1>",
+                """
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <h3 style="margin: 0; font-size: 18px; color: #ffffff; letter-spacing: 1.5px; font-weight: 700;">KINETIC GEARS</h3>
+                </div>
+                <h2 style='text-align: center; color: white; font-weight: 700; font-size: 22px; margin-bottom: 25px;'>Login, solve maths and start your work !</h2>
+                """,
                 unsafe_allow_html=True,
             )
 
