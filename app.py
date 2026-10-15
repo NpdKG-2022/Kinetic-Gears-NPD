@@ -196,7 +196,7 @@ def login_screen():
 
             st.markdown(
                 """
-                <div style="text-align: center; margin-top: 4px; margin-bottom: 4px; margin-left: 20px; margin-right: 20px">
+                <div style="text-align: center; margin-top: 4px; margin-bottom: 4px; margin-left: 50px; margin-right: 20px">
                     <h1 style="margin: 0; font-size: 50px; color: #ffffff; letter-spacing: 2px; font-weight: 800; line-height: 0.5;">KINETIC GEARS</h1>
                 </div>
                 <div style="text-align: center; margin-bottom: 10px;">
