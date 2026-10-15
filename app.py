@@ -199,7 +199,7 @@ def login_screen():
                 unsafe_allow_html=True,
             )
 
-            username_input = st.text_input("Email", placeholder="Enter username or email")
+            username_input = st.text_input("Email", placeholder="Enter username")
             password_input = st.text_input("Password", type="password", placeholder="Enter password")
             
             # Arithmetic CAPTCHA Field as text input to remove stepper buttons
