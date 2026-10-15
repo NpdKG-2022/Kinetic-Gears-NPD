@@ -257,12 +257,12 @@ if not st.session_state["logged_in"]:
     st.stop()
 
 
-# ================= PROFESSIONAL SIDEBAR WITH LOGO =================
+# ================= PROFESSIONAL SIDEBAR WITH LOGO & USER DETAILS =================
 with st.sidebar:
     if logo_base64:
         st.markdown(
             f"""
-            <div style="text-align: center; padding: 10px 0 20px 0;">
+            <div style="text-align: center; padding: 10px 0 10px 0;">
                 <img src="data:image/png;base64,{logo_base64}" width="65" style="display: block; margin: 0 auto 10px auto;" />
                 <h3 style="margin: 0; font-size: 18px; color: #ffffff; letter-spacing: 1px;">KINETIC GEARS</h3>
                 <p style="margin: 2px 0 0 0; font-size: 11px; color: rgba(255,255,255,0.6);">Drawing Management System</p>
@@ -271,17 +271,24 @@ with st.sidebar:
             unsafe_allow_html=True,
         )
     st.markdown("---")
+    
+    # User info stacked in sidebar
+    st.markdown(
+        f"""
+        <div style="padding: 5px 10px; margin-bottom: 10px;">
+            <div style="font-size: 14px; color: #ffffff; font-weight: 600; margin-bottom: 4px;">
+                👤 {username_val}
+            </div>
+            <div style="font-size: 13px; color: rgba(255,255,255,0.8);">
+                Role: <b style="color: #ffffff;">{role_val}</b>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+    
+    st.markdown("---")
     st.markdown("<p style='font-size: 12px; color: rgba(255,255,255,0.7); text-align: center;'>System operational & secure.</p>", unsafe_allow_html=True)
-
-# Handle logout trigger via query param
-if st.query_params.get("do_logout") == "true":
-    st.session_state["logged_in"] = False
-    st.session_state["username"] = ""
-    st.session_state["role"] = ""
-    st.session_state["login_time"] = 0.0
-    st.query_params.clear()
-    st.rerun()
-
 
 # ================= TOP HEADER BAR =================
 # Background session timeout listener script
