@@ -204,14 +204,7 @@ def login_screen():
                 else:
                     st.error("Invalid username or password. Please try again.")
 
-        st.markdown(
-            """
-            <div style="text-align: center; margin-top: 20px; color: rgba(255,255,255,0.8); font-size: 14px;">
-                Don't have an account? <a href="#" style="color: white; font-weight: 600; text-decoration: none;">Register</a>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
+      
 
 
 if not st.session_state["logged_in"]:
