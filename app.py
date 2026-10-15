@@ -311,7 +311,7 @@ st.markdown(
 username_val = st.session_state['username']
 role_val = st.session_state['role']
 
-# Render header using clean markdown and flexbox layout
+# Render header using clean markdown, flexbox, and robust live clock script
 st.markdown(
     f"""
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
@@ -374,8 +374,8 @@ st.markdown(
     
     <div class="custom-header-container">
         <div class="clock-card">
-            <div class="time-display" id="kg-live-time">--:--:-- --</div>
-            <div class="date-display" id="kg-live-date">Loading date...</div>
+            <div class="time-display" id="live-clock-time">00:00:00 AM</div>
+            <div class="date-display" id="live-clock-date">Loading date...</div>
         </div>
         <div class="user-logout-row">
             <div class="user-info">
@@ -403,11 +403,11 @@ st.markdown(
                 const seconds = String(now.getSeconds()).padStart(2, '0');
                 const ampm = hours >= 12 ? 'PM' : 'AM';
                 hours = hours % 12;
-                hours = hours ? hours : 12;
+                hours = hours ? hours : 12; 
                 const formattedHours = String(hours).padStart(2, '0');
                 
-                const timeEl = document.getElementById('kg-live-time');
-                const dateEl = document.getElementById('kg-live-date');
+                const timeEl = document.getElementById('live-clock-time');
+                const dateEl = document.getElementById('live-clock-date');
                 
                 if (timeEl) {{
                     timeEl.innerText = formattedHours + ":" + minutes + ":" + seconds + " " + ampm;
@@ -417,14 +417,17 @@ st.markdown(
                     dateEl.innerText = now.toLocaleDateString('en-US', options);
                 }}
             }}
+            
+            // Run immediately and set interval
             updateClock();
-            if (window.kgClockInterval) clearInterval(window.kgClockInterval);
-            window.kgClockInterval = setInterval(updateClock, 1000);
+            if (window._clockInterval) clearInterval(window._clockInterval);
+            window._clockInterval = setInterval(updateClock, 1000);
         }})();
     </script>
     """,
     unsafe_allow_html=True
 )
+
 st.markdown("---")
 
 # ================= DRAWING VIEWER INTERFACE =================
