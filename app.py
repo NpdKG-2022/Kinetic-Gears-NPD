@@ -330,13 +330,13 @@ st.components.v1.html(
                     display: inline-block;
                 }
                 .time-display {
-                    font-size: 13px;
+                    font-size: 20px;
                     font-weight: 700;
                     color: #ffffff;
                     letter-spacing: 1px;
                 }
                 .date-display {
-                    font-size: 8px;
+                    font-size: 12px;
                     color: #fce4ec;
                 }
             </style>
