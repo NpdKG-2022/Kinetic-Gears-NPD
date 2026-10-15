@@ -183,12 +183,12 @@ def login_screen():
     _, col2, _ = st.columns([1, 1.2, 1])
 
     with col2:
-        with st.form("login_form"):
+       with st.form("login_form"):
             if logo_base64:
                 st.markdown(
                     f"""
-                    <div style="text-align: center; margin-bottom: 5px;">
-                        <img src="data:image/png;base64,{logo_base64}" width="70" style="display: block; margin: 0 auto;" />
+                    <div style="text-align: center; margin-bottom: 0px;">
+                        <img src="data:image/png;base64,{logo_base64}" width="55" style="display: block; margin: 0 auto;" />
                     </div>
                 """,
                     unsafe_allow_html=True,
@@ -196,14 +196,15 @@ def login_screen():
 
             st.markdown(
                 """
-                <div style="text-align: center; margin-bottom: 5px;">
-                    <h1 style="margin: 0; font-size: 30px; color: #ffffff; letter-spacing: 2px; font-weight: 700;">KINETIC GEARS</h1>
+                <div style="text-align: center; margin-top: 4px; margin-bottom: 4px;">
+                    <h1 style="margin: 0; font-size: 30px; color: #ffffff; letter-spacing: 2px; font-weight: 700; line-height: 1.1;">KINETIC GEARS</h1>
                 </div>
-                <h2 style='text-align: center; color: white; font-weight: 600; font-size: 20px; margin-bottom: 10px;'>Login, solve maths and start your work !</h2>
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <h2 style='margin: 0; color: white; font-weight: 600; font-size: 16px; line-height: 1.2;'>Login, solve maths and start your work !</h2>
+                </div>
                 """,
                 unsafe_allow_html=True,
             )
-
             username_input = st.text_input("Username", placeholder="Enter username")
             password_input = st.text_input("Password", type="password", placeholder="Enter password")
             
