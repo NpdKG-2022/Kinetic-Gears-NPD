@@ -67,7 +67,7 @@ st.markdown(
             box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4) !important;
         }}
 
-        div[data-testid="stTextInput"] input, div[data-testid="stNumberInput"] input {{
+        div[data-testid="stTextInput"] input {{
             background-color: transparent !important;
             border: none !important;
             border-bottom: 1px solid rgba(255, 255, 255, 0.5) !important;
@@ -76,11 +76,11 @@ st.markdown(
             padding: 10px 5px !important;
             font-size: 15px !important;
         }}
-        div[data-testid="stTextInput"] input:focus, div[data-testid="stNumberInput"] input:focus {{
+        div[data-testid="stTextInput"] input:focus {{
             border-bottom: 2px solid #ffffff !important;
             box-shadow: none !important;
         }}
-        div[data-testid="stTextInput"] label, div[data-testid="stNumberInput"] label {{
+        div[data-testid="stTextInput"] label {{
             color: rgba(255, 255, 255, 0.9) !important;
             font-weight: 500 !important;
         }}
@@ -202,15 +202,20 @@ def login_screen():
             username_input = st.text_input("Email", placeholder="Enter username or email")
             password_input = st.text_input("Password", type="password", placeholder="Enter password")
             
-            # Arithmetic CAPTCHA Field
-            captcha_input = st.number_input(
+            # Arithmetic CAPTCHA Field as text input to remove stepper buttons
+            captcha_input_str = st.text_input(
                 f"Solve CAPTCHA: What is {st.session_state['captcha_question']}?",
-                min_value=-100, max_value=200, step=1, value=0
+                placeholder="Enter answer"
             )
 
             submit_button = st.form_submit_button("Log in", use_container_width=True)
 
             if submit_button:
+                try:
+                    captcha_input = int(captcha_input_str.strip())
+                except ValueError:
+                    captcha_input = None
+
                 if captcha_input != st.session_state["captcha_answer"]:
                     st.error("Incorrect CAPTCHA answer. Please try again.")
                     # Regenerate CAPTCHA on failure
