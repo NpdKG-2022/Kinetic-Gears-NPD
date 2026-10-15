@@ -257,6 +257,13 @@ if not st.session_state["logged_in"]:
     st.stop()
 
 
+username_val = st.session_state.get('username', '')
+role_val = st.session_state.get('role', '')
+
+if not st.session_state.get("logged_in", False):
+    login_screen()
+    st.stop()
+
 # ================= PROFESSIONAL SIDEBAR WITH LOGO & USER DETAILS =================
 with st.sidebar:
     if logo_base64:
@@ -289,6 +296,7 @@ with st.sidebar:
     
     st.markdown("---")
     st.markdown("<p style='font-size: 12px; color: rgba(255,255,255,0.7); text-align: center;'>System operational & secure.</p>", unsafe_allow_html=True)
+
 
 # ================= TOP HEADER BAR =================
 # Background session timeout listener script
