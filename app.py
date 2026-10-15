@@ -188,7 +188,7 @@ def login_screen():
                 st.markdown(
                     f"""
                     <div style="text-align: center; margin-bottom: 0px;">
-                        <img src="data:image/png;base64,{logo_base64}" width="55" style="display: block; margin: 0 auto;" />
+                        <img src="data:image/png;base64,{logo_base64}" width="80" style="display: block; margin: 0 auto;" />
                     </div>
                 """,
                     unsafe_allow_html=True,
@@ -197,10 +197,10 @@ def login_screen():
             st.markdown(
                 """
                 <div style="text-align: center; margin-top: 4px; margin-bottom: 4px;">
-                    <h1 style="margin: 0; font-size: 30px; color: #ffffff; letter-spacing: 2px; font-weight: 700; line-height: 1.1;">KINETIC GEARS</h1>
+                    <h1 style="margin: 0; font-size: 50px; color: #ffffff; letter-spacing: 2px; font-weight: 500; line-height: 0.5;">KINETIC GEARS</h1>
                 </div>
-                <div style="text-align: center; margin-bottom: 20px;">
-                    <h2 style='margin: 0; color: white; font-weight: 600; font-size: 16px; line-height: 1.2;'>Login, solve maths and start your work !</h2>
+                <div style="text-align: center; margin-bottom: 10px;">
+                    <h2 style='margin: 0; color: white; font-weight: 500; font-size: 16px; line-height: 0.5;'>Login, solve maths and start your work !</h2>
                 </div>
                 """,
                 unsafe_allow_html=True,
