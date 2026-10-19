@@ -376,6 +376,7 @@ st.components.v1.html(
 )
 
 st.markdown("---")
+
  # ================= TAB 1: VIEW DRAWING =================
     elif selected_tab = "🔍 View Drawing (In-Browser)":
         st.subheader("🔍 In-Browser Engineering Drawing Viewer")
@@ -496,90 +497,4 @@ st.markdown("---")
                 else:
                     st.error("Please upload a drawing file first.")
 
-    # ================= TAB 5: ADD NEW ITEM SCHEDULE =================
-    elif selected_tab == "➕ Add New Item Schedule":
-        st.subheader("➕ Add New Item & Plant Requirement Schedule")
-        with st.form("new_item_form"):
-            c1, c2, c3 = st.columns(3)
-            with c1:
-                new_plant = st.text_input("Plant Name (e.g. KMC-AT)")
-            with c2:
-                new_code = st.text_input("Code No. (e.g. 1109999-00)")
-            with c3:
-                new_item_name = st.text_input("Item Name / Description")
-
-            c4, _ = st.columns(2)
-            with c4:
-                new_price = st.number_input(
-                    "Unit Price", min_value=0.0, value=1.0, step=0.01
-                )
-
-            st.markdown("##### Monthly Firm Schedules (Apr – Mar)")
-            m_cols = st.columns(6)
-            new_schedules = {}
-            for i, m in enumerate(months_list):
-                with m_cols[i % 6]:
-                    new_schedules[m] = st.number_input(
-                        m, min_value=0, value=0, step=1, key=f"sch_{m}"
-                    )
-
-            uploaded_drawing = st.file_uploader(
-                "Choose a drawing file",
-                type=["pdf", "png", "jpg", "jpeg"],
-                key="new_item_drawing",
-            )
-            add_submitted = st.form_submit_button("Save New Item")
-
-            if add_submitted:
-                if not new_plant or not new_code or not new_item_name:
-                    st.error("Please fill in Plant, Code No., and Item Name.")
-                else:
-                    drawing_saved_path = ""
-                    if uploaded_drawing is not None:
-                        drawing_saved_path = os.path.join(
-                            DRAWINGS_DIR, uploaded_drawing.name
-                        )
-                        with open(drawing_saved_path, "wb") as f:
-                            f.write(uploaded_drawing.getbuffer())
-
-                        df_d_map = (
-                            pd.read_csv(DRAWINGS_MAP_FILE)
-                            if os.path.exists(DRAWINGS_MAP_FILE)
-                            else pd.DataFrame(columns=["CODE NO.", "Drawing"])
-                        )
-                        df_d_map = df_d_map[
-                            df_d_map["CODE NO."].astype(str) != str(new_code)
-                        ]
-                        pd.concat(
-                            [
-                                df_d_map,
-                                pd.DataFrame({
-                                    "CODE NO.": [new_code],
-                                    "Drawing": [drawing_saved_path],
-                                }),
-                            ],
-                            ignore_index=True,
-                        ).to_csv(DRAWINGS_MAP_FILE, index=False)
-
-                    row_data = {
-                        "Plant": [new_plant],
-                        "CODE NO.": [new_code],
-                        "ITEM NAME": [new_item_name.upper()],
-                        "PRICE": [new_price],
-                        "Drawing": [drawing_saved_path],
-                    }
-                    for m in months_list:
-                        row_data[m] = [new_schedules[m]]
-
-                    df_new_row = pd.DataFrame(row_data)
-                    if os.path.exists(CUSTOM_ITEMS_FILE):
-                        df_new_row.to_csv(
-                            CUSTOM_ITEMS_FILE, mode="a", header=False, index=False
-                        )
-                    else:
-                        df_new_row.to_csv(CUSTOM_ITEMS_FILE, index=False)
-
-                    st.success(
-                        f"Successfully added new item '{new_item_name}' (Code: {new_code}) for plant {new_plant}!"
-                    )
-                    st.rerun()
+  
