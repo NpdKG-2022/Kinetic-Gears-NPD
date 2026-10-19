@@ -117,6 +117,7 @@ st.markdown(
 # ================= USER AUTHENTICATION & PERSISTENCE SETUP =================
 USERS = {
     "admin": {"password": "admin123", "role": "Admin"},
+    "user": {"password": "user123", "role": "User"},
 }
 
 SESSION_TIMEOUT = 600  # 10 minutes in seconds
@@ -157,7 +158,7 @@ def generate_captcha():
         question = f"{n1} + {n2}"
     elif op == '-':
         n1 = random.randint(1, 20)
-        n2 = random.randint(1, n1)  # Keeps subtraction result non-negative
+        n2 = random.randint(1, n1)
         ans = n1 - n2
         question = f"{n1} - {n2}"
     elif op == '*':
@@ -165,10 +166,10 @@ def generate_captcha():
         n2 = random.randint(1, 10)
         ans = n1 * n2
         question = f"{n1} × {n2}"
-    else:  # '/'
+    else:
         n2 = random.randint(1, 10)
         ans = random.randint(1, 10)
-        n1 = n2 * ans  # Ensures clean division without remainders
+        n1 = n2 * ans
         question = f"{n1} ÷ {n2}"
     return question, ans
 
@@ -208,7 +209,6 @@ def login_screen():
             username_input = st.text_input("Username", placeholder="Enter username")
             password_input = st.text_input("Password", type="password", placeholder="Enter password")
             
-            # Arithmetic CAPTCHA Field as text input to remove stepper buttons
             captcha_input_str = st.text_input(
                 f"Solve CAPTCHA: What is {st.session_state['captcha_question']}?",
                 placeholder="Enter answer"
@@ -372,94 +372,113 @@ st.components.v1.html(
     height=60,
 )
 
+# ================= NAVIGATION MENU & TABS =================
+st.markdown("📌 **Navigation Menu**")
+selected_tab = st.radio(
+    "Navigation",
+    [
+        "📊 Dashboard & Tracking",
+        "🔍 View Drawing (In-Browser)",
+        "📝 Enter Dispatches",
+        "📐 Manage Drawings",
+        "➕ Add New Item Schedule"
+    ],
+    horizontal=True,
+    label_visibility="collapsed"
+)
+
 st.markdown("---")
 
-# ================= TECHNICAL DRAWING VIEWER & UPLOADER INTERFACE =================
-st.subheader("📐 Technical Drawing Viewer")
-
+# Setup default dataframes and directories
 os.makedirs("drawings", exist_ok=True)
+DRAWINGS_DIR = "drawings"
+DRAWINGS_MAP_FILE = "item_drawings.csv"
+LOG_FILE = "dispatch_logs.csv"
+CUSTOM_ITEMS_FILE = "custom_items.csv"
+months_list = ["Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Jan", "Feb", "Mar"]
 
-drawings_df = pd.DataFrame(columns=["Item Code", "Drawing File"])
-if os.path.exists("item_drawings.csv"):
-    try:
-        drawings_df = pd.read_csv("item_drawings.csv")
-    except Exception:
-        pass
+# Load base tracker dataframe
+if os.path.exists(CUSTOM_ITEMS_FILE):
+    df_tracker = pd.read_csv(CUSTOM_ITEMS_FILE)
+else:
+    df_tracker = pd.DataFrame(columns=["Plant", "CODE NO.", "ITEM NAME", "PRICE", "Drawing"] + months_list)
 
-col_d1, col_d2 = st.columns([1, 2])
+if os.path.exists(LOG_FILE):
+    log_df = pd.read_csv(LOG_FILE)
+else:
+    log_df = pd.DataFrame(columns=["Date", "Plant", "CODE NO.", "ITEM NAME", "Month", "Dispatched Qty", "Logged By"])
 
-with col_d1:
-    st.markdown("#### Select Item / Drawing")
-    
-    # Admin Upload Section
-    if role_val == "Admin":
-        with st.expander("📤 Upload New Drawing"):
-            with st.form("upload_drawing_form"):
-                new_item_code = st.text_input("Item Code / Name", placeholder="e.g., GEAR-001")
-                uploaded_file = st.file_uploader("Choose Drawing File", type=['png', 'jpg', 'jpeg', 'pdf', 'webp'])
-                upload_submit = st.form_submit_button("Save Drawing", use_container_width=True)
-                
-                if upload_submit:
-                    if new_item_code and uploaded_file:
-                        file_ext = os.path.splitext(uploaded_file.name)[1]
-                        safe_filename = f"{new_item_code.strip()}{file_ext}"
-                        file_path = os.path.join("drawings", safe_filename)
-                        
-                        with open(file_path, "wb") as f:
-                            f.write(uploaded_file.getbuffer())
-                        
-                        if not drawings_df.empty and new_item_code in drawings_df.iloc[:, 0].astype(str).values:
-                            drawings_df.loc[drawings_df.iloc[:, 0].astype(str) == new_item_code, drawings_df.columns[1]] = safe_filename
-                        else:
-                            new_row = pd.DataFrame([[new_item_code, safe_filename]], columns=drawings_df.columns if not drawings_df.empty else ["Item Code", "Drawing File"])
-                            drawings_df = pd.concat([drawings_df, new_row], ignore_index=True)
-                        
-                        drawings_df.to_csv("item_drawings.csv", index=False)
-                        st.success(f"Drawing for '{new_item_code}' uploaded successfully!")
-                        st.rerun()
-                    else:
-                        st.warning("Please provide both an Item Code and a file.")
 
-    drawing_files = []
-    if os.path.exists("drawings") and os.path.isdir("drawings"):
-        drawing_files = [f for f in os.listdir("drawings") if f.lower().endswith(('.png', '.jpg', '.jpeg', '.pdf', '.webp'))]
-    
-    if drawings_df is not None and not drawings_df.empty:
-        st.dataframe(drawings_df, use_container_width=True)
-        item_options = drawings_df.iloc[:, 0].astype(str).tolist()
-        selected_item = st.selectbox("Choose Item Code / Name:", item_options)
-        
-        matched_row = drawings_df[drawings_df.iloc[:, 0].astype(str) == selected_item]
-        target_file = None
-        if not matched_row.empty:
-            for col in matched_row.columns:
-                val = str(matched_row[col].values[0])
-                if any(val.endswith(ext) for ext in ['.png', '.jpg', '.jpeg', '.pdf', '.webp']):
-                    target_file = val
-                    break
-        if not target_file and drawing_files:
-            target_file = drawing_files[0]
+# ================= TAB 1: DASHBOARD & TRACKING =================
+if selected_tab == "📊 Dashboard & Tracking":
+    st.subheader("📊 Dashboard & Item Tracking")
+    if not df_tracker.empty:
+        st.dataframe(df_tracker, use_container_width=True, hide_index=True)
     else:
-        if drawing_files:
-            selected_item = st.selectbox("Available Drawing Files:", drawing_files)
-            target_file = selected_item
-        else:
-            target_file = None
-            st.warning("No drawings found in `drawings/` folder or `item_drawings.csv`.")
+        st.info("No item schedules available yet. Use 'Add New Item Schedule' tab to add items.")
 
-with col_d2:
-    st.markdown("#### Drawing Preview & Specifications")
-    if target_file:
-        file_path = os.path.join("drawings", target_file) if not os.path.exists(target_file) else target_file
-        if os.path.exists(file_path):
-            if file_path.lower().endswith(('.png', '.jpg', '.jpeg', '.webp')):
+
+# ================= TAB 2: VIEW DRAWING (IN-BROWSER) =================
+elif selected_tab == "🔍 View Drawing (In-Browser)":
+    st.subheader("🔍 In-Browser Engineering Drawing Viewer")
+    v_col1, v_col2 = st.columns(2)
+
+    all_codes = sorted(df_tracker["CODE NO."].astype(str).unique().tolist()) if not df_tracker.empty and "CODE NO." in df_tracker.columns else []
+    all_items = sorted(df_tracker["ITEM NAME"].astype(str).unique().tolist()) if not df_tracker.empty and "ITEM NAME" in df_tracker.columns else []
+
+    with v_col1:
+        search_by_code = st.selectbox("Select by Code No.", options=["-- Select --"] + all_codes, key="draw_search_code")
+    with v_col2:
+        search_by_item = st.selectbox("Select by Item Name", options=["-- Select --"] + all_items, key="draw_search_item")
+
+    matched_rows = pd.DataFrame()
+    if search_by_code != "-- Select --":
+        matched_rows = df_tracker[df_tracker["CODE NO."].astype(str) == search_by_code]
+    elif search_by_item != "-- Select --":
+        matched_rows = df_tracker[df_tracker["ITEM NAME"].astype(str) == search_by_item]
+
+    target_file = None
+    c_code, c_item, c_plant = "", "", ""
+
+    if not matched_rows.empty:
+        row = matched_rows.iloc[0]
+        c_code = row.get("CODE NO.", "")
+        c_item = row.get("ITEM NAME", "")
+        c_plant = row.get("Plant", "")
+        target_file = row.get("Drawing", "")
+
+    # Fallback to drawings folder if mapping CSV drawing path is empty
+    drawing_files = [f for f in os.listdir(DRAWINGS_DIR) if f.lower().endswith(('.png', '.jpg', '.jpeg', '.pdf', '.webp', '.svg'))] if os.path.exists(DRAWINGS_DIR) else []
+    if not target_file or pd.isna(target_file) or not os.path.exists(str(target_file)):
+        if drawing_files:
+            target_file = drawing_files[0]
+
+    st.markdown("---")
+    view_col1, view_col2 = st.columns([1, 2])
+
+    with view_col1:
+        st.markdown("#### Item Specifications")
+        if not matched_rows.empty:
+            st.info(f"**Plant:** {c_plant}\n\n**Code No:** `{c_code}`\n\n**Item Name:** `{c_item}`")
+        else:
+            st.info("Select an item above to view specifications.")
+            
+        if drawing_files:
+            sel_file = st.selectbox("Or Browse Available Drawings:", drawing_files)
+            if sel_file:
+                target_file = os.path.join(DRAWINGS_DIR, sel_file)
+
+    with view_col2:
+        st.markdown("#### Drawing Preview & Specifications")
+        if target_file and os.path.exists(str(target_file)):
+            file_path = str(target_file)
+            if file_path.lower().endswith(('.png', '.jpg', '.jpeg', '.webp', '.svg')):
                 st.image(file_path, caption=f"Drawing: {target_file}", use_column_width=True)
             elif file_path.lower().endswith('.pdf'):
-                st.success(f"PDF Drawing loaded: {target_file}")
+                st.success(f"PDF Drawing loaded: {os.path.basename(file_path)}")
                 with open(file_path, "rb") as pdf_file:
                     base64_pdf = base64.b64encode(pdf_file.read()).decode('utf-8')
                 
-                # Using <embed> tag which bypasses iframe data-URI blocking in Chrome
                 pdf_display = f'<embed src="data:application/pdf;base64,{base64_pdf}" width="100%" height="600px" type="application/pdf">'
                 st.markdown(pdf_display, unsafe_allow_html=True)
                 
@@ -468,10 +487,160 @@ with col_d2:
                     st.markdown("<br>", unsafe_allow_html=True)
                     with open(file_path, "rb") as pdf_file:
                         PDFbyte = pdf_file.read()
-                    st.download_button(label="📥 Download Drawing PDF", data=PDFbyte, file_name=target_file, mime='application/pdf')
+                    st.download_button(label="📥 Download Drawing PDF", data=PDFbyte, file_name=os.path.basename(file_path), mime='application/pdf')
                 else:
                     st.info("🔒 Download restricted to Administrator accounts only.")
         else:
-            st.error(f"Drawing file '{target_file}' could not be located in the drawings folder.")
+            st.info("Please select a Code No. or Item Name above to view its drawing.")
+
+
+# ================= TAB 3: ENTER DISPATCHES =================
+elif selected_tab == "📝 Enter Dispatches":
+    st.subheader("📝 Record Monthly Dispatch")
+    if "d_qty" not in st.session_state:
+        st.session_state["d_qty"] = 0
+
+    if not df_tracker.empty and "Plant" in df_tracker.columns:
+        with st.form("dispatch_entry_form"):
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                form_plant = st.selectbox("Plant Name", options=df_tracker["Plant"].dropna().unique(), key="d_plant")
+
+            plant_items = df_tracker[df_tracker["Plant"] == form_plant]
+            item_options_dict = dict(zip(plant_items["ITEM NAME"], plant_items["CODE NO."]))
+
+            with col2:
+                form_item = st.selectbox("Item Name", options=list(item_options_dict.keys()), key="d_item")
+                form_code = item_options_dict.get(form_item, "")
+
+            with col3:
+                form_month = st.selectbox("Target Month", options=months_list, key="d_month")
+
+            dispatch_qty = st.number_input("Dispatched Quantity", min_value=0, step=1, key="d_qty")
+            submitted = st.form_submit_button("Save Dispatch Entry")
+
+            if submitted:
+                new_entry = pd.DataFrame({
+                    "Date": [pd.Timestamp.now().strftime("%Y-%m-%d %H:%M")],
+                    "Plant": [form_plant],
+                    "CODE NO.": [form_code],
+                    "ITEM NAME": [form_item],
+                    "Month": [form_month],
+                    "Dispatched Qty": [dispatch_qty],
+                    "Logged By": [st.session_state["username"]],
+                })
+                new_entry.to_csv(LOG_FILE, mode="a", header=not os.path.exists(LOG_FILE), index=False)
+                st.success(f"Successfully recorded {dispatch_qty} units for {form_item} ({form_plant}) in {form_month}!")
+                st.session_state["d_qty"] = 0
+                st.rerun()
     else:
-        st.info("Select an item to view its technical drawing.")
+        st.warning("No plant schedules found. Please add item schedules first.")
+
+    st.markdown("---")
+    st.subheader("📋 Raw Dispatch Entry History")
+    if not log_df.empty:
+        st.dataframe(log_df, use_container_width=True, hide_index=True)
+        if st.session_state["role"] == "Admin":
+            if st.button("🗑️ Clear All Dispatch Logs"):
+                if os.path.exists(LOG_FILE):
+                    os.remove(LOG_FILE)
+                st.success("Dispatch log history cleared!")
+                st.rerun()
+    else:
+        st.info("No dispatch entries logged yet.")
+
+
+# ================= TAB 4: MANAGE DRAWINGS =================
+elif selected_tab == "📐 Manage Drawings":
+    st.subheader("📐 Attach or Update Drawings for Code Numbers")
+    if not df_tracker.empty and "CODE NO." in df_tracker.columns:
+        all_unique_codes = sorted(df_tracker["CODE NO."].astype(str).unique().tolist())
+
+        with st.form("drawing_manager_form"):
+            selected_code_for_drawing = st.selectbox("Select Code No.", options=all_unique_codes)
+            match_row = df_tracker[df_tracker["CODE NO."].astype(str) == selected_code_for_drawing]
+            if not match_row.empty:
+                st.markdown(f"**Associated Item Name:** `{match_row.iloc[0]['ITEM NAME']}`")
+
+            uploaded_file = st.file_uploader("Upload Drawing File (PDF, PNG, JPG)", type=["pdf", "png", "jpg", "jpeg", "webp"])
+            drawing_submitted = st.form_submit_button("Save Drawing Link")
+
+            if drawing_submitted:
+                if uploaded_file is not None:
+                    file_save_path = os.path.join(DRAWINGS_DIR, uploaded_file.name)
+                    with open(file_save_path, "wb") as f:
+                        f.write(uploaded_file.getbuffer())
+
+                    df_d_map = pd.read_csv(DRAWINGS_MAP_FILE) if os.path.exists(DRAWINGS_MAP_FILE) else pd.DataFrame(columns=["CODE NO.", "Drawing"])
+                    df_d_map = df_d_map[df_d_map["CODE NO."].astype(str) != str(selected_code_for_drawing)]
+                    
+                    updated_map = pd.concat([df_d_map, pd.DataFrame({"CODE NO.": [selected_code_for_drawing], "Drawing": [file_save_path]})], ignore_index=True)
+                    updated_map.to_csv(DRAWINGS_MAP_FILE, index=False)
+
+                    # Update main tracker/custom items drawing column if present
+                    if "Drawing" in df_tracker.columns:
+                        df_tracker.loc[df_tracker["CODE NO."].astype(str) == str(selected_code_for_drawing), "Drawing"] = file_save_path
+                        df_tracker.to_csv(CUSTOM_ITEMS_FILE, index=False)
+
+                    st.success(f"Successfully linked drawing to Code No: {selected_code_for_drawing}!")
+                    st.rerun()
+                else:
+                    st.error("Please upload a drawing file first.")
+    else:
+        st.info("No items found to manage drawings for.")
+
+
+# ================= TAB 5: ADD NEW ITEM SCHEDULE =================
+elif selected_tab == "➕ Add New Item Schedule":
+    st.subheader("➕ Add New Item & Plant Requirement Schedule")
+    with st.form("new_item_form"):
+        c1, c2, c3 = st.columns(3)
+        with c1:
+            new_plant = st.text_input("Plant Name (e.g. KMC-AT)")
+        with c2:
+            new_code = st.text_input("Code No. (e.g. 1109999-00)")
+        with c3:
+            new_item_name = st.text_input("Item Name / Description")
+
+        c4, _ = st.columns(2)
+        with c4:
+            new_price = st.number_input("Unit Price", min_value=0.0, value=1.0, step=0.01)
+
+        st.markdown("##### Monthly Firm Schedules (Apr – Mar)")
+        m_cols = st.columns(6)
+        new_schedules = {}
+        for i, m in enumerate(months_list):
+            with m_cols[i % 6]:
+                new_schedules[m] = st.number_input(m, min_value=0, value=0, step=1, key=f"sch_{m}")
+
+        uploaded_drawing = st.file_uploader("Choose a drawing file", type=["pdf", "png", "jpg", "jpeg", "webp"], key="new_item_drawing")
+        add_submitted = st.form_submit_button("Save New Item")
+
+        if add_submitted:
+            if not new_plant or not new_code or not new_item_name:
+                st.error("Please fill in Plant, Code No., and Item Name.")
+            else:
+                drawing_saved_path = ""
+                if uploaded_drawing is not None:
+                    drawing_saved_path = os.path.join(DRAWINGS_DIR, uploaded_drawing.name)
+                    with open(drawing_saved_path, "wb") as f:
+                        f.write(uploaded_drawing.getbuffer())
+
+                row_data = {
+                    "Plant": [new_plant],
+                    "CODE NO.": [new_code],
+                    "ITEM NAME": [new_item_name.upper()],
+                    "PRICE": [new_price],
+                    "Drawing": [drawing_saved_path],
+                }
+                for m in months_list:
+                    row_data[m] = [new_schedules[m]]
+
+                df_new_row = pd.DataFrame(row_data)
+                if os.path.exists(CUSTOM_ITEMS_FILE):
+                    df_new_row.to_csv(CUSTOM_ITEMS_FILE, mode="a", header=False, index=False)
+                else:
+                    df_new_row.to_csv(CUSTOM_ITEMS_FILE, index=False)
+
+                st.success(f"Successfully added new item '{new_item_name}' (Code: {new_code}) for plant {new_plant}!")
+                st.rerun()
