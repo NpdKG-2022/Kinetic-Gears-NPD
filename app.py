@@ -416,29 +416,6 @@ def load_schedule_data():
     return df
 
 
-df_schedule = load_schedule_data()
-
-    if not log_df.empty and "Dispatched Qty" in log_df.columns:
-        disp_summary = (
-            log_df.groupby(["Plant", "CODE NO."])["Dispatched Qty"]
-            .sum()
-            .reset_index()
-            .rename(columns={"Dispatched Qty": "Disp. Till date"})
-        )
-    else:
-        disp_summary = pd.DataFrame(
-            columns=["Plant", "CODE NO.", "Disp. Till date"]
-        )
-
-    df_tracker = pd.merge(
-        df_schedule, disp_summary, on=["Plant", "CODE NO."], how="left"
-    )
-    df_tracker["Disp. Till date"] = (
-        df_tracker["Disp. Till date"].fillna(0).astype(int)
-    )
-    df_tracker["Balance"] = (
-        df_tracker["Total_Schedule"] - df_tracker["Disp. Till date"]
-    )
 
     # ================= CARD GRID NAVIGATION MENU =================
     st.markdown("### 📌 Navigation Menu")
