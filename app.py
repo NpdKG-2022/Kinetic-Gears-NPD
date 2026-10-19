@@ -376,7 +376,7 @@ st.components.v1.html(
 )
 
 st.markdown("---")
- # ================= TAB 2: VIEW DRAWING =================
+ # ================= TAB 1: VIEW DRAWING =================
     elif selected_tab = "🔍 View Drawing (In-Browser)":
         st.subheader("🔍 In-Browser Engineering Drawing Viewer")
         v_col1, v_col2 = st.columns(2)
@@ -439,75 +439,8 @@ st.markdown("---")
         else:
             st.info("Please select a Code No. or Item Name above to view its drawing.")
 
-    # ================= TAB 3: ENTER DISPATCHES =================
-    elif selected_tab == "📝 Enter Dispatches":
-        st.subheader("📝 Record Monthly Dispatch")
-
-        if "d_qty" not in st.session_state:
-            st.session_state["d_qty"] = 0
-
-        with st.form("dispatch_entry_form"):
-            col1, col2, col3 = st.columns(3)
-            with col1:
-                form_plant = st.selectbox(
-                    "Plant Name",
-                    options=df_tracker["Plant"].dropna().unique(),
-                    key="d_plant",
-                )
-
-            plant_items = df_tracker[df_tracker["Plant"] == form_plant]
-            item_options_dict = dict(
-                zip(plant_items["ITEM NAME"], plant_items["CODE NO."])
-            )
-
-            with col2:
-                form_item = st.selectbox(
-                    "Item Name", options=list(item_options_dict.keys()), key="d_item"
-                )
-                form_code = item_options_dict.get(form_item, "")
-
-            with col3:
-                form_month = st.selectbox(
-                    "Target Month", options=months_list, key="d_month"
-                )
-
-            dispatch_qty = st.number_input(
-                "Dispatched Quantity", min_value=0, step=1, key="d_qty"
-            )
-            submitted = st.form_submit_button("Save Dispatch Entry")
-
-            if submitted:
-                new_entry = pd.DataFrame({
-                    "Date": [pd.Timestamp.now().strftime("%Y-%m-%d %H:%M")],
-                    "Plant": [form_plant],
-                    "CODE NO.": [form_code],
-                    "ITEM NAME": [form_item],
-                    "Month": [form_month],
-                    "Dispatched Qty": [dispatch_qty],
-                    "Logged By": [st.session_state["username"]],
-                })
-                new_entry.to_csv(LOG_FILE, mode="a", header=False, index=False)
-                st.success(
-                    f"Successfully recorded {dispatch_qty} units for {form_item} "
-                    f"({form_plant}) in {form_month}!"
-                )
-                st.session_state["d_qty"] = 0
-                st.rerun()
-
-        st.markdown("---")
-        st.subheader("📋 Raw Dispatch Entry History")
-        if not log_df.empty:
-            st.dataframe(log_df, use_container_width=True, hide_index=True)
-            if st.session_state["role"] == "Admin":
-                if st.button("🗑️ Clear All Dispatch Logs"):
-                    if os.path.exists(LOG_FILE):
-                        os.remove(LOG_FILE)
-                    st.success("Dispatch log history cleared!")
-                    st.rerun()
-        else:
-            st.info("No dispatch entries logged yet.")
-
-    # ================= TAB 4: MANAGE DRAWINGS =================
+   
+    # ================= TAB 2: MANAGE DRAWINGS =================
     elif selected_tab == "📐 Manage Drawings":
         st.subheader("📐 Attach or Update Drawings for Code Numbers")
         all_unique_codes = sorted(
