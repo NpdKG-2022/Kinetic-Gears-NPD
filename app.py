@@ -436,18 +436,20 @@ with tab1:
     if search_mode == "Code No.":
         selected_code = st.selectbox(
             "Enter Code No.",
-            options=["-- Select Code No. --"] + all_codes,
+            options=[""] + all_codes,
+            format_func=lambda x: "Enter Code No." if x == "" else x,
             label_visibility="collapsed"
         )
-        if selected_code and selected_code != "-- Select Code No. --":
+        if selected_code and selected_code.strip() != "":
             matched_rows = df_tracker[df_tracker["CODE NO."].astype(str) == selected_code]
     else:
         selected_item = st.selectbox(
             "Enter Item Name",
-            options=["-- Select Item Name --"] + all_items,
+            options=[""] + all_items,
+            format_func=lambda x: "Enter Item Name" if x == "" else x,
             label_visibility="collapsed"
         )
-        if selected_item and selected_item != "-- Select Item Name --":
+        if selected_item and selected_item.strip() != "":
             matched_rows = df_tracker[df_tracker["ITEM NAME"].astype(str) == selected_item]
 
     if not matched_rows.empty:
@@ -482,7 +484,6 @@ with tab1:
             st.warning("No drawing file attached to this item. Go to **'Manage Drawings'** tab to upload one.")
     else:
         st.info("Please select or type a Code No. or Item Name above to view its drawing.")
-
 
 # ================= TAB 2: MANAGE DRAWINGS =================
 with tab2:
