@@ -1,7 +1,6 @@
 import base64
 import io
 import os
-import random
 import time
 import pandas as pd
 import streamlit as st
@@ -26,38 +25,53 @@ def get_base64_image(image_path):
 
 logo_base64 = get_base64_image("KG-Logo.png")
 
-# List of random mechanical manufacturing & engineering wallpapers
-manufacturing_wallpapers = [
-    "https://images.unsplash.com/photo-1565043589221-1a6fd9ae45c7?q=80&w=1920&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=1920&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1581092160607-ee22621dd758?q=80&w=1920&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?q=80&w=1920&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1537462715879-360eeb61a0ad?q=80&w=1920&auto=format&fit=crop",
-]
-
-selected_wallpaper = random.choice(manufacturing_wallpapers)
-
-# Custom CSS for Glassmorphism login, layouts, and compact top padding
+# Custom CSS for Glassmorphism login, layouts, and Enterprise Styled Tabs
 st.markdown(
-    f"""
+    """
     <style>
-        /* Full page background with dynamic mechanical wallpaper */
-        .stApp {{
-            background: linear-gradient(rgba(15, 12, 29, 0.65), rgba(15, 12, 29, 0.85)),
-                        url('{selected_wallpaper}');
-            background-size: cover;
-            background-position: center;
+        /* Full page background with clean dark theme */
+        .stApp {
+            background: linear-gradient(135deg, #0f0c1d 0%, #1a1532 100%);
             background-attachment: fixed;
-        }}
+        }
 
         /* Remove excess top padding above header */
-        .block-container {{
+        .block-container {
             padding-top: 1.75rem !important;
             padding-bottom: 1.5rem !important;
-        }}
+        }
+
+        /* --- ENTERPRISE STYLED TABS --- */
+        .stTabs [data-baseweb="tab-list"] {
+            gap: 10px;
+            background-color: rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .stTabs [data-baseweb="tab"] {
+            height: 45px;
+            background-color: rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            color: rgba(255, 255, 255, 0.85);
+            font-weight: 600;
+            padding: 0 20px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            transition: all 0.3s ease;
+        }
+        .stTabs [data-baseweb="tab"]:hover {
+            background-color: rgba(255, 255, 255, 0.18);
+            color: #ffffff;
+        }
+        .stTabs [aria-selected="true"] {
+            background-color: #1e88e5 !important;
+            color: #ffffff !important;
+            border: 1px solid #1e88e5 !important;
+            box-shadow: 0 4px 15px rgba(30, 136, 229, 0.4);
+        }
 
         /* --- GLASSMORPHISM LOGIN FORM STYLING --- */
-        div[data-testid="stForm"] {{
+        div[data-testid="stForm"] {
             background: rgba(255, 255, 255, 0.08) !important;
             backdrop-filter: blur(16px) saturate(180%) !important;
             -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
@@ -65,9 +79,9 @@ st.markdown(
             border-radius: 24px !important;
             padding: 40px 30px !important;
             box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4) !important;
-        }}
+        }
 
-        div[data-testid="stTextInput"] input {{
+        div[data-testid="stTextInput"] input {
             background-color: transparent !important;
             border: none !important;
             border-bottom: 1px solid rgba(255, 255, 255, 0.5) !important;
@@ -75,17 +89,17 @@ st.markdown(
             color: #ffffff !important;
             padding: 10px 5px !important;
             font-size: 15px !important;
-        }}
-        div[data-testid="stTextInput"] input:focus {{
+        }
+        div[data-testid="stTextInput"] input:focus {
             border-bottom: 2px solid #ffffff !important;
             box-shadow: none !important;
-        }}
-        div[data-testid="stTextInput"] label {{
+        }
+        div[data-testid="stTextInput"] label {
             color: rgba(255, 255, 255, 0.9) !important;
             font-weight: 500 !important;
-        }}
+        }
 
-        div[data-testid="stFormSubmitButton"] button {{
+        div[data-testid="stFormSubmitButton"] button {
             background-color: #ffffff !important;
             color: #111111 !important;
             font-weight: 700 !important;
@@ -96,19 +110,19 @@ st.markdown(
             margin-top: 15px !important;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important;
             transition: all 0.3s ease !important;
-        }}
-        div[data-testid="stFormSubmitButton"] button:hover {{
+        }
+        div[data-testid="stFormSubmitButton"] button:hover {
             background-color: #f0f0f0 !important;
             transform: translateY(-2px);
-        }}
+        }
 
         /* Make dataframes take full width and wrap cleanly */
-        [data-testid="stDataFrame"] {{
+        [data-testid="stDataFrame"] {
             width: 100% !important;
-        }}
-        [data-testid="stDataFrame"] > div {{
+        }
+        [data-testid="stDataFrame"] > div {
             width: 100% !important;
-        }}
+        }
     </style>
 """,
     unsafe_allow_html=True,
@@ -377,29 +391,6 @@ DRAWINGS_DIR = "drawings"
 
 os.makedirs(DRAWINGS_DIR, exist_ok=True)
 
-# Initialize session state for navigation tabs
-if "selected_tab" not in st.session_state:
-    st.session_state["selected_tab"] = "🔍 View Drawing (In-Browser)"
-
-# ================= CARD GRID NAVIGATION MENU =================
-st.markdown("### 📌 Navigation Menu")
-
-tabs_config = [
-    {"title": "View Drawing (In-Browser)", "icon": "🔍"},
-    {"title": "Manage Drawings", "icon": "📐"},
-]
-
-cols = st.columns(len(tabs_config))
-for i, tab in enumerate(tabs_config):
-    with cols[i]:
-        tab_label = f"{tab['icon']} {tab['title']}"
-        if st.button(tab_label, key=f"nav_btn_{i}", use_container_width=True):
-            st.session_state["selected_tab"] = tab_label
-            st.rerun()
-
-st.markdown("---")
-selected_tab = st.session_state["selected_tab"]
-
 # Load dataset helper
 CUSTOM_ITEMS_FILE = "custom_items.csv"
 months_list = ["Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Jan", "Feb", "Mar"]
@@ -422,9 +413,11 @@ if os.path.exists(DRAWINGS_MAP_FILE):
 if "Drawing" not in df_tracker.columns:
     df_tracker["Drawing"] = ""
 
+# ================= ENTERPRISE STYLED TABS =================
+tab1, tab2 = st.tabs(["🔍 View Drawing (In-Browser)", "📐 Manage Drawings"])
 
 # ================= TAB 1: VIEW DRAWING =================
-if selected_tab == "🔍 View Drawing (In-Browser)":
+with tab1:
     st.subheader("🔍 In-Browser Engineering Drawing Viewer")
     v_col1, v_col2 = st.columns(2)
 
@@ -477,7 +470,7 @@ if selected_tab == "🔍 View Drawing (In-Browser)":
 
 
 # ================= TAB 2: MANAGE DRAWINGS =================
-elif selected_tab == "📐 Manage Drawings":
+with tab2:
     st.subheader("📐 Attach or Update Drawings for Code Numbers")
     if not df_tracker.empty and "CODE NO." in df_tracker.columns:
         all_unique_codes = sorted(df_tracker["CODE NO."].astype(str).unique().tolist())
