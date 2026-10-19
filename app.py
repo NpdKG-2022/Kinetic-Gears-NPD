@@ -428,18 +428,27 @@ with tab1:
     
     search_mode = st.radio("Search Drawing By:", ["Code No.", "Item Name"], horizontal=True)
 
+    all_codes = sorted(df_tracker["CODE NO."].astype(str).unique().tolist()) if not df_tracker.empty and "CODE NO." in df_tracker.columns else []
+    all_items = sorted(df_tracker["ITEM NAME"].astype(str).unique().tolist()) if not df_tracker.empty and "ITEM NAME" in df_tracker.columns else []
+
     matched_rows = pd.DataFrame()
 
     if search_mode == "Code No.":
-        search_code_input = st.text_input("Enter Code No.", placeholder="Enter Code no.", label_visibility="collapsed")
-        if search_code_input.strip():
-            query_code = search_code_input.strip().lower()
-            matched_rows = df_tracker[df_tracker["CODE NO."].astype(str).str.lower().str.contains(query_code, na=False)]
+        selected_code = st.selectbox(
+            "Enter Code No.",
+            options=["-- Select Code No. --"] + all_codes,
+            label_visibility="collapsed"
+        )
+        if selected_code and selected_code != "-- Select Code No. --":
+            matched_rows = df_tracker[df_tracker["CODE NO."].astype(str) == selected_code]
     else:
-        search_item_input = st.text_input("Enter Item Name", placeholder="Enter Item name", label_visibility="collapsed")
-        if search_item_input.strip():
-            query_item = search_item_input.strip().lower()
-            matched_rows = df_tracker[df_tracker["ITEM NAME"].astype(str).str.lower().str.contains(query_item, na=False)]
+        selected_item = st.selectbox(
+            "Enter Item Name",
+            options=["-- Select Item Name --"] + all_items,
+            label_visibility="collapsed"
+        )
+        if selected_item and selected_item != "-- Select Item Name --":
+            matched_rows = df_tracker[df_tracker["ITEM NAME"].astype(str) == selected_item]
 
     if not matched_rows.empty:
         row = matched_rows.iloc[0]
@@ -472,7 +481,7 @@ with tab1:
         else:
             st.warning("No drawing file attached to this item. Go to **'Manage Drawings'** tab to upload one.")
     else:
-        st.info("Please enter a Code No. or Item Name above to search and view its drawing.")
+        st.info("Please select or type a Code No. or Item Name above to view its drawing.")
 
 
 # ================= TAB 2: MANAGE DRAWINGS =================
