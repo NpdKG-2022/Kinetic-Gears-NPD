@@ -472,11 +472,11 @@ with tab1:
 
 # ================= TAB 2: MANAGE DRAWINGS =================
 with tab2:
-    st.subheader("📐 Add or Update Drawings with Manual Part Details")
+    st.subheader("📐 Add or Update Drawings with Part Details")
     
     with st.form("drawing_manager_form"):
-        manual_code = st.text_input("Enter Part Number", placeholder="e.g. PN-10029")
-        manual_item_name = st.text_input("Enter Part Name", placeholder="e.g. Spur Gear Assembly")
+        manual_code = st.text_input("Enter Part Number", placeholder="e.g. PM-001")
+        manual_item_name = st.text_input("Enter Part Name", placeholder="e.g. Gear Blank")
 
         uploaded_file = st.file_uploader("Upload Drawing File (PDF, PNG, JPG, TIFF)", type=["pdf", "png", "jpg", "jpeg", "tiff", "tif"])
         drawing_submitted = st.form_submit_button("Save Drawing & Part Details")
