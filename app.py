@@ -448,7 +448,7 @@ with tab1:
 
         if pd.notna(drawing_path) and str(drawing_path).strip() != "" and os.path.exists(str(drawing_path)):
             st.success("Drawing loaded successfully in viewer:")
-            if drawing_path.lower().endswith((".png", ".jpg", ".jpeg", ".webp", ".svg")):
+            if drawing_path.lower().endswith((".png", ".jpg", ".jpeg", ".tiff", ".tif", ".svg")):
                 st.image(drawing_path, caption=f"Drawing: {c_code} - {c_item}", use_column_width=True)
             elif drawing_path.lower().endswith(".pdf"):
                 with open(drawing_path, "rb") as f:
@@ -475,16 +475,15 @@ with tab2:
     st.subheader("📐 Add or Update Drawings with Manual Part Details")
     
     with st.form("drawing_manager_form"):
-        manual_code = st.text_input("Enter Part Number / Code No.", placeholder="e.g. PN-10029")
-        manual_item_name = st.text_input("Enter Part Name / Item Name", placeholder="e.g. Spur Gear Assembly")
-        manual_plant = st.text_input("Enter Plant / Department (Optional)", value="Main Plant", placeholder="e.g. Plant A")
+        manual_code = st.text_input("Enter Part Number", placeholder="e.g. PN-10029")
+        manual_item_name = st.text_input("Enter Part Name", placeholder="e.g. Spur Gear Assembly")
 
-        uploaded_file = st.file_uploader("Upload Drawing File (PDF, PNG, JPG, WEBP)", type=["pdf", "png", "jpg", "jpeg", "webp"])
+        uploaded_file = st.file_uploader("Upload Drawing File (PDF, PNG, JPG, TIFF)", type=["pdf", "png", "jpg", "jpeg", "tiff", "tif"])
         drawing_submitted = st.form_submit_button("Save Drawing & Part Details")
 
         if drawing_submitted:
             if not manual_code.strip() or not manual_item_name.strip():
-                st.error("Please provide both a valid Part Number (Code No.) and Part Name.")
+                st.error("Please provide both a valid Part Number and Part Name.")
             elif uploaded_file is None:
                 st.error("Please upload a drawing file first.")
             else:
@@ -509,11 +508,9 @@ with tab2:
                 if not df_custom.empty and "CODE NO." in df_custom.columns and str(manual_code.strip()) in df_custom["CODE NO."].astype(str).values:
                     df_custom.loc[df_custom["CODE NO."].astype(str) == str(manual_code.strip()), "ITEM NAME"] = manual_item_name.strip().upper()
                     df_custom.loc[df_custom["CODE NO."].astype(str) == str(manual_code.strip()), "Drawing"] = file_save_path
-                    if "Plant" in df_custom.columns:
-                        df_custom.loc[df_custom["CODE NO."].astype(str) == str(manual_code.strip()), "Plant"] = manual_plant.strip()
                 else:
                     new_row_data = {
-                        "Plant": [manual_plant.strip()],
+                        "Plant": ["General"],
                         "CODE NO.": [manual_code.strip()],
                         "ITEM NAME": [manual_item_name.strip().upper()],
                         "PRICE": [0.0],
