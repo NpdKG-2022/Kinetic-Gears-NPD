@@ -428,7 +428,7 @@ with col_d1:
 
     drawing_files = []
     if os.path.exists("drawings") and os.path.isdir("drawings"):
-        drawing_files = [f for f in os.listdir("drawings") if f.lower().endswith(('.png', '.jpg', '.jpeg', '.pdf', '.webp'))]
+        drawing_files = [f for f in os.listdir("drawings") if f.lower().endswith(('.png', '.jpg', '.jpeg', '.pdf', '.tiff'))]
     
     if drawings_df is not None and not drawings_df.empty:
         st.dataframe(drawings_df, use_container_width=True)
@@ -440,7 +440,7 @@ with col_d1:
         if not matched_row.empty:
             for col in matched_row.columns:
                 val = str(matched_row[col].values[0])
-                if any(val.endswith(ext) for ext in ['.png', '.jpg', '.jpeg', '.pdf', '.webp']):
+                if any(val.endswith(ext) for ext in ['.png', '.jpg', '.jpeg', '.pdf', '.tiff']):
                     target_file = val
                     break
         if not target_file and drawing_files:
@@ -458,13 +458,26 @@ with col_d2:
     if target_file:
         file_path = os.path.join("drawings", target_file) if not os.path.exists(target_file) else target_file
         if os.path.exists(file_path):
-            if file_path.lower().endswith(('.png', '.jpg', '.jpeg', '.webp')):
+            if file_path.lower().endswith(('.png', '.jpg', '.jpeg', '.tiff')):
                 st.image(file_path, caption=f"Drawing: {target_file}", use_column_width=True)
             elif file_path.lower().endswith('.pdf'):
                 st.success(f"PDF Drawing loaded: {target_file}")
+                
+                # Display PDF preview (using markdown iframe or object tag for in-page viewing)
                 with open(file_path, "rb") as pdf_file:
-                    PDFbyte = pdf_file.read()
-                st.download_button(label="📥 Download Drawing PDF", data=PDFbyte, file_name=target_file, mime='application/pdf')
+                    base64_pdf = base64.b64encode(pdf_file.read()).decode('utf-8')
+                
+                pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="100%" height="600px" type="application/pdf"></iframe>'
+                st.markdown(pdf_display, unsafe_allow_html=True)
+                
+                # Download button restricted strictly to Admin role
+                if role_val == "Admin":
+                    st.markdown("<br>", unsafe_allow_html=True)
+                    with open(file_path, "rb") as pdf_file:
+                        PDFbyte = pdf_file.read()
+                    st.download_button(label="📥 Download Drawing PDF", data=PDFbyte, file_name=target_file, mime='application/pdf')
+                else:
+                    st.info("🔒 Download restricted to Administrator accounts only.")
         else:
             st.error(f"Drawing file '{target_file}' could not be located in the drawings folder.")
     else:
