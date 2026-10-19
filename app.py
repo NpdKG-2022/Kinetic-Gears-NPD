@@ -380,9 +380,7 @@ os.makedirs(DRAWINGS_DIR, exist_ok=True)
         df["Drawing"] = ""
 
     df["Total_Schedule"] = df[months_list].sum(axis=1)
-    return df
-
-
+    return df 
 
     # ================= CARD GRID NAVIGATION MENU =================
     st.markdown("### 📌 Navigation Menu")
@@ -467,4 +465,59 @@ os.makedirs(DRAWINGS_DIR, exist_ok=True)
         else:
             st.info("Please select a Code No. or Item Name above to view its drawing.")
 
-  
+   # ================= TAB 2: MANAGE DRAWINGS =================
+    elif selected_tab == "📐 Manage Drawings":
+        st.subheader("📐 Attach or Update Drawings for Code Numbers")
+        all_unique_codes = sorted(
+            df_tracker["CODE NO."].astype(str).unique().tolist()
+        )
+
+        with st.form("drawing_manager_form"):
+            selected_code_for_drawing = st.selectbox(
+                "Select Code No.", options=all_unique_codes
+            )
+            match_row = df_tracker[
+                df_tracker["CODE NO."].astype(str) == selected_code_for_drawing
+            ]
+            if not match_row.empty:
+                st.markdown(f"**Associated Item Name:** `{match_row.iloc[0]['ITEM NAME']}`")
+
+            uploaded_file = st.file_uploader(
+                "Upload Drawing File (PDF, PNG, JPG)",
+                type=["pdf", "png", "jpg", "jpeg"],
+            )
+            drawing_submitted = st.form_submit_button("Save Drawing Link")
+
+            if drawing_submitted:
+                if uploaded_file is not None:
+                    file_save_path = os.path.join(DRAWINGS_DIR, uploaded_file.name)
+                    with open(file_save_path, "wb") as f:
+                        f.write(uploaded_file.getbuffer())
+
+                    df_d_map = (
+                        pd.read_csv(DRAWINGS_MAP_FILE)
+                        if os.path.exists(DRAWINGS_MAP_FILE)
+                        else pd.DataFrame(columns=["CODE NO.", "Drawing"])
+                    )
+                    df_d_map = df_d_map[
+                        df_d_map["CODE NO."].astype(str)
+                        != str(selected_code_for_drawing)
+                    ]
+                    pd.concat(
+                        [
+                            df_d_map,
+                            pd.DataFrame({
+                                "CODE NO.": [selected_code_for_drawing],
+                                "Drawing": [file_save_path],
+                            }),
+                        ],
+                        ignore_index=True,
+                    ).to_csv(DRAWINGS_MAP_FILE, index=False)
+
+                    st.success(
+                        f"Successfully linked drawing to Code No: {selected_code_for_drawing}!"
+                    )
+                    st.rerun()
+                else:
+                    st.error("Please upload a drawing file first.")
+
