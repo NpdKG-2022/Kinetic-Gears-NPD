@@ -26,6 +26,17 @@ def get_base64_image(image_path):
 
 logo_base64 = get_base64_image("KG-Logo.png")
 
+# List of random mechanical manufacturing & engineering wallpapers
+manufacturing_wallpapers = [
+    "https://images.unsplash.com/photo-1565043589221-1a6fd9ae45c7?q=80&w=1920&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=1920&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1581092160607-ee22621dd758?q=80&w=1920&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?q=80&w=1920&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1537462715879-360eeb61a0ad?q=80&w=1920&auto=format&fit=crop",
+]
+
+selected_wallpaper = random.choice(manufacturing_wallpapers)
+
 # Custom CSS for Glassmorphism login, layouts, and compact top padding
 st.markdown(
     f"""
@@ -366,126 +377,118 @@ DRAWINGS_DIR = "drawings"
 
 os.makedirs(DRAWINGS_DIR, exist_ok=True)
 
-    if os.path.exists(DRAWINGS_MAP_FILE):
-        df_drawings = pd.read_csv(DRAWINGS_MAP_FILE)
-        if not df_drawings.empty:
-            df = pd.merge(df, df_drawings, on="CODE NO.", how="left", suffixes=("", "_map"))
-            if "Drawing_map" in df.columns:
-                df["Drawing"] = df["Drawing_map"].combine_first(
-                    df.get("Drawing", pd.Series([None] * len(df)))
-                )
-                df = df.drop(columns=[c for c in df.columns if "_map" in c])
+# Initialize session state for navigation tabs
+if "selected_tab" not in st.session_state:
+    st.session_state["selected_tab"] = "🔍 View Drawing (In-Browser)"
 
-    if "Drawing" not in df.columns:
-        df["Drawing"] = ""
+# ================= CARD GRID NAVIGATION MENU =================
+st.markdown("### 📌 Navigation Menu")
 
-    df["Total_Schedule"] = df[months_list].sum(axis=1)
-    return df 
+tabs_config = [
+    {"title": "View Drawing (In-Browser)", "icon": "🔍"},
+    {"title": "Manage Drawings", "icon": "📐"},
+]
 
-    # ================= CARD GRID NAVIGATION MENU =================
-    st.markdown("### 📌 Navigation Menu")
+cols = st.columns(len(tabs_config))
+for i, tab in enumerate(tabs_config):
+    with cols[i]:
+        tab_label = f"{tab['icon']} {tab['title']}"
+        if st.button(tab_label, key=f"nav_btn_{i}", use_container_width=True):
+            st.session_state["selected_tab"] = tab_label
+            st.rerun()
 
-    tabs_config = [
-        {"title": "View Drawing (In-Browser)", "icon": "🔍", "bg": "#e0f7fa", "color": "#00838f"},
-        {"title": "Manage Drawings", "icon": "📐", "bg": "#e8f5e9", "color": "#2e7d32"},
-    ]
+st.markdown("---")
+selected_tab = st.session_state["selected_tab"]
 
-    cols = st.columns(5)
-    for i, tab in enumerate(tabs_config):
-        with cols[i]:
-            tab_full_name = f"{tab['icon']}\n{tab['title']}"
-            if st.button(tab_full_name, key=f"nav_btn_{i}", use_container_width=True):
-                st.session_state["selected_tab"] = f"{tab['icon']} {tab['title']}"
-                st.rerun()
+# Load dataset helper
+CUSTOM_ITEMS_FILE = "custom_items.csv"
+months_list = ["Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Jan", "Feb", "Mar"]
 
-    st.markdown("---")
-    selected_tab = st.session_state["selected_tab"]
+if os.path.exists(CUSTOM_ITEMS_FILE):
+    df_tracker = pd.read_csv(CUSTOM_ITEMS_FILE)
+else:
+    df_tracker = pd.DataFrame(columns=["Plant", "CODE NO.", "ITEM NAME", "PRICE", "Drawing"] + months_list)
 
-  
-    # ================= TAB 1: VIEW DRAWING =================
-    elif selected_tab == "🔍 View Drawing (In-Browser)":
-        st.subheader("🔍 In-Browser Engineering Drawing Viewer")
-        v_col1, v_col2 = st.columns(2)
-
-        all_codes = sorted(df_tracker["CODE NO."].astype(str).unique().tolist())
-        all_items = sorted(df_tracker["ITEM NAME"].astype(str).unique().tolist())
-
-        with v_col1:
-            search_by_code = st.selectbox(
-                "Select by Code No.",
-                options=["-- Select --"] + all_codes,
-                key="draw_search_code",
+if os.path.exists(DRAWINGS_MAP_FILE):
+    df_drawings = pd.read_csv(DRAWINGS_MAP_FILE)
+    if not df_drawings.empty and not df_tracker.empty:
+        df_tracker = pd.merge(df_tracker, df_drawings, on="CODE NO.", how="left", suffixes=("", "_map"))
+        if "Drawing_map" in df_tracker.columns:
+            df_tracker["Drawing"] = df_tracker["Drawing_map"].combine_first(
+                df_tracker.get("Drawing", pd.Series([None] * len(df_tracker)))
             )
-        with v_col2:
-            search_by_item = st.selectbox(
-                "Select by Item Name",
-                options=["-- Select --"] + all_items,
-                key="draw_search_item",
-            )
+            df_tracker = df_tracker.drop(columns=[c for c in df_tracker.columns if "_map" in c])
 
-        matched_rows = pd.DataFrame()
-        if search_by_code != "-- Select --":
-            matched_rows = df_tracker[df_tracker["CODE NO."].astype(str) == search_by_code]
-        elif search_by_item != "-- Select --":
-            matched_rows = df_tracker[df_tracker["ITEM NAME"].astype(str) == search_by_item]
+if "Drawing" not in df_tracker.columns:
+    df_tracker["Drawing"] = ""
 
-        if not matched_rows.empty:
-            row = matched_rows.iloc[0]
-            c_code = row["CODE NO."]
-            c_item = row["ITEM NAME"]
-            c_plant = row["Plant"]
-            drawing_path = row.get("Drawing", "")
 
-            st.markdown("---")
-            st.info(
-                f"**Plant:** {c_plant} | **Code No:** `{c_code}` | **Item Name:** `{c_item}`"
-            )
+# ================= TAB 1: VIEW DRAWING =================
+if selected_tab == "🔍 View Drawing (In-Browser)":
+    st.subheader("🔍 In-Browser Engineering Drawing Viewer")
+    v_col1, v_col2 = st.columns(2)
 
-            if (
-                pd.notna(drawing_path)
-                and str(drawing_path).strip() != ""
-                and os.path.exists(str(drawing_path))
-            ):
-                st.success("Drawing loaded successfully in viewer:")
-                if drawing_path.lower().endswith((".png", ".jpg", ".jpeg")):
-                    st.image(
-                        drawing_path,
-                        caption=f"Drawing: {c_code} - {c_item}",
-                        use_container_width=True,
-                    )
-                elif drawing_path.lower().endswith(".pdf"):
-                    with open(drawing_path, "rb") as f:
-                        base64_pdf = base64.b64encode(f.read()).decode("utf-8")
-                    pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="100%" height="700px" type="application/pdf"></iframe>'
-                    st.markdown(pdf_display, unsafe_allow_html=True)
-            else:
-                st.warning(
-                    "No drawing file attached to this item. Go to **'Manage Drawings'** tab to upload one."
-                )
+    all_codes = sorted(df_tracker["CODE NO."].astype(str).unique().tolist()) if not df_tracker.empty and "CODE NO." in df_tracker.columns else []
+    all_items = sorted(df_tracker["ITEM NAME"].astype(str).unique().tolist()) if not df_tracker.empty and "ITEM NAME" in df_tracker.columns else []
+
+    with v_col1:
+        search_by_code = st.selectbox("Select by Code No.", options=["-- Select --"] + all_codes, key="draw_search_code")
+    with v_col2:
+        search_by_item = st.selectbox("Select by Item Name", options=["-- Select --"] + all_items, key="draw_search_item")
+
+    matched_rows = pd.DataFrame()
+    if search_by_code != "-- Select --":
+        matched_rows = df_tracker[df_tracker["CODE NO."].astype(str) == search_by_code]
+    elif search_by_item != "-- Select --":
+        matched_rows = df_tracker[df_tracker["ITEM NAME"].astype(str) == search_by_item]
+
+    if not matched_rows.empty:
+        row = matched_rows.iloc[0]
+        c_code = row["CODE NO."]
+        c_item = row["ITEM NAME"]
+        c_plant = row["Plant"]
+        drawing_path = row.get("Drawing", "")
+
+        st.markdown("---")
+        st.info(f"**Plant:** {c_plant} | **Code No:** `{c_code}` | **Item Name:** `{c_item}`")
+
+        if pd.notna(drawing_path) and str(drawing_path).strip() != "" and os.path.exists(str(drawing_path)):
+            st.success("Drawing loaded successfully in viewer:")
+            if drawing_path.lower().endswith((".png", ".jpg", ".jpeg", ".webp", ".svg")):
+                st.image(drawing_path, caption=f"Drawing: {c_code} - {c_item}", use_column_width=True)
+            elif drawing_path.lower().endswith(".pdf"):
+                with open(drawing_path, "rb") as f:
+                    base64_pdf = base64.b64encode(f.read()).decode("utf-8")
+                pdf_display = f'<embed src="data:application/pdf;base64,{base64_pdf}" width="100%" height="700px" type="application/pdf">'
+                st.markdown(pdf_display, unsafe_allow_html=True)
+                
+                # Admin-only download button restriction
+                if role_val == "Admin":
+                    st.markdown("<br>", unsafe_allow_html=True)
+                    with open(drawing_path, "rb") as pdf_file:
+                        PDFbyte = pdf_file.read()
+                    st.download_button(label="📥 Download Drawing PDF", data=PDFbyte, file_name=os.path.basename(drawing_path), mime='application/pdf')
+                else:
+                    st.info("🔒 Download restricted to Administrator accounts only.")
         else:
-            st.info("Please select a Code No. or Item Name above to view its drawing.")
+            st.warning("No drawing file attached to this item. Go to **'Manage Drawings'** tab to upload one.")
+    else:
+        st.info("Please select a Code No. or Item Name above to view its drawing.")
 
-   # ================= TAB 2: MANAGE DRAWINGS =================
-    elif selected_tab == "📐 Manage Drawings":
-        st.subheader("📐 Attach or Update Drawings for Code Numbers")
-        all_unique_codes = sorted(
-            df_tracker["CODE NO."].astype(str).unique().tolist()
-        )
+
+# ================= TAB 2: MANAGE DRAWINGS =================
+elif selected_tab == "📐 Manage Drawings":
+    st.subheader("📐 Attach or Update Drawings for Code Numbers")
+    if not df_tracker.empty and "CODE NO." in df_tracker.columns:
+        all_unique_codes = sorted(df_tracker["CODE NO."].astype(str).unique().tolist())
 
         with st.form("drawing_manager_form"):
-            selected_code_for_drawing = st.selectbox(
-                "Select Code No.", options=all_unique_codes
-            )
-            match_row = df_tracker[
-                df_tracker["CODE NO."].astype(str) == selected_code_for_drawing
-            ]
+            selected_code_for_drawing = st.selectbox("Select Code No.", options=all_unique_codes)
+            match_row = df_tracker[df_tracker["CODE NO."].astype(str) == selected_code_for_drawing]
             if not match_row.empty:
                 st.markdown(f"**Associated Item Name:** `{match_row.iloc[0]['ITEM NAME']}`")
 
-            uploaded_file = st.file_uploader(
-                "Upload Drawing File (PDF, PNG, JPG)",
-                type=["pdf", "png", "jpg", "jpeg"],
-            )
+            uploaded_file = st.file_uploader("Upload Drawing File (PDF, PNG, JPG)", type=["pdf", "png", "jpg", "jpeg", "webp"])
             drawing_submitted = st.form_submit_button("Save Drawing Link")
 
             if drawing_submitted:
@@ -494,30 +497,15 @@ os.makedirs(DRAWINGS_DIR, exist_ok=True)
                     with open(file_save_path, "wb") as f:
                         f.write(uploaded_file.getbuffer())
 
-                    df_d_map = (
-                        pd.read_csv(DRAWINGS_MAP_FILE)
-                        if os.path.exists(DRAWINGS_MAP_FILE)
-                        else pd.DataFrame(columns=["CODE NO.", "Drawing"])
-                    )
-                    df_d_map = df_d_map[
-                        df_d_map["CODE NO."].astype(str)
-                        != str(selected_code_for_drawing)
-                    ]
-                    pd.concat(
-                        [
-                            df_d_map,
-                            pd.DataFrame({
-                                "CODE NO.": [selected_code_for_drawing],
-                                "Drawing": [file_save_path],
-                            }),
-                        ],
-                        ignore_index=True,
-                    ).to_csv(DRAWINGS_MAP_FILE, index=False)
+                    df_d_map = pd.read_csv(DRAWINGS_MAP_FILE) if os.path.exists(DRAWINGS_MAP_FILE) else pd.DataFrame(columns=["CODE NO.", "Drawing"])
+                    df_d_map = df_d_map[df_d_map["CODE NO."].astype(str) != str(selected_code_for_drawing)]
+                    
+                    updated_map = pd.concat([df_d_map, pd.DataFrame({"CODE NO.": [selected_code_for_drawing], "Drawing": [file_save_path]})], ignore_index=True)
+                    updated_map.to_csv(DRAWINGS_MAP_FILE, index=False)
 
-                    st.success(
-                        f"Successfully linked drawing to Code No: {selected_code_for_drawing}!"
-                    )
+                    st.success(f"Successfully linked drawing to Code No: {selected_code_for_drawing}!")
                     st.rerun()
                 else:
                     st.error("Please upload a drawing file first.")
-
+    else:
+        st.info("No items found to manage drawings for.")
