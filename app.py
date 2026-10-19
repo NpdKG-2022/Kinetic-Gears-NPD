@@ -403,19 +403,18 @@ else:
 
 if os.path.exists(DRAWINGS_MAP_FILE):
     df_drawings = pd.read_csv(DRAWINGS_MAP_FILE)
-    if not df_drawings.empty:
-        if "Item Code" in df_drawings.columns and "CODE NO." not in df_drawings.columns:
-            df_drawings = df_drawings.rename(columns={"Item Code": "CODE NO."})
-        if "Drawing File" in df_drawings.columns and "Drawing" not in df_drawings.columns:
-            df_drawings = df_drawings.rename(columns={"Drawing File": "Drawing"})
-            
-        if not df_tracker.empty and "CODE NO." in df_tracker.columns and "CODE NO." in df_drawings.columns:
-            df_tracker = pd.merge(df_tracker, df_drawings, on="CODE NO.", how="left", suffixes=("", "_map"))
-            if "Drawing_map" in df_tracker.columns:
-                df_tracker["Drawing"] = df_tracker["Drawing_map"].combine_first(
-                    df_tracker.get("Drawing", pd.Series([None] * len(df_tracker)))
-                )
-                df_tracker = df_tracker.drop(columns=[c for c in df_tracker.columns if "_map" in c])
+    if "Item Code" in df_drawings.columns and "CODE NO." not in df_drawings.columns:
+        df_drawings = df_drawings.rename(columns={"Item Code": "CODE NO."})
+    if "Drawing File" in df_drawings.columns and "Drawing" not in df_drawings.columns:
+        df_drawings = df_drawings.rename(columns={"Drawing File": "Drawing"})
+        
+    if not df_drawings.empty and not df_tracker.empty and "CODE NO." in df_tracker.columns and "CODE NO." in df_drawings.columns:
+        df_tracker = pd.merge(df_tracker, df_drawings, on="CODE NO.", how="left", suffixes=("", "_map"))
+        if "Drawing_map" in df_tracker.columns:
+            df_tracker["Drawing"] = df_tracker["Drawing_map"].combine_first(
+                df_tracker.get("Drawing", pd.Series([None] * len(df_tracker)))
+            )
+            df_tracker = df_tracker.drop(columns=[c for c in df_tracker.columns if "_map" in c])
 
 if "Drawing" not in df_tracker.columns:
     df_tracker["Drawing"] = ""
@@ -426,21 +425,22 @@ tab1, tab2 = st.tabs(["🔍 View Drawing (In-Browser)", "📐 Manage Drawings"])
 # ================= TAB 1: VIEW DRAWING =================
 with tab1:
     st.subheader("🔍 In-Browser Engineering Drawing Viewer")
-    v_col1, v_col2 = st.columns(2)
+    
+    search_mode = st.radio("Search Drawing By:", ["Code No.", "Item Name"], horizontal=True)
 
     all_codes = sorted(df_tracker["CODE NO."].astype(str).unique().tolist()) if not df_tracker.empty and "CODE NO." in df_tracker.columns else []
     all_items = sorted(df_tracker["ITEM NAME"].astype(str).unique().tolist()) if not df_tracker.empty and "ITEM NAME" in df_tracker.columns else []
 
-    with v_col1:
-        search_by_code = st.selectbox("Select by Code No.", options=["-- Select --"] + all_codes, key="draw_search_code")
-    with v_col2:
-        search_by_item = st.selectbox("Select by Item Name", options=["-- Select --"] + all_items, key="draw_search_item")
-
     matched_rows = pd.DataFrame()
-    if search_by_code != "-- Select --":
-        matched_rows = df_tracker[df_tracker["CODE NO."].astype(str) == search_by_code]
-    elif search_by_item != "-- Select --":
-        matched_rows = df_tracker[df_tracker["ITEM NAME"].astype(str) == search_by_item]
+
+    if search_mode == "Code No.":
+        search_by_code = st.selectbox("Select Code No.", options=["-- Select --"] + all_codes, key="draw_search_code")
+        if search_by_code != "-- Select --":
+            matched_rows = df_tracker[df_tracker["CODE NO."].astype(str) == search_by_code]
+    else:
+        search_by_item = st.selectbox("Select Item Name", options=["-- Select --"] + all_items, key="draw_search_item")
+        if search_by_item != "-- Select --":
+            matched_rows = df_tracker[df_tracker["ITEM NAME"].astype(str) == search_by_item]
 
     if not matched_rows.empty:
         row = matched_rows.iloc[0]
@@ -473,7 +473,7 @@ with tab1:
         else:
             st.warning("No drawing file attached to this item. Go to **'Manage Drawings'** tab to upload one.")
     else:
-        st.info("Please select a Code No. or Item Name above to view its drawing.")
+        st.info("Please make a selection above to view its drawing.")
 
 
 # ================= TAB 2: MANAGE DRAWINGS =================
