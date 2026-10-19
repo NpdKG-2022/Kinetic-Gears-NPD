@@ -377,7 +377,7 @@ st.components.v1.html(
 
 st.markdown("---")
  # ================= TAB 2: VIEW DRAWING =================
-    elif selected_tab == "🔍 View Drawing (In-Browser)":
+    elif selected_tab = "🔍 View Drawing (In-Browser)":
         st.subheader("🔍 In-Browser Engineering Drawing Viewer")
         v_col1, v_col2 = st.columns(2)
 
