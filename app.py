@@ -427,7 +427,7 @@ with tab1:
     st.subheader("🔍 In-Browser Engineering Drawing Viewer")
     
     # Inject CSS to make the placeholder option faint and non-selectable/disabled
-    st.markdown("""
+   st.markdown("""
         <style>
             div[data-baseweb="select"] option[value=""], 
             li[role="option"]:first-child {
