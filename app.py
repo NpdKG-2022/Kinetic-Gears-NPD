@@ -453,12 +453,14 @@ with col_d2:
         file_path = os.path.join("drawings", target_file) if not os.path.exists(target_file) else target_file
         if os.path.exists(file_path):
             if file_path.lower().endswith(('.png', '.jpg', '.jpeg', '.webp')):
-                st.image(file_path, caption=f"Drawing: {target_file}", use_container_width=True)
+                st.image(file_path, caption=f"Drawing: {target_file}", use_column_width=True)
             elif file_path.lower().endswith('.pdf'):
                 st.success(f"PDF Drawing loaded: {target_file}")
                 with open(file_path, "rb") as pdf_file:
                     base64_pdf = base64.b64encode(pdf_file.read()).decode('utf-8')
-                pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="100%" height="600px" type="application/pdf"></iframe>'
+                
+                # Using <embed> tag which bypasses iframe data-URI blocking in Chrome
+                pdf_display = f'<embed src="data:application/pdf;base64,{base64_pdf}" width="100%" height="600px" type="application/pdf">'
                 st.markdown(pdf_display, unsafe_allow_html=True)
                 
                 # Admin-only download button restriction
