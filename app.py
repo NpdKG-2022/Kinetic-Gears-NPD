@@ -1,6 +1,7 @@
 import base64
 import io
 import os
+import random
 import time
 import pandas as pd
 import streamlit as st
@@ -437,9 +438,9 @@ with tab1:
 
     if not matched_rows.empty:
         row = matched_rows.iloc[0]
-        c_code = row["CODE NO."]
-        c_item = row["ITEM NAME"]
-        c_plant = row["Plant"]
+        c_code = row.get("CODE NO.", "")
+        c_item = row.get("ITEM NAME", "")
+        c_plant = row.get("Plant", "General")
         drawing_path = row.get("Drawing", "")
 
         st.markdown("---")
@@ -471,34 +472,58 @@ with tab1:
 
 # ================= TAB 2: MANAGE DRAWINGS =================
 with tab2:
-    st.subheader("📐 Attach or Update Drawings for Code Numbers")
-    if not df_tracker.empty and "CODE NO." in df_tracker.columns:
-        all_unique_codes = sorted(df_tracker["CODE NO."].astype(str).unique().tolist())
+    st.subheader("📐 Add or Update Drawings with Manual Part Details")
+    
+    with st.form("drawing_manager_form"):
+        manual_code = st.text_input("Enter Part Number / Code No.", placeholder="e.g. PN-10029")
+        manual_item_name = st.text_input("Enter Part Name / Item Name", placeholder="e.g. Spur Gear Assembly")
+        manual_plant = st.text_input("Enter Plant / Department (Optional)", value="Main Plant", placeholder="e.g. Plant A")
 
-        with st.form("drawing_manager_form"):
-            selected_code_for_drawing = st.selectbox("Select Code No.", options=all_unique_codes)
-            match_row = df_tracker[df_tracker["CODE NO."].astype(str) == selected_code_for_drawing]
-            if not match_row.empty:
-                st.markdown(f"**Associated Item Name:** `{match_row.iloc[0]['ITEM NAME']}`")
+        uploaded_file = st.file_uploader("Upload Drawing File (PDF, PNG, JPG, WEBP)", type=["pdf", "png", "jpg", "jpeg", "webp"])
+        drawing_submitted = st.form_submit_button("Save Drawing & Part Details")
 
-            uploaded_file = st.file_uploader("Upload Drawing File (PDF, PNG, JPG)", type=["pdf", "png", "jpg", "jpeg", "webp"])
-            drawing_submitted = st.form_submit_button("Save Drawing Link")
+        if drawing_submitted:
+            if not manual_code.strip() or not manual_item_name.strip():
+                st.error("Please provide both a valid Part Number (Code No.) and Part Name.")
+            elif uploaded_file is None:
+                st.error("Please upload a drawing file first.")
+            else:
+                file_save_path = os.path.join(DRAWINGS_DIR, uploaded_file.name)
+                with open(file_save_path, "wb") as f:
+                    f.write(uploaded_file.getbuffer())
 
-            if drawing_submitted:
-                if uploaded_file is not None:
-                    file_save_path = os.path.join(DRAWINGS_DIR, uploaded_file.name)
-                    with open(file_save_path, "wb") as f:
-                        f.write(uploaded_file.getbuffer())
+                # 1. Update/Save drawing map file
+                df_d_map = pd.read_csv(DRAWINGS_MAP_FILE) if os.path.exists(DRAWINGS_MAP_FILE) else pd.DataFrame(columns=["CODE NO.", "Drawing"])
+                df_d_map = df_d_map[df_d_map["CODE NO."].astype(str) != str(manual_code.strip())]
+                
+                updated_map = pd.concat([df_d_map, pd.DataFrame({"CODE NO.": [manual_code.strip()], "Drawing": [file_save_path]})], ignore_index=True)
+                updated_map.to_csv(DRAWINGS_MAP_FILE, index=False)
 
-                    df_d_map = pd.read_csv(DRAWINGS_MAP_FILE) if os.path.exists(DRAWINGS_MAP_FILE) else pd.DataFrame(columns=["CODE NO.", "Drawing"])
-                    df_d_map = df_d_map[df_d_map["CODE NO."].astype(str) != str(selected_code_for_drawing)]
-                    
-                    updated_map = pd.concat([df_d_map, pd.DataFrame({"CODE NO.": [selected_code_for_drawing], "Drawing": [file_save_path]})], ignore_index=True)
-                    updated_map.to_csv(DRAWINGS_MAP_FILE, index=False)
-
-                    st.success(f"Successfully linked drawing to Code No: {selected_code_for_drawing}!")
-                    st.rerun()
+                # 2. Update/Save custom items tracker dataframe
+                if os.path.exists(CUSTOM_ITEMS_FILE):
+                    df_custom = pd.read_csv(CUSTOM_ITEMS_FILE)
                 else:
-                    st.error("Please upload a drawing file first.")
-    else:
-        st.info("No items found to manage drawings for.")
+                    df_custom = pd.DataFrame(columns=["Plant", "CODE NO.", "ITEM NAME", "PRICE", "Drawing"] + months_list)
+
+                # Check if code already exists in custom items, update it; otherwise append new row
+                if not df_custom.empty and "CODE NO." in df_custom.columns and str(manual_code.strip()) in df_custom["CODE NO."].astype(str).values:
+                    df_custom.loc[df_custom["CODE NO."].astype(str) == str(manual_code.strip()), "ITEM NAME"] = manual_item_name.strip().upper()
+                    df_custom.loc[df_custom["CODE NO."].astype(str) == str(manual_code.strip()), "Drawing"] = file_save_path
+                    if "Plant" in df_custom.columns:
+                        df_custom.loc[df_custom["CODE NO."].astype(str) == str(manual_code.strip()), "Plant"] = manual_plant.strip()
+                else:
+                    new_row_data = {
+                        "Plant": [manual_plant.strip()],
+                        "CODE NO.": [manual_code.strip()],
+                        "ITEM NAME": [manual_item_name.strip().upper()],
+                        "PRICE": [0.0],
+                        "Drawing": [file_save_path],
+                    }
+                    for m in months_list:
+                        new_row_data[m] = [0]
+                    df_new_row = pd.DataFrame(new_row_data)
+                    df_custom = pd.concat([df_custom, df_new_row], ignore_index=True)
+
+                df_custom.to_csv(CUSTOM_ITEMS_FILE, index=False)
+                st.success(f"Successfully saved drawing and registered Part No: `{manual_code}` ({manual_item_name})!")
+                st.rerun()
