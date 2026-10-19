@@ -399,8 +399,8 @@ with col_d1:
     if role_val == "Admin":
         with st.expander("📤 Upload New Drawing"):
             with st.form("upload_drawing_form"):
-                new_item_code = st.text_input("Item Code / Name", placeholder="e.g., GEAR-001")
-                uploaded_file = st.file_uploader("Choose Drawing File", type=['png', 'jpg', 'jpeg', 'pdf', 'webp'])
+                new_item_code = st.text_input("Item Code / Name", placeholder="Enter Part/Drawing Number")
+                uploaded_file = st.file_uploader("Choose Drawing File", type=['png', 'jpg', 'jpeg', 'pdf', 'tiff'])
                 upload_submit = st.form_submit_button("Save Drawing", use_container_width=True)
                 
                 if upload_submit:
