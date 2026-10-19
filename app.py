@@ -418,21 +418,6 @@ def load_schedule_data():
 
 df_schedule = load_schedule_data()
 
-if df_schedule is None:
-    st.error(
-        f"Could not find '{EXCEL_FILE}' in the directory. Please place it in the folder."
-    )
-else:
-    if not os.path.exists(LOG_FILE):
-        pd.DataFrame(
-            columns=[
-                "Date", "Plant", "CODE NO.", "ITEM NAME",
-                "Month", "Dispatched Qty", "Logged By"
-            ]
-        ).to_csv(LOG_FILE, index=False)
-
-    log_df = pd.read_csv(LOG_FILE)
-
     if not log_df.empty and "Dispatched Qty" in log_df.columns:
         disp_summary = (
             log_df.groupby(["Plant", "CODE NO."])["Dispatched Qty"]
