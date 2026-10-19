@@ -377,10 +377,13 @@ st.components.v1.html(
             height=60,
         )
 
-# ================= DRAWING VIEWER INTERFACE =================
+# ================= DRAWING VIEWER & UPLOADER INTERFACE =================
 st.subheader("📐 Technical Drawing Viewer")
 
-drawings_df = None
+# Ensure drawings directory exists
+os.makedirs("drawings", exist_ok=True)
+
+drawings_df = pd.DataFrame(columns=["Item Code", "Drawing File"])
 if os.path.exists("item_drawings.csv"):
     try:
         drawings_df = pd.read_csv("item_drawings.csv")
@@ -391,6 +394,38 @@ col_d1, col_d2 = st.columns([1, 2])
 
 with col_d1:
     st.markdown("#### Select Item / Drawing")
+    
+    # Admin Upload Section
+    if role_val == "Admin":
+        with st.expander("📤 Upload New Drawing"):
+            with st.form("upload_drawing_form"):
+                new_item_code = st.text_input("Item Code / Name", placeholder="e.g., GEAR-001")
+                uploaded_file = st.file_uploader("Choose Drawing File", type=['png', 'jpg', 'jpeg', 'pdf', 'webp'])
+                upload_submit = st.form_submit_button("Save Drawing", use_container_width=True)
+                
+                if upload_submit:
+                    if new_item_code and uploaded_file:
+                        file_ext = os.path.splitext(uploaded_file.name)[1]
+                        safe_filename = f"{new_item_code.strip()}{file_ext}"
+                        file_path = os.path.join("drawings", safe_filename)
+                        
+                        # Save file locally
+                        with open(file_path, "wb") as f:
+                            f.write(uploaded_file.getbuffer())
+                        
+                        # Update or append to CSV dataframe
+                        if not drawings_df.empty and new_item_code in drawings_df.iloc[:, 0].astype(str).values:
+                            drawings_df.loc[drawings_df.iloc[:, 0].astype(str) == new_item_code, drawings_df.columns[1]] = safe_filename
+                        else:
+                            new_row = pd.DataFrame([[new_item_code, safe_filename]], columns=drawings_df.columns if not drawings_df.empty else ["Item Code", "Drawing File"])
+                            drawings_df = pd.concat([drawings_df, new_row], ignore_index=True)
+                        
+                        drawings_df.to_csv("item_drawings.csv", index=False)
+                        st.success(f"Drawing for '{new_item_code}' uploaded successfully!")
+                        st.rerun()
+                    else:
+                        st.warning("Please provide both an Item Code and a file.")
+
     drawing_files = []
     if os.path.exists("drawings") and os.path.isdir("drawings"):
         drawing_files = [f for f in os.listdir("drawings") if f.lower().endswith(('.png', '.jpg', '.jpeg', '.pdf', '.webp'))]
