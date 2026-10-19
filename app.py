@@ -428,19 +428,18 @@ with tab1:
     
     search_mode = st.radio("Search Drawing By:", ["Code No.", "Item Name"], horizontal=True)
 
-    all_codes = sorted(df_tracker["CODE NO."].astype(str).unique().tolist()) if not df_tracker.empty and "CODE NO." in df_tracker.columns else []
-    all_items = sorted(df_tracker["ITEM NAME"].astype(str).unique().tolist()) if not df_tracker.empty and "ITEM NAME" in df_tracker.columns else []
-
     matched_rows = pd.DataFrame()
 
     if search_mode == "Code No.":
-        search_by_code = st.selectbox("Select Code No.", options=["-- Select --"] + all_codes, key="draw_search_code")
-        if search_by_code != "-- Select --":
-            matched_rows = df_tracker[df_tracker["CODE NO."].astype(str) == search_by_code]
+        search_code_input = st.text_input("Enter Code No.", placeholder="Enter Code no.", label_visibility="collapsed")
+        if search_code_input.strip():
+            query_code = search_code_input.strip().lower()
+            matched_rows = df_tracker[df_tracker["CODE NO."].astype(str).str.lower().str.contains(query_code, na=False)]
     else:
-        search_by_item = st.selectbox("Select Item Name", options=["-- Select --"] + all_items, key="draw_search_item")
-        if search_by_item != "-- Select --":
-            matched_rows = df_tracker[df_tracker["ITEM NAME"].astype(str) == search_by_item]
+        search_item_input = st.text_input("Enter Item Name", placeholder="Enter Item name", label_visibility="collapsed")
+        if search_item_input.strip():
+            query_item = search_item_input.strip().lower()
+            matched_rows = df_tracker[df_tracker["ITEM NAME"].astype(str).str.lower().str.contains(query_item, na=False)]
 
     if not matched_rows.empty:
         row = matched_rows.iloc[0]
@@ -473,7 +472,7 @@ with tab1:
         else:
             st.warning("No drawing file attached to this item. Go to **'Manage Drawings'** tab to upload one.")
     else:
-        st.info("Please make a selection above to view its drawing.")
+        st.info("Please enter a Code No. or Item Name above to search and view its drawing.")
 
 
 # ================= TAB 2: MANAGE DRAWINGS =================
