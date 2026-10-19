@@ -403,13 +403,19 @@ else:
 
 if os.path.exists(DRAWINGS_MAP_FILE):
     df_drawings = pd.read_csv(DRAWINGS_MAP_FILE)
-    if not df_drawings.empty and not df_tracker.empty:
-        df_tracker = pd.merge(df_tracker, df_drawings, on="CODE NO.", how="left", suffixes=("", "_map"))
-        if "Drawing_map" in df_tracker.columns:
-            df_tracker["Drawing"] = df_tracker["Drawing_map"].combine_first(
-                df_tracker.get("Drawing", pd.Series([None] * len(df_tracker)))
-            )
-            df_tracker = df_tracker.drop(columns=[c for c in df_tracker.columns if "_map" in c])
+    if not df_drawings.empty:
+        if "Item Code" in df_drawings.columns and "CODE NO." not in df_drawings.columns:
+            df_drawings = df_drawings.rename(columns={"Item Code": "CODE NO."})
+        if "Drawing File" in df_drawings.columns and "Drawing" not in df_drawings.columns:
+            df_drawings = df_drawings.rename(columns={"Drawing File": "Drawing"})
+            
+        if not df_tracker.empty and "CODE NO." in df_tracker.columns and "CODE NO." in df_drawings.columns:
+            df_tracker = pd.merge(df_tracker, df_drawings, on="CODE NO.", how="left", suffixes=("", "_map"))
+            if "Drawing_map" in df_tracker.columns:
+                df_tracker["Drawing"] = df_tracker["Drawing_map"].combine_first(
+                    df_tracker.get("Drawing", pd.Series([None] * len(df_tracker)))
+                )
+                df_tracker = df_tracker.drop(columns=[c for c in df_tracker.columns if "_map" in c])
 
 if "Drawing" not in df_tracker.columns:
     df_tracker["Drawing"] = ""
@@ -472,11 +478,11 @@ with tab1:
 
 # ================= TAB 2: MANAGE DRAWINGS =================
 with tab2:
-    st.subheader("📐 Add or Update Drawings with Part Details")
+    st.subheader("📐 Add or Update Drawings with Manual Part Details")
     
     with st.form("drawing_manager_form"):
-        manual_code = st.text_input("Enter Part Number", placeholder="e.g. PM-001")
-        manual_item_name = st.text_input("Enter Part Name", placeholder="e.g. Gear Blank")
+        manual_code = st.text_input("Enter Part Number", placeholder="e.g. PN-10029")
+        manual_item_name = st.text_input("Enter Part Name", placeholder="e.g. Spur Gear Assembly")
 
         uploaded_file = st.file_uploader("Upload Drawing File (PDF, PNG, JPG, TIFF)", type=["pdf", "png", "jpg", "jpeg", "tiff", "tif"])
         drawing_submitted = st.form_submit_button("Save Drawing & Part Details")
@@ -491,9 +497,18 @@ with tab2:
                 with open(file_save_path, "wb") as f:
                     f.write(uploaded_file.getbuffer())
 
-                # 1. Update/Save drawing map file
-                df_d_map = pd.read_csv(DRAWINGS_MAP_FILE) if os.path.exists(DRAWINGS_MAP_FILE) else pd.DataFrame(columns=["CODE NO.", "Drawing"])
-                df_d_map = df_d_map[df_d_map["CODE NO."].astype(str) != str(manual_code.strip())]
+                # 1. Update/Save drawing map file safely
+                if os.path.exists(DRAWINGS_MAP_FILE):
+                    df_d_map = pd.read_csv(DRAWINGS_MAP_FILE)
+                    if "Item Code" in df_d_map.columns and "CODE NO." not in df_d_map.columns:
+                        df_d_map = df_d_map.rename(columns={"Item Code": "CODE NO."})
+                    if "Drawing File" in df_d_map.columns and "Drawing" not in df_d_map.columns:
+                        df_d_map = df_d_map.rename(columns={"Drawing File": "Drawing"})
+                else:
+                    df_d_map = pd.DataFrame(columns=["CODE NO.", "Drawing"])
+
+                if "CODE NO." in df_d_map.columns:
+                    df_d_map = df_d_map[df_d_map["CODE NO."].astype(str) != str(manual_code.strip())]
                 
                 updated_map = pd.concat([df_d_map, pd.DataFrame({"CODE NO.": [manual_code.strip()], "Drawing": [file_save_path]})], ignore_index=True)
                 updated_map.to_csv(DRAWINGS_MAP_FILE, index=False)
@@ -504,7 +519,6 @@ with tab2:
                 else:
                     df_custom = pd.DataFrame(columns=["Plant", "CODE NO.", "ITEM NAME", "PRICE", "Drawing"] + months_list)
 
-                # Check if code already exists in custom items, update it; otherwise append new row
                 if not df_custom.empty and "CODE NO." in df_custom.columns and str(manual_code.strip()) in df_custom["CODE NO."].astype(str).values:
                     df_custom.loc[df_custom["CODE NO."].astype(str) == str(manual_code.strip()), "ITEM NAME"] = manual_item_name.strip().upper()
                     df_custom.loc[df_custom["CODE NO."].astype(str) == str(manual_code.strip()), "Drawing"] = file_save_path
