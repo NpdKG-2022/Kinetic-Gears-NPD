@@ -372,18 +372,10 @@ st.components.v1.html(
     height=60,
 )
 
-EXCEL_FILE = "Book1.xlsx"
-LOG_FILE = "dispatch_log.csv"
-CUSTOM_ITEMS_FILE = "custom_items.csv"
 DRAWINGS_MAP_FILE = "item_drawings.csv"
 DRAWINGS_DIR = "drawings"
 
 os.makedirs(DRAWINGS_DIR, exist_ok=True)
-
-months_list = [
-    "Apr", "May", "Jun", "Jul", "Aug", "Sep",
-    "Oct", "Nov", "Dec", "Jan", "Feb", "Mar"
-]
 
 
 @st.cache_data
