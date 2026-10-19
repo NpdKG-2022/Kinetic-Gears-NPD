@@ -426,6 +426,17 @@ tab1, tab2 = st.tabs(["🔍 View Drawing (In-Browser)", "📐 Manage Drawings"])
 with tab1:
     st.subheader("🔍 In-Browser Engineering Drawing Viewer")
     
+    # Inject CSS to make the placeholder option faint and non-selectable/disabled
+    st.markdown("""
+        <style>
+            div[data-baseweb="select"] option[value=""], 
+            li[role="option"]:first-child {
+                color: rgba(255, 255, 255, 0.3) !important;
+                font-style: italic !important;
+            }
+        </style>
+    """, unsafe_allow_html=True)
+
     search_mode = st.radio("Search Drawing By:", ["Code No.", "Item Name"], horizontal=True)
 
     all_codes = sorted(df_tracker["CODE NO."].astype(str).unique().tolist()) if not df_tracker.empty and "CODE NO." in df_tracker.columns else []
@@ -437,6 +448,7 @@ with tab1:
         selected_code = st.selectbox(
             "Enter Code No.",
             options=[""] + all_codes,
+            index=0,
             format_func=lambda x: "Enter Code No." if x == "" else x,
             label_visibility="collapsed"
         )
@@ -446,6 +458,7 @@ with tab1:
         selected_item = st.selectbox(
             "Enter Item Name",
             options=[""] + all_items,
+            index=0,
             format_func=lambda x: "Enter Item Name" if x == "" else x,
             label_visibility="collapsed"
         )
