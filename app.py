@@ -445,15 +445,10 @@ with tab1:
     matched_rows = pd.DataFrame()
 
     if search_mode == "Code No.":
-        selected_code = st.selectbox(
-            "Enter Code No.",
-            options=[""] + all_codes,
-            index=0,
-            format_func=lambda x: "Enter Code No." if x == "" else x,
-            label_visibility="collapsed"
-        )
-        if selected_code and selected_code.strip() != "":
-            matched_rows = df_tracker[df_tracker["CODE NO."].astype(str) == selected_code]
+        search_code_input = st.text_input("Enter Code No.", placeholder="Enter Code no.", label_visibility="collapsed")
+        if search_code_input.strip():
+            query_code = search_code_input.strip().lower()
+            matched_rows = df_tracker[df_tracker["CODE NO."].astype(str).str.lower().str.contains(query_code, na=False)]
     else:
         selected_item = st.selectbox(
             "Enter Item Name",
