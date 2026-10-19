@@ -26,17 +26,6 @@ def get_base64_image(image_path):
 
 logo_base64 = get_base64_image("KG-Logo.png")
 
-# List of random mechanical manufacturing & engineering wallpapers
-manufacturing_wallpapers = [
-    "https://images.unsplash.com/photo-1565043589221-1a6fd9ae45c7?q=80&w=1920&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=1920&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1581092160607-ee22621dd758?q=80&w=1920&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?q=80&w=1920&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1537462715879-360eeb61a0ad?q=80&w=1920&auto=format&fit=crop",
-]
-
-selected_wallpaper = random.choice(manufacturing_wallpapers)
-
 # Custom CSS for Glassmorphism login, layouts, and compact top padding
 st.markdown(
     f"""
