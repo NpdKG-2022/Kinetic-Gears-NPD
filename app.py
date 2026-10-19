@@ -183,7 +183,7 @@ def login_screen():
     _, col2, _ = st.columns([1, 1.2, 1])
 
     with col2:
-       with st.form("login_form"):
+        with st.form("login_form"):
             if logo_base64:
                 st.markdown(
                     f"""
@@ -252,17 +252,12 @@ def login_screen():
                     st.session_state["captcha_answer"] = a
 
 
-if not st.session_state["logged_in"]:
-    login_screen()
-    st.stop()
-
-
-username_val = st.session_state.get('username', '')
-role_val = st.session_state.get('role', '')
-
 if not st.session_state.get("logged_in", False):
     login_screen()
     st.stop()
+
+username_val = st.session_state.get('username', '')
+role_val = st.session_state.get('role', '')
 
 # ================= PROFESSIONAL SIDEBAR WITH LOGO & USER DETAILS =================
 with st.sidebar:
@@ -297,9 +292,16 @@ with st.sidebar:
     st.markdown("---")
     st.markdown("<p style='font-size: 12px; color: rgba(255,255,255,0.7); text-align: center;'>System operational & secure.</p>", unsafe_allow_html=True)
 
+# Handle logout trigger via query param
+if st.query_params.get("do_logout") == "true":
+    st.session_state["logged_in"] = False
+    st.session_state["username"] = ""
+    st.session_state["role"] = ""
+    st.session_state["login_time"] = 0.0
+    st.query_params.clear()
+    st.rerun()
 
 # ================= TOP HEADER BAR =================
-# Background session timeout listener script
 st.markdown(
     f"""
     <script>
@@ -326,116 +328,151 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-username_val = st.session_state['username']
-role_val = st.session_state['role']
-
-# Render header using clean markdown, flexbox, and robust live clock script
 st.components.v1.html(
-            """
-            <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
-            <style>
-                body { margin: 0; background-color: transparent; display: flex; justify-content: flex-end; }
-                .clock-card {
-                    background: linear-gradient(135deg, #e91e63, #c2185b);
-                    border-radius: 10px;
-                    padding: 5px 10px;
-                    text-align: center;
-                    box-shadow: 0 2px 10px rgba(233, 30, 99, 0.3);
-                    font-family: 'Orbitron', sans-serif;
-                    display: inline-block;
-                }
-                .time-display {
-                    font-size: 20px;
-                    font-weight: 700;
-                    color: #ffffff;
-                    letter-spacing: 1px;
-                }
-                .date-display {
-                    font-size: 12px;
-                    color: #fce4ec;
-                }
-            </style>
-            <div class="clock-card">
-                <div id="futuristic-time" class="time-display">00:00:00 AM</div>
-                <div id="futuristic-date" class="date-display">Loading...</div>
-            </div>
-            <script>
-                function updateFuturisticClock() {
-                    const now = new Date();
-                    let hours = now.getHours();
-                    const minutes = String(now.getMinutes()).padStart(2, '0');
-                    const seconds = String(now.getSeconds()).padStart(2, '0');
-                    const ampm = hours >= 12 ? 'PM' : 'AM';
-                    hours = hours % 12 || 12;
-                    document.getElementById('futuristic-time').innerText = `${String(hours).padStart(2, '0')}:${minutes}:${seconds} ${ampm}`;
-                    document.getElementById('futuristic-date').innerText = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
-                }
-                setInterval(updateFuturisticClock, 1000);
-                updateFuturisticClock();
-            </script>
-            """,
-            height=60,
-        )
+    """
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        body { margin: 0; background-color: transparent; display: flex; justify-content: flex-end; }
+        .clock-card {
+            background: linear-gradient(135deg, #e91e63, #c2185b);
+            border-radius: 10px;
+            padding: 5px 10px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(233, 30, 99, 0.3);
+            font-family: 'Orbitron', sans-serif;
+            display: inline-block;
+        }
+        .time-display {
+            font-size: 20px;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: 1px;
+        }
+        .date-display {
+            font-size: 12px;
+            color: #fce4ec;
+        }
+    </style>
+    <div class="clock-card">
+        <div id="futuristic-time" class="time-display">00:00:00 AM</div>
+        <div id="futuristic-date" class="date-display">Loading...</div>
+    </div>
+    <script>
+        function updateFuturisticClock() {
+            const now = new Date();
+            let hours = now.getHours();
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12 || 12;
+            document.getElementById('futuristic-time').innerText = `${String(hours).padStart(2, '0')}:${minutes}:${seconds} ${ampm}`;
+            document.getElementById('futuristic-date').innerText = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+        }
+        setInterval(updateFuturisticClock, 1000);
+        updateFuturisticClock();
+    </script>
+    """,
+    height=60,
+)
 
-# ================= TAB 2: VIEW DRAWING =================
-    elif selected_tab == "🔍 View Drawing (In-Browser)":
-        st.subheader("🔍 In-Browser Engineering Drawing Viewer")
-        v_col1, v_col2 = st.columns(2)
+st.markdown("---")
 
-        all_codes = sorted(df_tracker["CODE NO."].astype(str).unique().tolist())
-        all_items = sorted(df_tracker["ITEM NAME"].astype(str).unique().tolist())
+# ================= TECHNICAL DRAWING VIEWER & UPLOADER INTERFACE =================
+st.subheader("📐 Technical Drawing Viewer")
 
-        with v_col1:
-            search_by_code = st.selectbox(
-                "Select by Code No.",
-                options=["-- Select --"] + all_codes,
-                key="draw_search_code",
-            )
-        with v_col2:
-            search_by_item = st.selectbox(
-                "Select by Item Name",
-                options=["-- Select --"] + all_items,
-                key="draw_search_item",
-            )
+os.makedirs("drawings", exist_ok=True)
 
-        matched_rows = pd.DataFrame()
-        if search_by_code != "-- Select --":
-            matched_rows = df_tracker[df_tracker["CODE NO."].astype(str) == search_by_code]
-        elif search_by_item != "-- Select --":
-            matched_rows = df_tracker[df_tracker["ITEM NAME"].astype(str) == search_by_item]
+drawings_df = pd.DataFrame(columns=["Item Code", "Drawing File"])
+if os.path.exists("item_drawings.csv"):
+    try:
+        drawings_df = pd.read_csv("item_drawings.csv")
+    except Exception:
+        pass
 
-        if not matched_rows.empty:
-            row = matched_rows.iloc[0]
-            c_code = row["CODE NO."]
-            c_item = row["ITEM NAME"]
-            c_plant = row["Plant"]
-            drawing_path = row.get("Drawing", "")
+col_d1, col_d2 = st.columns([1, 2])
 
-            st.markdown("---")
-            st.info(
-                f"**Plant:** {c_plant} | **Code No:** `{c_code}` | **Item Name:** `{c_item}`"
-            )
+with col_d1:
+    st.markdown("#### Select Item / Drawing")
+    
+    # Admin Upload Section
+    if role_val == "Admin":
+        with st.expander("📤 Upload New Drawing"):
+            with st.form("upload_drawing_form"):
+                new_item_code = st.text_input("Item Code / Name", placeholder="e.g., GEAR-001")
+                uploaded_file = st.file_uploader("Choose Drawing File", type=['png', 'jpg', 'jpeg', 'pdf', 'webp'])
+                upload_submit = st.form_submit_button("Save Drawing", use_container_width=True)
+                
+                if upload_submit:
+                    if new_item_code and uploaded_file:
+                        file_ext = os.path.splitext(uploaded_file.name)[1]
+                        safe_filename = f"{new_item_code.strip()}{file_ext}"
+                        file_path = os.path.join("drawings", safe_filename)
+                        
+                        with open(file_path, "wb") as f:
+                            f.write(uploaded_file.getbuffer())
+                        
+                        if not drawings_df.empty and new_item_code in drawings_df.iloc[:, 0].astype(str).values:
+                            drawings_df.loc[drawings_df.iloc[:, 0].astype(str) == new_item_code, drawings_df.columns[1]] = safe_filename
+                        else:
+                            new_row = pd.DataFrame([[new_item_code, safe_filename]], columns=drawings_df.columns if not drawings_df.empty else ["Item Code", "Drawing File"])
+                            drawings_df = pd.concat([drawings_df, new_row], ignore_index=True)
+                        
+                        drawings_df.to_csv("item_drawings.csv", index=False)
+                        st.success(f"Drawing for '{new_item_code}' uploaded successfully!")
+                        st.rerun()
+                    else:
+                        st.warning("Please provide both an Item Code and a file.")
 
-            if (
-                pd.notna(drawing_path)
-                and str(drawing_path).strip() != ""
-                and os.path.exists(str(drawing_path))
-            ):
-                st.success("Drawing loaded successfully in viewer:")
-                if drawing_path.lower().endswith((".png", ".jpg", ".jpeg")):
-                    st.image(
-                        drawing_path,
-                        caption=f"Drawing: {c_code} - {c_item}",
-                        use_container_width=True,
-                    )
-                elif drawing_path.lower().endswith(".pdf"):
-                    with open(drawing_path, "rb") as f:
-                        base64_pdf = base64.b64encode(f.read()).decode("utf-8")
-                    pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="100%" height="700px" type="application/pdf"></iframe>'
-                    st.markdown(pdf_display, unsafe_allow_html=True)
-            else:
-                st.warning(
-                    "No drawing file attached to this item. Go to **'Manage Drawings'** tab to upload one."
-                )
+    drawing_files = []
+    if os.path.exists("drawings") and os.path.isdir("drawings"):
+        drawing_files = [f for f in os.listdir("drawings") if f.lower().endswith(('.png', '.jpg', '.jpeg', '.pdf', '.webp'))]
+    
+    if drawings_df is not None and not drawings_df.empty:
+        st.dataframe(drawings_df, use_container_width=True)
+        item_options = drawings_df.iloc[:, 0].astype(str).tolist()
+        selected_item = st.selectbox("Choose Item Code / Name:", item_options)
+        
+        matched_row = drawings_df[drawings_df.iloc[:, 0].astype(str) == selected_item]
+        target_file = None
+        if not matched_row.empty:
+            for col in matched_row.columns:
+                val = str(matched_row[col].values[0])
+                if any(val.endswith(ext) for ext in ['.png', '.jpg', '.jpeg', '.pdf', '.webp']):
+                    target_file = val
+                    break
+        if not target_file and drawing_files:
+            target_file = drawing_files[0]
+    else:
+        if drawing_files:
+            selected_item = st.selectbox("Available Drawing Files:", drawing_files)
+            target_file = selected_item
         else:
-            st.info("Please select a Code No. or Item Name above to view its drawing.")
+            target_file = None
+            st.warning("No drawings found in `drawings/` folder or `item_drawings.csv`.")
+
+with col_d2:
+    st.markdown("#### Drawing Preview & Specifications")
+    if target_file:
+        file_path = os.path.join("drawings", target_file) if not os.path.exists(target_file) else target_file
+        if os.path.exists(file_path):
+            if file_path.lower().endswith(('.png', '.jpg', '.jpeg', '.webp')):
+                st.image(file_path, caption=f"Drawing: {target_file}", use_container_width=True)
+            elif file_path.lower().endswith('.pdf'):
+                st.success(f"PDF Drawing loaded: {target_file}")
+                with open(file_path, "rb") as pdf_file:
+                    base64_pdf = base64.b64encode(pdf_file.read()).decode('utf-8')
+                pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="100%" height="600px" type="application/pdf"></iframe>'
+                st.markdown(pdf_display, unsafe_allow_html=True)
+                
+                # Admin-only download button restriction
+                if role_val == "Admin":
+                    st.markdown("<br>", unsafe_allow_html=True)
+                    with open(file_path, "rb") as pdf_file:
+                        PDFbyte = pdf_file.read()
+                    st.download_button(label="📥 Download Drawing PDF", data=PDFbyte, file_name=target_file, mime='application/pdf')
+                else:
+                    st.info("🔒 Download restricted to Administrator accounts only.")
+        else:
+            st.error(f"Drawing file '{target_file}' could not be located in the drawings folder.")
+    else:
+        st.info("Select an item to view its technical drawing.")
