@@ -27,7 +27,7 @@ def get_base64_image(image_path):
 
 logo_base64 = get_base64_image("KG-Logo.png")
 
-# Custom CSS for Glassmorphism login, layouts, and Enterprise Styled Tabs
+# Custom CSS for Glassmorphism login, layouts, Enterprise Styled Tabs, and Hover Logout Button
 st.markdown(
     """
     <style>
@@ -70,6 +70,53 @@ st.markdown(
             color: #ffffff !important;
             border: 1px solid #1e88e5 !important;
             box-shadow: 0 4px 15px rgba(30, 136, 229, 0.4);
+        }
+
+        /* --- HOVER-EXPAND LOGOUT CONTAINER --- */
+        .logout-wrapper {
+            position: relative;
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 5px;
+        }
+        .logout-trigger {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.8);
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            cursor: pointer;
+            text-align: right;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+        .logout-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: rgba(20, 15, 35, 0.95);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 8px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-5px);
+            transition: all 0.3s ease;
+            z-index: 999;
+        }
+        .logout-wrapper:hover .logout-dropdown {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(4px);
+        }
+        .logout-wrapper:hover .logout-trigger {
+            background: rgba(233, 30, 99, 0.2);
+            color: #ffffff;
+            border-color: #e91e63;
         }
 
         /* --- GLASSMORPHISM LOGIN FORM STYLING --- */
@@ -404,7 +451,6 @@ with top_col2:
         st.rerun()
     st.markdown("</div></div>", unsafe_allow_html=True)
 
-
 DRAWINGS_MAP_FILE = "item_drawings.csv"
 DRAWINGS_DIR = "drawings"
 
@@ -438,7 +484,7 @@ if "Drawing" not in df_tracker.columns:
     df_tracker["Drawing"] = ""
 
 # ================= ENTERPRISE STYLED TABS =================
-tab1, tab2, tab3 = st.tabs(["🔍 View Drawing (In-Browser)", "📐 Manage Drawings", "📋 PPAP"])
+tab1, tab2, tab3 = st.tabs(["🔍 View Drawing (In-Browser)", "📐 Manage Drawings", "📋 Documentation"])
 
 
 # ================= TAB 1: VIEW DRAWING =================
@@ -578,7 +624,7 @@ with tab2:
 
 # ================= TAB 3: DOCUMENTATION =================
 with tab3:
-    st.subheader("📋 PPAP Documentation")
+    st.subheader("📋 Quality & Engineering Documentation")
     
     DOC_FILE = "documentation.json"
     
@@ -603,7 +649,7 @@ with tab3:
 
     # Document selection
     doc_categories = list(docs_data.keys())
-    selected_doc = st.selectbox("Select Document", doc_categories, key="doc_selector")
+    selected_doc = st.selectbox("Select Quality Document", doc_categories, key="doc_selector")
 
     st.markdown("---")
 
