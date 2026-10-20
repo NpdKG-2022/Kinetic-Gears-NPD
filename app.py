@@ -547,7 +547,6 @@ with tab1:
                     from streamlit_pdf_viewer import pdf_viewer
                     pdf_viewer(drawing_path, width=700, height=700)
                 except ImportError:
-                    # Fallback if package isn't installed
                     with open(drawing_path, "rb") as f:
                         base64_pdf = base64.b64encode(f.read()).decode("utf-8")
                     pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="100%" height="700px" type="application/pdf"></iframe>'
@@ -560,6 +559,8 @@ with tab1:
                     st.download_button(label="📥 Download Drawing PDF", data=PDFbyte, file_name=os.path.basename(drawing_path), mime='application/pdf')
                 else:
                     st.info("🔒 Download restricted to Administrator accounts only.")
+        else:
+            st.warning("No drawing file attached to this item. Go to **'Manage Drawings'** tab to upload one.")
         else:
             st.warning("No drawing file attached to this item. Go to **'Manage Drawings'** tab to upload one.")
     else:
