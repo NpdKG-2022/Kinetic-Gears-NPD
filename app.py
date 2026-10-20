@@ -78,7 +78,7 @@ st.markdown(
             display: flex;
             align-items: center;
             justify-content: flex-end;
-            float: left;
+            float: center;
             margin-top: 5px;
             cursor: pointer;
         }
