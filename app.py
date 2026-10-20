@@ -421,7 +421,7 @@ if "Drawing" not in df_tracker.columns:
     df_tracker["Drawing"] = ""
 
 # ================= ENTERPRISE STYLED TABS =================
-tab1, tab2, tab3 = st.tabs(["🔍 View Drawing (In-Browser)", "📐 Manage Drawings", "📋 Documentation"])
+tab1, tab2, tab3 = st.tabs(["🔍 View Drawing (In-Browser)", "📐 Manage Drawings", "📋 PPAP"])
 
 
 # ================= TAB 1: VIEW DRAWING =================
