@@ -426,13 +426,24 @@ tab1, tab2 = st.tabs(["🔍 View Drawing (In-Browser)", "📐 Manage Drawings"])
 # ================= TAB 1: VIEW DRAWING =================
 with tab1:
     st.subheader("🔍 In-Browser Engineering Drawing Viewer")
-    
-    search_mode = st.radio("Search Drawing By:", ["Part No.", "Part Name"], horizontal=True)
 
-    all_codes = sorted(df_tracker["CODE NO."].astype(str).unique().tolist()) if not df_tracker.empty and "CODE NO." in df_tracker.columns else []
-    all_items = sorted(df_tracker["ITEM NAME"].astype(str).unique().tolist()) if not df_tracker.empty and "ITEM NAME" in df_tracker.columns else []
+    # Use columns to align the radio options, search input, and button in a single row
+    c_col1, c_col2, c_col3 = st.columns([1.5, 3.5, 1])
+    
+  with c_col1:
+        st.markdown("<p style='font-size: 14px; font-weight: 600; margin-bottom: 0px;'>Search Drawing By:</p>", unsafe_allow_html=True)
+        search_mode = st.radio("Search Mode", ["Part No.", "Part Name"], horizontal=True, label_visibility="collapsed")
+
+    with c_col2:
+        st.markdown(f"<p style='font-size: 14px; font-weight: 600; margin-bottom: 0px;'>Enter {search_mode}:</p>", unsafe_allow_html=True)
+        search_query = st.text_input("Search Input", placeholder=f"Type {search_mode}...", label_visibility="collapsed", key="inline_search_input")
+
+    with c_col3:
+        st.markdown("<p style='font-size: 14px; margin-bottom: 22px;'>&nbsp;</p>", unsafe_allow_html=True) # Spacer for vertical alignment
+        view_clicked = st.button("View Drawing", use_container_width=True, type="primary")
 
     matched_rows = pd.DataFrame()
+    query = search_query.strip().lower()
 
     if search_mode == "Part No.":
         selected_code = st.selectbox(
