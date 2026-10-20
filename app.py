@@ -557,6 +557,13 @@ with tab1:
                             st.image(pix.tobytes("png"), caption=f"Drawing: {c_code} - {c_item} (Page {page_num + 1})", use_column_width=True)
                     except Exception:
                         st.warning("Preview generation requires PyMuPDF. Please use the download button below.")
+import pymupdf
+
+doc = pymupdf.open("document.pdf")
+page = doc[0]
+
+pixmap = page.get_pixmap(dpi=150)
+pixmap.save("page_0.png")
 
                 if role_val == "Admin":
                     st.markdown("<br>", unsafe_allow_html=True)
