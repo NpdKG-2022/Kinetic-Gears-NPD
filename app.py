@@ -421,48 +421,66 @@ if "Drawing" not in df_tracker.columns:
 
 # ================= ENTERPRISE STYLED TABS =================
 tab1, tab2 = st.tabs(["🔍 View Drawing (In-Browser)", "📐 Manage Drawings"])
+
+
 # ================= TAB 1: VIEW DRAWING =================
 with tab1:
     st.subheader("🔍 In-Browser Engineering Drawing Viewer")
     
-    # Inject CSS to make the placeholder option faint and non-selectable/disabled
-    st.markdown("""
-        <style>
-            div[data-baseweb="select"] option[value=""], 
-            li[role="option"]:first-child {
-                color: rgba(255, 255, 255, 0.3) !important;
-                font-style: italic !important;
-            }
-        </style>
-    """, unsafe_allow_html=True)
-
     search_mode = st.radio("Search Drawing By:", ["Code No.", "Item Name"], horizontal=True)
-
-    all_codes = sorted(df_tracker["CODE NO."].astype(str).unique().tolist()) if not df_tracker.empty and "CODE NO." in df_tracker.columns else []
-    all_items = sorted(df_tracker["ITEM NAME"].astype(str).unique().tolist()) if not df_tracker.empty and "ITEM NAME" in df_tracker.columns else []
 
     matched_rows = pd.DataFrame()
 
     if search_mode == "Code No.":
-        selected_code = st.selectbox(
-            "Enter Code No.",
-            options=[""] + all_codes,
-            index=0,
-            format_func=lambda x: "Enter Code No." if x == "" else x,
-            label_visibility="collapsed"
-        )
-        if selected_code and selected_code.strip() != "":
-            matched_rows = df_tracker[df_tracker["CODE NO."].astype(str) == selected_code]
+        typed_code = st.text_input("Enter Code No.", placeholder="Enter Code No.", key="search_code_text")
+        
+        if typed_code.strip():
+            query = typed_code.strip().lower()
+            matched_codes_df = df_tracker[df_tracker["CODE NO."].astype(str).str.lower().str.contains(query, na=False)]
+            
+            if not matched_codes_df.empty:
+                st.markdown("<p style='font-size: 13px; color: rgba(255,255,255,0.8); margin-top: 8px;'><b>Suggestions (click to select):</b></p>", unsafe_allow_html=True)
+                
+                codes_list = matched_codes_df["CODE NO."].astype(str).tolist()[:5]
+                cols = st.columns(len(codes_list) if len(codes_list) > 0 else 1)
+                for idx, c_code in enumerate(codes_list):
+                    with cols[idx]:
+                        if st.button(c_code, key=f"sug_code_{idx}_{c_code}", use_container_width=True):
+                            st.session_state["selected_code_filter"] = c_code
+                            st.rerun()
+
+                selected_filter = st.session_state.get("selected_code_filter", "")
+                if selected_filter:
+                    matched_rows = df_tracker[df_tracker["CODE NO."].astype(str) == selected_filter]
+                elif len(matched_codes_df) == 1:
+                    matched_rows = matched_codes_df
+            else:
+                st.warning("No matching Code No. found.")
     else:
-        selected_item = st.selectbox(
-            "Enter Item Name",
-            options=[""] + all_items,
-            index=0,
-            format_func=lambda x: "Enter Item Name" if x == "" else x,
-            label_visibility="collapsed"
-        )
-        if selected_item and selected_item.strip() != "":
-            matched_rows = df_tracker[df_tracker["ITEM NAME"].astype(str) == selected_item]
+        typed_item = st.text_input("Enter Item Name", placeholder="Enter Item Name", key="search_item_text")
+        
+        if typed_item.strip():
+            query = typed_item.strip().lower()
+            matched_items_df = df_tracker[df_tracker["ITEM NAME"].astype(str).str.lower().str.contains(query, na=False)]
+            
+            if not matched_items_df.empty:
+                st.markdown("<p style='font-size: 13px; color: rgba(255,255,255,0.8); margin-top: 8px;'><b>Suggestions (click to select):</b></p>", unsafe_allow_html=True)
+                
+                items_list = matched_items_df["ITEM NAME"].astype(str).tolist()[:5]
+                cols = st.columns(len(items_list) if len(items_list) > 0 else 1)
+                for idx, c_item in enumerate(items_list):
+                    with cols[idx]:
+                        if st.button(c_item, key=f"sug_item_{idx}_{c_item}", use_container_width=True):
+                            st.session_state["selected_item_filter"] = c_item
+                            st.rerun()
+
+                selected_filter = st.session_state.get("selected_item_filter", "")
+                if selected_filter:
+                    matched_rows = df_tracker[df_tracker["ITEM NAME"].astype(str) == selected_filter]
+                elif len(matched_items_df) == 1:
+                    matched_rows = matched_items_df
+            else:
+                st.warning("No matching Item Name found.")
 
     if not matched_rows.empty:
         row = matched_rows.iloc[0]
@@ -484,7 +502,6 @@ with tab1:
                 pdf_display = f'<embed src="data:application/pdf;base64,{base64_pdf}" width="100%" height="700px" type="application/pdf">'
                 st.markdown(pdf_display, unsafe_allow_html=True)
                 
-                # Admin-only download button restriction
                 if role_val == "Admin":
                     st.markdown("<br>", unsafe_allow_html=True)
                     with open(drawing_path, "rb") as pdf_file:
@@ -495,7 +512,7 @@ with tab1:
         else:
             st.warning("No drawing file attached to this item. Go to **'Manage Drawings'** tab to upload one.")
     else:
-        st.info("Please select or type a Code No. or Item Name above to view its drawing.")
+        st.info("Please type a Code No. or Item Name above to search.")
 
 # ================= TAB 2: MANAGE DRAWINGS =================
 with tab2:
