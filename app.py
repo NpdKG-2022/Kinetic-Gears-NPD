@@ -428,7 +428,7 @@ with tab1:
     st.subheader("🔍 In-Browser Engineering Drawing Viewer")
     
     # Use columns to align the radio options, search input, and button in a single row
-    c_col1, c_col2, c_col3 = st.columns([1.5, 3.5, 1])
+    c_col1, c_col2, c_col3 = st.columns([1, 2, 1])
 
     with c_col1:
         st.markdown("<p style='font-size: 14px; font-weight: 600; margin-bottom: 0px;'>Search Drawing By:</p>", unsafe_allow_html=True)
