@@ -492,8 +492,13 @@ if os.path.exists(DRAWINGS_MAP_FILE):
 if "Drawing" not in df_tracker.columns:
     df_tracker["Drawing"] = ""
 
+
+
+
 # ================= ENTERPRISE STYLED TABS =================
 tab1, tab2, tab3 = st.tabs(["🔍 View Drawing (In-Browser)", "📐 Manage Drawings", "📋 Documentation"])
+
+
 
 # ================= TAB 1: VIEW DRAWING =================
 with tab1:
@@ -552,7 +557,7 @@ with tab1:
                         doc = fitz.open(drawing_path) # Uses the actual drawing path!
                         for page_num in range(len(doc)):
                             page = doc.load_page(page_num)
-                            pix = page.get_pixmap(dpi=300) # High DPI for crystal clear zooming
+                            pix = page.get_pixmap(dpi=1200) # High DPI for crystal clear zooming
                             img_bytes = pix.tobytes("png")
                             st.image(img_bytes, caption=f"Drawing: {c_code} - {c_item} (Page {page_num + 1})", use_container_width=True)
                     except Exception as e:
