@@ -461,19 +461,23 @@ with top_col2:
         )
     
 DRAWINGS_MAP_FILE = "item_drawings.csv"
+CUSTOM_ITEMS_FILE = "custom_items.csv"
 DRAWINGS_DIR = "drawings"
 
 os.makedirs(DRAWINGS_DIR, exist_ok=True)
-
-# Load dataset helper
-CUSTOM_ITEMS_FILE = "custom_items.csv"
 months_list = ["Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Jan", "Feb", "Mar"]
 
+# 1. Load custom items tracker dataset
 if os.path.exists(CUSTOM_ITEMS_FILE):
     df_tracker = pd.read_csv(CUSTOM_ITEMS_FILE)
 else:
     df_tracker = pd.DataFrame(columns=["Plant", "CODE NO.", "ITEM NAME", "PRICE", "Drawing"] + months_list)
 
+# Ensure 'Drawing' column exists in tracker
+if "Drawing" not in df_tracker.columns:
+    df_tracker["Drawing"] = ""
+
+# 2. Load and merge drawings map dataset to guarantee persistence across refreshes
 if os.path.exists(DRAWINGS_MAP_FILE):
     df_drawings = pd.read_csv(DRAWINGS_MAP_FILE)
     if "Item Code" in df_drawings.columns and "CODE NO." not in df_drawings.columns:
@@ -481,17 +485,12 @@ if os.path.exists(DRAWINGS_MAP_FILE):
     if "Drawing File" in df_drawings.columns and "Drawing" not in df_drawings.columns:
         df_drawings = df_drawings.rename(columns={"Drawing File": "Drawing"})
         
-    if not df_drawings.empty and not df_tracker.empty and "CODE NO." in df_tracker.columns and "CODE NO." in df_drawings.columns:
-        df_tracker = pd.merge(df_tracker, df_drawings, on="CODE NO.", how="left", suffixes=("", "_map"))
-        if "Drawing_map" in df_tracker.columns:
-            df_tracker["Drawing"] = df_tracker["Drawing_map"].combine_first(
-                df_tracker.get("Drawing", pd.Series([None] * len(df_tracker)))
-            )
-            df_tracker = df_tracker.drop(columns=[c for c in df_tracker.columns if "_map" in c])
-
-if "Drawing" not in df_tracker.columns:
-    df_tracker["Drawing"] = ""
-
+    if not df_drawings.empty and "CODE NO." in df_drawings.columns:
+        # Update tracker's drawing column using the drawings map file as the primary source of truth
+        drawing_dict = pd.Series(df_drawings.Drawing.values, index=df_drawings["CODE NO."].astype(str)).to_dict()
+        df_tracker["CODE_STR"] = df_tracker["CODE NO."].astype(str)
+        df_tracker["Drawing"] = df_tracker["CODE_STR"].map(drawing_dict).combine_first(df_tracker["Drawing"])
+        df_tracker = df_tracker.drop(columns=["CODE_STR"])
 
 
 
