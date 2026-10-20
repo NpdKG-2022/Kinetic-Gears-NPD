@@ -536,31 +536,29 @@ with tab1:
         c_item = row.get("ITEM NAME", "")
         drawing_path = row.get("Drawing", "")
 
-        st.markdown("---")
-        st.info(f"**Part No:** `{c_code}` | **Part Name:** `{c_item}`")
+       st.markdown("---")
+        # Compact single-line info using minimal vertical space
+        st.markdown(f"**Part No:** `{c_code}` &nbsp;|&nbsp; **Part Name:** `{c_item}`")
 
         if pd.notna(drawing_path) and str(drawing_path).strip() != "" and os.path.exists(str(drawing_path)):
-            st.success("Drawing loaded successfully in viewer:")
-            
             if drawing_path.lower().endswith((".png", ".jpg", ".jpeg", ".tiff", ".tif", ".svg")):
                 st.image(drawing_path, caption=f"Drawing: {c_code} - {c_item}", use_container_width=True)
             elif drawing_path.lower().endswith(".pdf"):
                 preview_img_path = drawing_path.rsplit(".", 1)[0] + "_preview.png"
                 
-                # Check if pre-rendered preview exists, or generate it using the correct drawing_path variable
                 if os.path.exists(preview_img_path):
                     st.image(preview_img_path, caption=f"Drawing: {c_code} - {c_item} (Click fullscreen icon top-right to zoom)", use_container_width=True)
                 else:
                     try:
                         import fitz  # PyMuPDF
-                        doc = fitz.open(drawing_path) # Uses the actual drawing path!
+                        doc = fitz.open(drawing_path)
                         for page_num in range(len(doc)):
                             page = doc.load_page(page_num)
-                            pix = page.get_pixmap(dpi=1200) # High DPI for crystal clear zooming
+                            pix = page.get_pixmap(dpi=300)
                             img_bytes = pix.tobytes("png")
                             st.image(img_bytes, caption=f"Drawing: {c_code} - {c_item} (Page {page_num + 1})", use_container_width=True)
-                    except Exception as e:
-                        st.info("📄 PDF drawing is attached. Please use the secure download button below.")
+                    except Exception:
+                        st.info("📄 PDF drawing attached.")
 
                 if role_val == "Admin":
                     st.markdown("<br>", unsafe_allow_html=True)
@@ -569,6 +567,8 @@ with tab1:
                     st.download_button(label="📥 Download Drawing PDF", data=PDFbyte, file_name=os.path.basename(drawing_path), mime='application/pdf')
                 else:
                     st.info("🔒 Download restricted to Administrator accounts only.")
+        else:
+            st.warning("No drawing file attached to this item. Go to **'Manage Drawings'** tab to upload one.")
         else:
             st.warning("No drawing file attached to this item. Go to **'Manage Drawings'** tab to upload one.")
     else:
