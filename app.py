@@ -12,7 +12,7 @@ st.set_page_config(
     page_title="Kinetic Gears",
     page_icon="KG-Logo.png",
     layout="wide",
-    initial_sidebar_state="collapsed"
+    initial_sidebar_state="expanded"
 )
 
 # Helper function to convert logo to base64
@@ -27,7 +27,7 @@ def get_base64_image(image_path):
 
 logo_base64 = get_base64_image("KG-Logo.png")
 
-# Custom CSS for Glassmorphism login, layouts, Enterprise Styled Tabs, and Hover-Expanding Logout Button
+# Custom CSS for Glassmorphism login, layouts, and Sidebar Navigation styling
 st.markdown(
     """
     <style>
@@ -43,33 +43,10 @@ st.markdown(
             padding-bottom: 1.5rem !important;
         }
 
-        /* --- ENTERPRISE STYLED TABS --- */
-        .stTabs [data-baseweb="tab-list"] {
-            gap: 10px;
-            background-color: rgba(0, 0, 0, 0.2);
-            padding: 10px;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .stTabs [data-baseweb="tab"] {
-            height: 45px;
-            background-color: rgba(255, 255, 255, 0.08);
-            border-radius: 8px;
-            color: rgba(255, 255, 255, 0.85);
-            font-weight: 600;
-            padding: 0 20px;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            transition: all 0.3s ease;
-        }
-        .stTabs [data-baseweb="tab"]:hover {
-            background-color: rgba(255, 255, 255, 0.18);
-            color: #ffffff;
-        }
-        .stTabs [aria-selected="true"] {
-            background-color: #1e88e5 !important;
-            color: #ffffff !important;
-            border: 1px solid #1e88e5 !important;
-            box-shadow: 0 4px 15px rgba(30, 136, 229, 0.4);
+        /* --- SIDEBAR RADIO NAVIGATION STYLING --- */
+        [data-testid="stSidebar"] {
+            background-color: #120e24 !important;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         /* --- HOVER-EXPANDING RED LOGOUT BUTTON --- */
@@ -317,40 +294,6 @@ if not st.session_state.get("logged_in", False):
 username_val = st.session_state.get('username', '')
 role_val = st.session_state.get('role', '')
 
-
-
-# ================= PROFESSIONAL SIDEBAR WITH LOGO & USER DETAILS =================
-with st.sidebar:
-    if logo_base64:
-        st.markdown(
-            f"""
-            <div style="text-align: center; padding: 10px 0 10px 0;">
-                <img src="data:image/png;base64,{logo_base64}" width="65" style="display: block; margin: 0 auto 10px auto;" />
-                <h3 style="margin: 0; font-size: 18px; color: #ffffff; letter-spacing: 1px;">KINETIC GEARS</h3>
-                <p style="margin: 2px 0 0 0; font-size: 11px; color: rgba(255,255,255,0.6);">Drawing Management System</p>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-    st.markdown("---")
-    
-    st.markdown(
-        f"""
-        <div style="padding: 5px 10px; margin-bottom: 10px;">
-            <div style="font-size: 14px; color: #ffffff; font-weight: 600; margin-bottom: 4px;">
-                👤 {username_val}
-            </div>
-            <div style="font-size: 13px; color: rgba(255,255,255,0.8);">
-                Role: <b style="color: #ffffff;">{role_val}</b>
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-    
-    st.markdown("---")
-    st.markdown("<p style='font-size: 12px; color: rgba(255,255,255,0.7); text-align: center;'>System operational & secure.</p>", unsafe_allow_html=True)
-
 # Handle logout trigger via query param
 if st.query_params.get("do_logout") == "true":
     st.session_state["logged_in"] = False
@@ -359,6 +302,55 @@ if st.query_params.get("do_logout") == "true":
     st.session_state["login_time"] = 0.0
     st.query_params.clear()
     st.rerun()
+
+
+# ================= PROFESSIONAL SIDEBAR WITH NAVIGATION MENU =================
+with st.sidebar:
+    if logo_base64:
+        st.markdown(
+            f"""
+            <div style="text-align: center; padding: 10px 0 5px 0;">
+                <img src="data:image/png;base64,{logo_base64}" width="60" style="display: block; margin: 0 auto 8px auto;" />
+                <h3 style="margin: 0; font-size: 17px; color: #ffffff; letter-spacing: 1px;">KINETIC GEARS</h3>
+                <p style="margin: 2px 0 0 0; font-size: 11px; color: rgba(255,255,255,0.6);">Drawing & Route Card System</p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+    st.markdown("---")
+    
+    st.markdown("<p style='font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px;'>Main Menu</p>", unsafe_allow_html=True)
+    
+    # Sidebar Navigation Radio
+    nav_selection = st.radio(
+        "Navigation",
+        options=[
+            "🔍 View Drawing",
+            "📐 Manage Drawings",
+            "🧭 Route Cards",
+            "📋 Documentation"
+        ],
+        label_visibility="collapsed"
+    )
+
+    st.markdown("---")
+    
+    st.markdown(
+        f"""
+        <div style="padding: 2px 5px; margin-bottom: 5px;">
+            <div style="font-size: 13px; color: #ffffff; font-weight: 600; margin-bottom: 2px;">
+                👤 {username_val}
+            </div>
+            <div style="font-size: 12px; color: rgba(255,255,255,0.8);">
+                Role: <b style="color: #ffffff;">{role_val}</b>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+    
+    st.markdown("---")
+    st.markdown("<p style='font-size: 11px; color: rgba(255,255,255,0.6); text-align: center;'>System operational & secure.</p>", unsafe_allow_html=True)
 
 
 # ================= TOP HEADER BAR & CLOCK WITH SIDE-BY-SIDE LOGOUT =================
@@ -472,7 +464,6 @@ months_list = ["Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "J
 # 1. Load custom items tracker dataset
 if os.path.exists(CUSTOM_ITEMS_FILE):
     df_tracker = pd.read_csv(CUSTOM_ITEMS_FILE)
-    # Rename legacy headers if they exist
     if "CODE NO." in df_tracker.columns:
         df_tracker = df_tracker.rename(columns={"CODE NO.": "PART NO."})
     if "ITEM NAME" in df_tracker.columns:
@@ -495,7 +486,6 @@ if os.path.exists(DRAWINGS_MAP_FILE):
         df_drawings = df_drawings.rename(columns={"Drawing File": "Drawing"})
         
     if not df_drawings.empty and "PART NO." in df_drawings.columns:
-        # Update tracker's drawing column using the drawings map file as the primary source of truth
         drawing_dict = pd.Series(df_drawings.Drawing.values, index=df_drawings["PART NO."].astype(str)).to_dict()
         df_tracker["PART_STR"] = df_tracker["PART NO."].astype(str)
         df_tracker["Drawing"] = df_tracker["PART_STR"].map(drawing_dict).combine_first(df_tracker["Drawing"])
@@ -503,13 +493,8 @@ if os.path.exists(DRAWINGS_MAP_FILE):
 
 
 
-# ================= ENTERPRISE STYLED TABS =================
-tab1, tab2, tab3, tab4 = st.tabs(["🔍 View Drawing (In-Browser)", "📐 Manage Drawings", "📋 Documentation", "🧭 Route Cards"])
-
-
-
-# ================= TAB 1: VIEW DRAWING =================
-with tab1:
+# ================= VIEW 1: VIEW DRAWING =================
+if nav_selection == "🔍 View Drawing":
     st.subheader("🔍 In-Browser Engineering Drawing Viewer")
     
     main_search_col, _ = st.columns([3, 1])
@@ -545,7 +530,6 @@ with tab1:
         c_item = row.get("PART NAME", "")
         drawing_path = row.get("Drawing", "")
 
-        # Reduced spacing directly above part info
         st.markdown(f"<div style='margin-top: -10px; margin-bottom: 10px;'><b>Part No:</b> <code>{c_code}</code> &nbsp;|&nbsp; <b>Part Name:</b> <code>{c_item}</code></div>", unsafe_allow_html=True)
 
         if pd.notna(drawing_path) and str(drawing_path).strip() != "" and os.path.exists(str(drawing_path)):
@@ -576,23 +560,21 @@ with tab1:
                 else:
                     st.info("🔒 Download restricted to Administrator accounts only.")
         else:
-            st.warning("No drawing file attached to this item. Go to **'Manage Drawings'** tab to upload one.")
+            st.warning("No drawing file attached to this item. Go to **'Manage Drawings'** from the sidebar to upload one.")
     else:
         st.info(f"Type or select a {search_mode} above to instantly view your drawing")
 
 
-# ================= TAB 2: MANAGE DRAWINGS =================
-with tab2:
+# ================= VIEW 2: MANAGE DRAWINGS =================
+elif nav_selection == "📐 Manage Drawings":
     st.subheader("📐 Add or Update Drawings with Part Details")
     
-    # Initialize session state flags for success notification
     if "drawing_upload_success" not in st.session_state:
         st.session_state["drawing_upload_success"] = None
 
-    # Show success alert if stored in session state
     if st.session_state["drawing_upload_success"]:
         st.success(st.session_state["drawing_upload_success"])
-        st.session_state["drawing_upload_success"] = None  # Clear after showing once
+        st.session_state["drawing_upload_success"] = None
 
     with st.form("drawing_manager_form", clear_on_submit=True):
         col_p1, col_p2 = st.columns(2)
@@ -615,19 +597,17 @@ with tab2:
                 with open(file_save_path, "wb") as f:
                     f.write(uploaded_file.getbuffer())
 
-                # If uploaded file is a PDF, generate a PNG preview automatically
                 if uploaded_file.name.lower().endswith(".pdf"):
                     try:
                         import fitz  # PyMuPDF
                         doc = fitz.open(file_save_path)
-                        page = doc.load_page(0)  # first page
+                        page = doc.load_page(0)
                         pix = page.get_pixmap(dpi=300)
                         preview_img_path = file_save_path.rsplit(".", 1)[0] + "_preview.png"
                         pix.save(preview_img_path)
                     except Exception:
                         pass
 
-                # 1. Update/Save drawing map file safely
                 if os.path.exists(DRAWINGS_MAP_FILE):
                     df_d_map = pd.read_csv(DRAWINGS_MAP_FILE)
                     if "Item Code" in df_d_map.columns and "PART NO." not in df_d_map.columns:
@@ -645,7 +625,6 @@ with tab2:
                 updated_map = pd.concat([df_d_map, pd.DataFrame({"PART NO.": [manual_code.strip()], "Drawing": [file_save_path]})], ignore_index=True)
                 updated_map.to_csv(DRAWINGS_MAP_FILE, index=False)
 
-                # 2. Update/Save custom items tracker dataframe
                 if os.path.exists(CUSTOM_ITEMS_FILE):
                     df_custom = pd.read_csv(CUSTOM_ITEMS_FILE)
                     if "CODE NO." in df_custom.columns:
@@ -673,73 +652,16 @@ with tab2:
 
                 df_custom.to_csv(CUSTOM_ITEMS_FILE, index=False)
                 
-                # Store success message in session state and rerun to reset form cleanly
                 st.session_state["drawing_upload_success"] = f"✅ Drawing uploaded successfully and Part No: `{manual_code}` ({manual_item_name}) registered!"
                 st.rerun()
 
-# ================= TAB 3: DOCUMENTATION =================
-with tab3:
-    st.subheader("📋 Quality & Engineering Documentation")
-    
-    DOC_FILE = "documentation.json"
-    
-    default_docs = {
-        "Control Plan": "# Control Plan\n\n- **Process Name:** Gear Manufacturing\n- **Stage:** Machining & Heat Treatment\n- **Parameters:** Dimensions, Hardness, Surface Finish.",
-        "PFMEA": "# Process Failure Mode and Effects Analysis (PFMEA)\n\n- **System:** Kinetic Gears Production\n- **Potential Failure Mode:** Out of tolerance bore diameter.\n- **Severity/Occ/Det:** 8 / 3 / 4",
-        "Process Flow Diagram (PFD)": "# Process Flow Diagram (PFD)\n\n1. Raw Material Inspection (Forging/Bar)\n2. CNC Turning / Hobbing\n3. Heat Treatment\n4. Grinding & Finishing\n5. Final Quality Inspection",
-        "Checksheets": "# Quality Checksheets\n\n- Daily calibration check for Mitutoyo Surftest SJ-210.\n- Visual inspection checklist for surface defects and burrs."
-    }
-    
-    # Load or initialize documentation store
-    if os.path.exists(DOC_FILE):
-        try:
-            with open(DOC_FILE, "r") as f:
-                docs_data = json.load(f)
-        except Exception:
-            docs_data = default_docs
-    else:
-        docs_data = default_docs
-        with open(DOC_FILE, "w") as f:
-            json.dump(default_docs, f, indent=4)
 
-    # Document selection
-    doc_categories = list(docs_data.keys())
-    selected_doc = st.selectbox("Select Quality Document", doc_categories, key="doc_selector")
-
-    st.markdown("---")
-
-    if role_val == "Admin":
-        with st.form("doc_edit_form"):
-            st.markdown(f"**Editing Mode: `{selected_doc}`** (Admin privilege active)")
-            edited_content = st.text_area("Document Content (Markdown supported)", value=docs_data.get(selected_doc, ""), height=350)
-            doc_submitted = st.form_submit_button("Save Document Changes")
-
-            if doc_submitted:
-                docs_data[selected_doc] = edited_content
-                with open(DOC_FILE, "w") as f:
-                    json.dump(docs_data, f, indent=4)
-                st.success(f"Successfully updated `{selected_doc}`!")
-                st.rerun()
-    else:
-        st.markdown(f"### 📖 Viewing: {selected_doc}")
-        st.markdown(
-            f"""
-            <div style="background: rgba(255, 255, 255, 0.05); padding: 25px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff;">
-                {docs_data.get(selected_doc, 'No content available.')}
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-        st.info("🔒 Document editing is restricted to Administrator accounts only.")
-
-
-# ================= TAB 4: ROUTE CARDS =================
-with tab4:
+# ================= VIEW 3: ROUTE CARDS =================
+elif nav_selection == "🧭 Route Cards":
     st.subheader("🧭 Shop-Floor Route Card & Operation System")
     
     ROUTE_CARDS_FILE = "route_cards_data.csv"
     
-    # Preloaded Operation Master List based on your Optn List
     operation_master = [
         "Incoming Inspection", "Pre-Final Inspection", "No-PASS Inspection", 
         "Inspection Before HT", "Firewall Inspection", "Parting", 
@@ -747,7 +669,6 @@ with tab4:
         "Surface Grinding", "Cylindrical Grinding", "Deburring & Cleaning", "Final Quality Inspection"
     ]
 
-    # Initialize or load saved route cards repository
     if os.path.exists(ROUTE_CARDS_FILE):
         df_rc = pd.read_csv(ROUTE_CARDS_FILE)
     else:
@@ -762,7 +683,6 @@ with tab4:
         st.markdown("### 📝 Generate New Route Card")
         
         with st.form("create_rc_form"):
-            # 1. Route card no section with "RC-" prefix outside and no default value
             st.markdown("<p style='font-weight: 600; margin-bottom: 2px;'>Route Card No. *</p>", unsafe_allow_html=True)
             r_c_col1, r_c_col2, _ = st.columns([0.1, 0.9, 2])
             with r_c_col1:
@@ -772,7 +692,6 @@ with tab4:
             
             st.markdown("<br>", unsafe_allow_html=True)
 
-            # 2. Part No. & Part Name in one line below
             p_col1, p_col2 = st.columns(2)
             with p_col1:
                 available_parts = df_tracker["PART NO."].astype(str).unique().tolist() if not df_tracker.empty else []
@@ -787,7 +706,6 @@ with tab4:
             with p_col2:
                 part_name_input = st.text_input("Part Name *", value=auto_part_name, placeholder="e.g. WASHER / GEAR BLANK")
 
-            # 3. RM issued quantity (text input), RM Issue Slip No., RM Issue Date (Calendar Popup) and Batch No. in one line
             rm_col1, rm_col2, rm_col3, rm_col4 = st.columns(4)
             with rm_col1:
                 rm_qty_input = st.text_input("RM Issued Qty *", placeholder="Enter issued qty")
@@ -796,7 +714,7 @@ with tab4:
             with rm_col3:
                 import datetime
                 rm_issue_date = st.date_input(
-                    "RM Issue Date *", 
+                    "RM Issue Date (DD/MM/YYYY) *", 
                     value=datetime.date.today(), 
                     min_value=datetime.date(2000, 4, 1), 
                     max_value=datetime.date(2999, 3, 31),
@@ -816,8 +734,6 @@ with tab4:
 
             if rc_submitted:
                 full_rc_no = f"RC-{rc_number_suffix.strip()}"
-                
-                # Validation checks
                 existing_rcs = df_rc["RC No"].astype(str).tolist() if not df_rc.empty else []
                 
                 if not rc_number_suffix.strip() or not selected_part_no or not batch_no_input.strip() or not rm_qty_input.strip() or not rm_issue_date:
@@ -830,7 +746,6 @@ with tab4:
                     except ValueError:
                         parsed_qty = 0
 
-                    # Format date to Indian format DD/MM/YYYY for permanent storage/display
                     formatted_indian_date = rm_issue_date.strftime("%d/%m/%Y")
 
                     import json
@@ -940,3 +855,57 @@ with tab4:
                     df_rc.to_csv(ROUTE_CARDS_FILE, index=False)
                     st.warning(f"Route card `{selected_rc}` deleted.")
                     st.rerun()
+
+
+# ================= VIEW 4: DOCUMENTATION =================
+elif nav_selection == "📋 Documentation":
+    st.subheader("📋 Quality & Engineering Documentation")
+    
+    DOC_FILE = "documentation.json"
+    
+    default_docs = {
+        "Control Plan": "# Control Plan\n\n- **Process Name:** Gear Manufacturing\n- **Stage:** Machining & Heat Treatment\n- **Parameters:** Dimensions, Hardness, Surface Finish.",
+        "PFMEA": "# Process Failure Mode and Effects Analysis (PFMEA)\n\n- **System:** Kinetic Gears Production\n- **Potential Failure Mode:** Out of tolerance bore diameter.\n- **Severity/Occ/Det:** 8 / 3 / 4",
+        "Process Flow Diagram (PFD)": "# Process Flow Diagram (PFD)\n\n1. Raw Material Inspection (Forging/Bar)\n2. CNC Turning / Hobbing\n3. Heat Treatment\n4. Grinding & Finishing\n5. Final Quality Inspection",
+        "Checksheets": "# Quality Checksheets\n\n- Daily calibration check for Mitutoyo Surftest SJ-210.\n- Visual inspection checklist for surface defects and burrs."
+    }
+    
+    if os.path.exists(DOC_FILE):
+        try:
+            with open(DOC_FILE, "r") as f:
+                docs_data = json.load(f)
+        except Exception:
+            docs_data = default_docs
+    else:
+        docs_data = default_docs
+        with open(DOC_FILE, "w") as f:
+            json.dump(default_docs, f, indent=4)
+
+    doc_categories = list(docs_data.keys())
+    selected_doc = st.selectbox("Select Quality Document", doc_categories, key="doc_selector")
+
+    st.markdown("---")
+
+    if role_val == "Admin":
+        with st.form("doc_edit_form"):
+            st.markdown(f"**Editing Mode: `{selected_doc}`** (Admin privilege active)")
+            edited_content = st.text_area("Document Content (Markdown supported)", value=docs_data.get(selected_doc, ""), height=350)
+            doc_submitted = st.form_submit_button("Save Document Changes")
+
+            if doc_submitted:
+                docs_data[selected_doc] = edited_content
+                with open(DOC_FILE, "w") as f:
+                    json.dump(docs_data, f, indent=4)
+                st.success(f"Successfully updated `{selected_doc}`!")
+                st.rerun()
+    else:
+        st.markdown(f"### 📖 Viewing: {selected_doc}")
+        st.markdown(
+            f"""
+            <div style="background: rgba(255, 255, 255, 0.05); padding: 25px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff;">
+                {docs_data.get(selected_doc, 'No content available.')}
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+        st.info("🔒 Document editing is restricted to Administrator accounts only.")
