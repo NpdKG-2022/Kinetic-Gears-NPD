@@ -427,11 +427,11 @@ tab1, tab2 = st.tabs(["🔍 View Drawing (In-Browser)", "📐 Manage Drawings"])
 with tab1:
     st.subheader("🔍 In-Browser Engineering Drawing Viewer")
     
-    # Restrict search section to 3/4th width of the page
+    # Restrict search bar row to 3/4th width of the page
     main_search_col, _ = st.columns([3, 1])
 
     with main_search_col:
-        r_col1, r_col2, r_col3, r_col4 = st.columns([1.3, 1.4, 2.2, 1.1])
+        r_col1, r_col2, r_col3 = st.columns([1.5, 1.5, 3])
 
         with r_col1:
             st.markdown("<p style='font-size: 14px; font-weight: 600; padding-top: 8px; margin-bottom: 0;'>Search Drawing By:</p>", unsafe_allow_html=True)
@@ -440,41 +440,21 @@ with tab1:
             search_mode = st.radio("Search Mode", ["Part No.", "Part Name"], horizontal=True, label_visibility="collapsed")
 
         with r_col3:
-            search_query = st.text_input("Search Input", placeholder=f"Type {search_mode}...", label_visibility="collapsed", key="inline_search_input")
-
-        with r_col4:
-            view_clicked = st.button("View Drawing", use_container_width=True, type="primary")
+            target_col = "CODE NO." if search_mode == "Part No." else "ITEM NAME"
+            all_options = sorted(df_tracker[target_col].astype(str).unique().tolist()) if not df_tracker.empty and target_col in df_tracker.columns else []
+            
+            # Google-style searchable dropdown autocomplete acting as live search bar with suggestions
+            selected_value = st.selectbox(
+                "Google Search Bar",
+                options=[""] + all_options,
+                format_func=lambda x: f"🔍 Type or search {search_mode}..." if x == "" else x,
+                label_visibility="collapsed",
+                key=f"google_search_{search_mode}"
+            )
 
     matched_rows = pd.DataFrame()
-    query = search_query.strip().lower()
-
-    if query:
-        target_col = "CODE NO." if search_mode == "Part No." else "ITEM NAME"
-        matched_df = df_tracker[df_tracker[target_col].astype(str).str.lower().str.contains(query, na=False)]
-
-        if not matched_df.empty:
-            st.markdown("<p style='font-size: 13px; color: rgba(255,255,255,0.8); margin-top: 6px;'><b>Suggestions (click to pick):</b></p>", unsafe_allow_html=True)
-            
-            suggestions = matched_df[target_col].astype(str).tolist()[:5]
-            sug_cols = st.columns(len(suggestions) if len(suggestions) > 0 else 1)
-            for idx, item_val in enumerate(suggestions):
-                with sug_cols[idx]:
-                    if st.button(item_val, key=f"inline_sug_{idx}_{item_val}", use_container_width=True):
-                        st.session_state["active_view_target"] = item_val
-                        st.rerun()
-
-            selected_target = st.session_state.get("active_view_target", "")
-            if selected_target:
-                matched_rows = matched_df[matched_df[target_col].astype(str) == selected_target]
-            elif len(matched_df) == 1:
-                matched_rows = matched_df.iloc[[0]]
-        else:
-            st.warning(f"No matching {search_mode} found.")
-
-    if view_clicked and not search_query.strip():
-        st.warning("Please type a search term first.")
-    elif view_clicked and matched_rows.empty and query:
-        matched_rows = matched_df.iloc[[0]] if 'matched_df' in locals() and not matched_df.empty else pd.DataFrame()
+    if selected_value and selected_value.strip() != "":
+        matched_rows = df_tracker[df_tracker[target_col].astype(str) == selected_value]
 
     if not matched_rows.empty:
         row = matched_rows.iloc[0]
@@ -506,7 +486,7 @@ with tab1:
         else:
             st.warning("No drawing file attached to this item. Go to **'Manage Drawings'** tab to upload one.")
     else:
-        st.info("Type a Part No. or Part Name above to see live suggestions, or click **View Drawing**.")
+        st.info(f"Type or select a {search_mode} above to instantly view your drawing with live Google-style suggestions.")
 
 
 # ================= TAB 2: MANAGE DRAWINGS =================
