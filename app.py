@@ -561,7 +561,7 @@ with tab2:
 
 # ================= TAB 3: DOCUMENTATION =================
 with tab3:
-    st.subheader("📋 Quality & Engineering Documentation")
+    st.subheader("📋 PPAP Documentation")
     
     DOC_FILE = "documentation.json"
     
@@ -586,7 +586,7 @@ with tab3:
 
     # Document selection
     doc_categories = list(docs_data.keys())
-    selected_doc = st.selectbox("Select Quality Document", doc_categories, key="doc_selector")
+    selected_doc = st.selectbox("Select Document", doc_categories, key="doc_selector")
 
     st.markdown("---")
 
