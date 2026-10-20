@@ -493,17 +493,19 @@ with tab2:
     st.subheader("📐 Add or Update Drawings with Part Details")
     
     with st.form("drawing_manager_form"):
-        manual_code = st.text_input("Enter Part Number", placeholder="e.g. PM-001")
-        manual_item_name = st.text_input("Enter Part Name", placeholder="e.g. Gear Blank")
+        # Part Number and Part Name side-by-side in one line, making all fields mandatory
+        col_p1, col_p2 = st.columns(2)
+        with col_p1:
+            manual_code = st.text_input("Enter Part Number *", placeholder="e.g. PM-001")
+        with col_p2:
+            manual_item_name = st.text_input("Enter Part Name *", placeholder="e.g. Gear Blank")
 
-        uploaded_file = st.file_uploader("Upload Drawing File (PDF, PNG, JPG, TIFF)", type=["pdf", "png", "jpg", "jpeg", "tiff", "tif"])
+        uploaded_file = st.file_uploader("Upload Drawing File (PDF, PNG, JPG, TIFF) *", type=["pdf", "png", "jpg", "jpeg", "tiff", "tif"])
         drawing_submitted = st.form_submit_button("Save Drawing & Part Details")
 
         if drawing_submitted:
-            if not manual_code.strip() or not manual_item_name.strip():
-                st.error("Please provide both a valid Part Number and Part Name.")
-            elif uploaded_file is None:
-                st.error("Please upload a drawing file first.")
+            if not manual_code.strip() or not manual_item_name.strip() or uploaded_file is None:
+                st.error("⚠️ All fields (Part Number, Part Name, and Drawing File) are mandatory!")
             else:
                 file_save_path = os.path.join(DRAWINGS_DIR, uploaded_file.name)
                 with open(file_save_path, "wb") as f:
