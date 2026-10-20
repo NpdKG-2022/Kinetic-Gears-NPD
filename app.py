@@ -800,6 +800,7 @@ with tab4:
                     value=datetime.date.today(), 
                     min_value=datetime.date(1, 4, 2000), 
                     max_value=datetime.date(31, 3, 2999)
+                    format="DD/MM/YYYY"
                 )
             with rm_col4:
                 batch_no_input = st.text_input("Batch Number *", placeholder="Enter batch Code/Number")
