@@ -539,22 +539,22 @@ with tab1:
             st.success("Drawing loaded successfully in viewer:")
             
             if drawing_path.lower().endswith((".png", ".jpg", ".jpeg", ".tiff", ".tif", ".svg")):
-                st.image(drawing_path, caption=f"Drawing: {c_code} - {c_item}", use_column_width=True)
+                st.image(drawing_path, caption=f"Drawing: {c_code} - {c_item}", use_container_width=True)
             elif drawing_path.lower().endswith(".pdf"):
                 preview_img_path = drawing_path.rsplit(".", 1)[0] + "_preview.png"
                 
                 # Check if pre-rendered preview exists, or generate it using the correct drawing_path variable
                 if os.path.exists(preview_img_path):
-                    st.image(preview_img_path, caption=f"Drawing: {c_code} - {c_item} (Click fullscreen icon top-right to zoom)", use_column_width=True)
+                    st.image(preview_img_path, caption=f"Drawing: {c_code} - {c_item} (Click fullscreen icon top-right to zoom)", use_container_width=True)
                 else:
                     try:
                         import fitz  # PyMuPDF
                         doc = fitz.open(drawing_path) # Uses the actual drawing path!
                         for page_num in range(len(doc)):
                             page = doc.load_page(page_num)
-                            pix = page.get_pixmap(dpi=600) # High DPI for crystal clear zooming
+                            pix = page.get_pixmap(dpi=300) # High DPI for crystal clear zooming
                             img_bytes = pix.tobytes("png")
-                            st.image(img_bytes, caption=f"Drawing: {c_code} - {c_item} (Page {page_num + 1})", use_column_width=True)
+                            st.image(img_bytes, caption=f"Drawing: {c_code} - {c_item} (Page {page_num + 1})", use_container_width=True)
                     except Exception as e:
                         st.info("📄 PDF drawing is attached. Please use the secure download button below.")
 
