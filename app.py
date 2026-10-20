@@ -446,7 +446,8 @@ with top_col2:
         </div>
         """,
         unsafe_allow_html=True
-
+    )
+    
 DRAWINGS_MAP_FILE = "item_drawings.csv"
 DRAWINGS_DIR = "drawings"
 
