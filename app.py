@@ -75,7 +75,7 @@ st.markdown(
         /* --- HOVER-EXPANDING RED LOGOUT BUTTON --- */
         .logout-icon-wrapper {
             position: relative;
-            display: inline-flex;
+            display: flex;
             align-items: center;
             justify-content: flex-end;
             float: right;
@@ -90,8 +90,8 @@ st.markdown(
             border-radius: 50%;
             display: flex;
             align-items: center;
-            justify-content: center;
-            font-size: 18px;
+            justify-content: flex-start;
+            padding-left: 9px;
             box-shadow: 0 4px 10px rgba(229, 57, 53, 0.4);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             white-space: nowrap;
@@ -101,7 +101,7 @@ st.markdown(
             width: 115px;
             border-radius: 20px;
             padding-right: 12px;
-            padding-left: 8px;
+            padding-left: 10px;
             justify-content: space-between;
         }
         .logout-text {
@@ -115,7 +115,7 @@ st.markdown(
         .logout-icon-wrapper:hover .logout-text {
             opacity: 1;
         }
-
+        
         /* --- GLASSMORPHISM LOGIN FORM STYLING --- */
         div[data-testid="stForm"] {
             background: rgba(255, 255, 255, 0.08) !important;
@@ -439,7 +439,7 @@ with top_col2:
         <div class="logout-icon-wrapper">
             <a href="?do_logout=true" target="_self" style="text-decoration: none;">
                 <div class="logout-icon-btn">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="min-width: 20px;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;">
                         <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
                         <polyline points="16 17 21 12 16 7"></polyline>
                         <line x1="21" y1="12" x2="9" y2="12"></line>
