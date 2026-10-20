@@ -501,7 +501,7 @@ with tab2:
             manual_item_name = st.text_input("Enter Part Name *", placeholder="e.g. Gear Blank")
 
         # File uploader constrained to 1/3rd width of the page using columns ([1, 2])
-        up_col1, _ = st.columns([1, 2])
+        up_col1, _ = st.columns([1, 1])
         with up_col1:
             uploaded_file = st.file_uploader("Upload Drawing File (PDF, PNG, JPG, TIFF) *", type=["pdf", "png", "jpg", "jpeg", "tiff", "tif"])
 
