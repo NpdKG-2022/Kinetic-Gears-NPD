@@ -78,7 +78,7 @@ st.markdown(
             display: flex;
             align-items: center;
             justify-content: flex-end;
-            float: right;
+            float: left;
             margin-top: 5px;
             cursor: pointer;
         }
@@ -91,7 +91,7 @@ st.markdown(
             display: flex;
             align-items: center;
             justify-content: flex-start;
-            padding-left: 9px;
+            padding-left: 2px;
             box-shadow: 0 4px 10px rgba(229, 57, 53, 0.4);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             white-space: nowrap;
@@ -100,7 +100,7 @@ st.markdown(
         .logout-icon-wrapper:hover .logout-icon-btn {
             width: 115px;
             border-radius: 20px;
-            padding-right: 12px;
+            padding-right: 5px;
             padding-left: 10px;
             justify-content: space-between;
         }
