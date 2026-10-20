@@ -536,8 +536,7 @@ with tab1:
         c_item = row.get("ITEM NAME", "")
         drawing_path = row.get("Drawing", "")
 
-       st.markdown("---")
-        # Compact single-line info using minimal vertical space
+        st.markdown("---")
         st.markdown(f"**Part No:** `{c_code}` &nbsp;|&nbsp; **Part Name:** `{c_item}`")
 
         if pd.notna(drawing_path) and str(drawing_path).strip() != "" and os.path.exists(str(drawing_path)):
@@ -567,8 +566,6 @@ with tab1:
                     st.download_button(label="📥 Download Drawing PDF", data=PDFbyte, file_name=os.path.basename(drawing_path), mime='application/pdf')
                 else:
                     st.info("🔒 Download restricted to Administrator accounts only.")
-        else:
-            st.warning("No drawing file attached to this item. Go to **'Manage Drawings'** tab to upload one.")
         else:
             st.warning("No drawing file attached to this item. Go to **'Manage Drawings'** tab to upload one.")
     else:
