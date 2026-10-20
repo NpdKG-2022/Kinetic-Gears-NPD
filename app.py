@@ -574,7 +574,16 @@ with tab1:
 with tab2:
     st.subheader("📐 Add or Update Drawings with Part Details")
     
-    with st.form("drawing_manager_form"):
+    # Initialize session state flags for success notification
+    if "drawing_upload_success" not in st.session_state:
+        st.session_state["drawing_upload_success"] = None
+
+    # Show success alert if stored in session state
+    if st.session_state["drawing_upload_success"]:
+        st.success(st.session_state["drawing_upload_success"])
+        st.session_state["drawing_upload_success"] = None  # Clear after showing once
+
+    with st.form("drawing_manager_form", clear_on_submit=True):
         col_p1, col_p2 = st.columns(2)
         with col_p1:
             manual_code = st.text_input("Enter Part Number *", placeholder="e.g. PM-001")
@@ -601,7 +610,7 @@ with tab2:
                         import fitz  # PyMuPDF
                         doc = fitz.open(file_save_path)
                         page = doc.load_page(0)  # first page
-                        pix = page.get_pixmap(dpi=150)
+                        pix = page.get_pixmap(dpi=300)
                         preview_img_path = file_save_path.rsplit(".", 1)[0] + "_preview.png"
                         pix.save(preview_img_path)
                     except Exception:
@@ -646,7 +655,9 @@ with tab2:
                     df_custom = pd.concat([df_custom, df_new_row], ignore_index=True)
 
                 df_custom.to_csv(CUSTOM_ITEMS_FILE, index=False)
-                st.success(f"Successfully saved drawing and registered Part No: `{manual_code}` ({manual_item_name})!")
+                
+                # Store success message in session state and rerun to reset form cleanly
+                st.session_state["drawing_upload_success"] = f"✅ Drawing uploaded successfully and Part No: `{manual_code}` ({manual_item_name}) registered!"
                 st.rerun()
 
 # ================= TAB 3: DOCUMENTATION =================
