@@ -457,15 +457,14 @@ with tab1:
         row = matched_rows.iloc[0]
         c_code = row.get("CODE NO.", "")
         c_item = row.get("ITEM NAME", "")
-        c_plant = row.get("Plant", "General")
         drawing_path = row.get("Drawing", "")
 
         st.markdown("---")
-        st.info(f"**Plant:** {c_plant} | **Part No:** `{c_code}` | **Part Name:** `{c_item}`")
+        st.info(f"**Part No:** `{c_code}` | **Part Name:** `{c_item}`")
 
         if pd.notna(drawing_path) and str(drawing_path).strip() != "" and os.path.exists(str(drawing_path)):
             st.success("Drawing loaded successfully in viewer:")
-            if drawing_path.lower().endswith((".png", ".jpg", ".jpeg", ".tiff", ".tif", ".svg")):
+            if drawing_path.lower().endswith((".png", ".jpg", ".jpeg", ".tiff", ".tif")):
                 st.image(drawing_path, caption=f"Drawing: {c_code} - {c_item}", use_column_width=True)
             elif drawing_path.lower().endswith(".pdf"):
                 with open(drawing_path, "rb") as f:
@@ -484,7 +483,6 @@ with tab1:
             st.warning("No drawing file attached to this item. Go to **'Manage Drawings'** tab to upload one.")
     else:
         st.info("Please select or type in the search box above to find and view your drawing.")
-
 
 
 # ================= TAB 2: MANAGE DRAWINGS =================
