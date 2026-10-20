@@ -427,31 +427,51 @@ tab1, tab2 = st.tabs(["🔍 View Drawing (In-Browser)", "📐 Manage Drawings"])
 with tab1:
     st.subheader("🔍 In-Browser Engineering Drawing Viewer")
     
-    search_mode = st.radio("Search Drawing By:", ["Part No.", "Part Name"], horizontal=True)
+    # Use columns to align the radio options, search input, and button in a single row
+    c_col1, c_col2, c_col3 = st.columns([1.5, 3.5, 1])
 
-    all_codes = sorted(df_tracker["CODE NO."].astype(str).unique().tolist()) if not df_tracker.empty and "CODE NO." in df_tracker.columns else []
-    all_items = sorted(df_tracker["ITEM NAME"].astype(str).unique().tolist()) if not df_tracker.empty and "ITEM NAME" in df_tracker.columns else []
+    with c_col1:
+        st.markdown("<p style='font-size: 14px; font-weight: 600; margin-bottom: 0px;'>Search Drawing By:</p>", unsafe_allow_html=True)
+        search_mode = st.radio("Search Mode", ["Part No.", "Part Name"], horizontal=True, label_visibility="collapsed")
+
+    with c_col2:
+        st.markdown(f"<p style='font-size: 14px; font-weight: 600; margin-bottom: 0px;'>Enter {search_mode}:</p>", unsafe_allow_html=True)
+        search_query = st.text_input("Search Input", placeholder=f"Type {search_mode}...", label_visibility="collapsed", key="inline_search_input")
+
+    with c_col3:
+        st.markdown("<p style='font-size: 14px; margin-bottom: 22px;'>&nbsp;</p>", unsafe_allow_html=True) # Spacer for vertical alignment
+        view_clicked = st.button("View Drawing", use_container_width=True, type="primary")
 
     matched_rows = pd.DataFrame()
+    query = search_query.strip().lower()
 
-    if search_mode == "Part No.":
-        selected_code = st.selectbox(
-            "Search Part No.",
-            options=[""] + all_codes,
-            format_func=lambda x: "Type or select Part No..." if x == "" else x,
-            key="search_part_no_box"
-        )
-        if selected_code and selected_code.strip() != "":
-            matched_rows = df_tracker[df_tracker["CODE NO."].astype(str) == selected_code]
-    else:
-        selected_item = st.selectbox(
-            "Search Part Name",
-            options=[""] + all_items,
-            format_func=lambda x: "Type or select Part Name..." if x == "" else x,
-            key="search_part_name_box"
-        )
-        if selected_item and selected_item.strip() != "":
-            matched_rows = df_tracker[df_tracker["ITEM NAME"].astype(str) == selected_item]
+    if query:
+        if search_mode == "Part No.":
+            matched_df = df_tracker[df_tracker["CODE NO."].astype(str).str.lower().str.contains(query, na=False)]
+        else:
+            matched_df = df_tracker[df_tracker["ITEM NAME"].astype(str).str.lower().str.contains(query, na=False)]
+
+        if not matched_df.empty:
+            # Show live suggestion buttons below if multiple matches exist
+            st.markdown("<p style='font-size: 13px; color: rgba(255,255,255,0.8); margin-top: 6px;'><b>Suggestions (click to pick):</b></p>", unsafe_allow_html=True)
+            
+            target_col = "CODE NO." if search_mode == "Part No." else "ITEM NAME"
+            suggestions = matched_df[target_col].astype(str).tolist()[:5]
+            
+            sug_cols = st.columns(len(suggestions) if len(suggestions) > 0 else 1)
+            for idx, item_val in enumerate(suggestions):
+                with sug_cols[idx]:
+                    if st.button(item_val, key=f"inline_sug_{idx}_{item_val}", use_container_width=True):
+                        st.session_state["active_view_target"] = item_val
+                        st.rerun()
+
+            selected_target = st.session_state.get("active_view_target", "")
+            if selected_target:
+                matched_rows = matched_df[matched_df[target_col].astype(str) == selected_target]
+            elif view_clicked or len(matched_df) == 1:
+                matched_rows = matched_df.iloc[[0]]
+        else:
+            st.warning(f"No matching {search_mode} found.")
 
     if not matched_rows.empty:
         row = matched_rows.iloc[0]
@@ -483,7 +503,7 @@ with tab1:
         else:
             st.warning("No drawing file attached to this item. Go to **'Manage Drawings'** tab to upload one.")
     else:
-        st.info("Please select or type in the search box above to find and view your drawing.")
+        st.info("Type above and click **View Drawing** or select a suggestion to inspect the drawing.")
 
 
 # ================= TAB 2: MANAGE DRAWINGS =================
