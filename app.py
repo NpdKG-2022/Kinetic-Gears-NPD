@@ -418,7 +418,7 @@ with top_col2:
             <style>
                 body { margin: 0; background-color: transparent; display: flex; justify-content: flex-end; align-items: right; }
                 .clock-card {
-                    background: linear-gradient(135deg, #e91e63, #c2185b);
+                    background: linear-gradient(135deg, #000080, #4169E1);
                     border-radius: 10px;
                     padding: 5px 10px;
                     text-align: center;
