@@ -439,7 +439,7 @@ with tab1:
             matched_codes_df = df_tracker[df_tracker["CODE NO."].astype(str).str.lower().str.contains(query, na=False)]
             
             if not matched_codes_df.empty:
-                st.markdown("<p style='font-size: 13px; color: rgba(255,255,255,0.8); margin-top: 8px;'><b>Suggestions (click to select):</b></p>", unsafe_allow_html=True)
+                st.markdown("<p style='font-size: 13px; color: rgba(255,255,255,0.8); margin-top: 8px;'><b>Live Suggestions (click to select):</b></p>", unsafe_allow_html=True)
                 
                 codes_list = matched_codes_df["CODE NO."].astype(str).tolist()[:5]
                 cols = st.columns(len(codes_list) if len(codes_list) > 0 else 1)
@@ -464,7 +464,7 @@ with tab1:
             matched_items_df = df_tracker[df_tracker["ITEM NAME"].astype(str).str.lower().str.contains(query, na=False)]
             
             if not matched_items_df.empty:
-                st.markdown("<p style='font-size: 13px; color: rgba(255,255,255,0.8); margin-top: 8px;'><b>Suggestions (click to select):</b></p>", unsafe_allow_html=True)
+                st.markdown("<p style='font-size: 13px; color: rgba(255,255,255,0.8); margin-top: 8px;'><b>Live Suggestions (click to select):</b></p>", unsafe_allow_html=True)
                 
                 items_list = matched_items_df["ITEM NAME"].astype(str).tolist()[:5]
                 cols = st.columns(len(items_list) if len(items_list) > 0 else 1)
