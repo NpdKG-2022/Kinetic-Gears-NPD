@@ -437,10 +437,12 @@ with top_col2:
     st.markdown(
         """
         <div class="logout-icon-wrapper">
-            <div class="logout-icon-btn">
-                <span>🚪</span>
-                <span class="logout-text">LOGOUT</span>
-            </div>
+            <a href="?do_logout=true" target="_self" style="text-decoration: none;">
+                <div class="logout-icon-btn" title="Logout">
+                    <span>🚪</span>
+                    <span class="logout-text">LOGOUT</span>
+                </div>
+            </a>
         </div>
         """,
         unsafe_allow_html=True
