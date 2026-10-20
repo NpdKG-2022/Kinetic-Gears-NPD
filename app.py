@@ -442,7 +442,7 @@ with top_col2:
     with header_cols[1]:
         st.markdown(
             """
-            <div style="display: flex; align-items: center; height: 60px; justify-content: flex-start;">
+            <div style="display: flex; align-items: center; height: 60px; justify-content: flex-end;">
                 <div class="logout-icon-wrapper" style="margin-top: 0; float: none;">
                     <a href="?do_logout=true" target="_self" style="text-decoration: none;">
                         <div class="logout-icon-btn">
