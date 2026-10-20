@@ -1,0 +1,8 @@
+*.pyc
+*.so
+*.o
+*.swp
+build/
+demo/README.rst
+docs/build
+docs/_build
