@@ -798,8 +798,8 @@ with tab4:
                 rm_issue_date = st.date_input(
                     "RM Issue Date *", 
                     value=datetime.date.today(), 
-                    min_value=datetime.date(2000, 4, 1), 
-                    max_value=datetime.date(2999, 3, 31)
+                    min_value=datetime.date(1, 4, 2000), 
+                    max_value=datetime.date(31, 3, 2999)
                 )
             with rm_col4:
                 batch_no_input = st.text_input("Batch Number *", placeholder="Enter batch Code/Number")
