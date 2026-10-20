@@ -427,12 +427,12 @@ tab1, tab2 = st.tabs(["🔍 View Drawing (In-Browser)", "📐 Manage Drawings"])
 with tab1:
     st.subheader("🔍 In-Browser Engineering Drawing Viewer")
     
-    search_mode = st.radio("Search Drawing By:", ["Code No.", "Item Name"], horizontal=True)
+    search_mode = st.radio("Search Drawing By:", ["Part No.", "Part Name"], horizontal=True)
 
     matched_rows = pd.DataFrame()
 
-    if search_mode == "Code No.":
-        typed_code = st.text_input("Enter Code No.", placeholder="Enter Code No.", key="search_code_text")
+    if search_mode == "Part No.":
+        typed_code = st.text_input("Enter Part No.", placeholder="Enter Part No.", key="search_code_text")
         
         if typed_code.strip():
             query = typed_code.strip().lower()
@@ -455,9 +455,9 @@ with tab1:
                 elif len(matched_codes_df) == 1:
                     matched_rows = matched_codes_df
             else:
-                st.warning("No matching Code No. found.")
+                st.warning("No matching Part No. found.")
     else:
-        typed_item = st.text_input("Enter Item Name", placeholder="Enter Item Name", key="search_item_text")
+        typed_item = st.text_input("Enter Part Name", placeholder="Enter Part Name", key="search_item_text")
         
         if typed_item.strip():
             query = typed_item.strip().lower()
@@ -480,7 +480,7 @@ with tab1:
                 elif len(matched_items_df) == 1:
                     matched_rows = matched_items_df
             else:
-                st.warning("No matching Item Name found.")
+                st.warning("No matching Part Name found.")
 
     if not matched_rows.empty:
         row = matched_rows.iloc[0]
@@ -490,7 +490,7 @@ with tab1:
         drawing_path = row.get("Drawing", "")
 
         st.markdown("---")
-        st.info(f"**Plant:** {c_plant} | **Code No:** `{c_code}` | **Item Name:** `{c_item}`")
+        st.info(f"**Plant:** {c_plant} | **Part No:** `{c_code}` | **Part Name:** `{c_item}`")
 
         if pd.notna(drawing_path) and str(drawing_path).strip() != "" and os.path.exists(str(drawing_path)):
             st.success("Drawing loaded successfully in viewer:")
@@ -512,7 +512,8 @@ with tab1:
         else:
             st.warning("No drawing file attached to this item. Go to **'Manage Drawings'** tab to upload one.")
     else:
-        st.info("Please type a Code No. or Item Name above to search.")
+        st.info("Please type a Part No. or Part Name above to search.")
+
 
 # ================= TAB 2: MANAGE DRAWINGS =================
 with tab2:
