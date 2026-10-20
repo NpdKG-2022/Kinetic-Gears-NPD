@@ -317,6 +317,8 @@ if not st.session_state.get("logged_in", False):
 username_val = st.session_state.get('username', '')
 role_val = st.session_state.get('role', '')
 
+
+
 # ================= PROFESSIONAL SIDEBAR WITH LOGO & USER DETAILS =================
 with st.sidebar:
     if logo_base64:
@@ -502,7 +504,7 @@ if os.path.exists(DRAWINGS_MAP_FILE):
 
 
 # ================= ENTERPRISE STYLED TABS =================
-tab1, tab2, tab3 = st.tabs(["🔍 View Drawing (In-Browser)", "📐 Manage Drawings", "📋 Documentation"])
+tab1, tab2, tab3, tab4 = st.tabs(["🔍 View Drawing (In-Browser)", "📐 Manage Drawings", "📋 Documentation", "🧭 Route Cards"])
 
 
 
@@ -729,3 +731,176 @@ with tab3:
             unsafe_allow_html=True
         )
         st.info("🔒 Document editing is restricted to Administrator accounts only.")
+
+
+# ================= TAB 4: ROUTE CARDS =================
+with tab4:
+    st.subheader("🧭 Shop-Floor Route Card & Operation System")
+    
+    ROUTE_CARDS_FILE = "route_cards_data.csv"
+    
+    # Preloaded Operation Master List based on your Optn List
+    operation_master = [
+        "Incoming Inspection", "Pre-Final Inspection", "No-PASS Inspection", 
+        "Inspection Before HT", "Firewall Inspection", "Parting", 
+        "CNC Turning", "CNC Hobbing", "VMC Milling", "Heat Treatment (HT)", 
+        "Surface Grinding", "Cylindrical Grinding", "Deburring & Cleaning", "Final Quality Inspection"
+    ]
+
+    # Initialize or load saved route cards repository
+    if os.path.exists(ROUTE_CARDS_FILE):
+        df_rc = pd.read_csv(ROUTE_CARDS_FILE)
+    else:
+        df_rc = pd.DataFrame(columns=[
+            "RC No", "Part No", "Part Name", "RM Issue Slip", "RM Qty", 
+            "Batch No", "Process Steps JSON", "Status", "Created Date"
+        ])
+
+    rc_action = st.radio("Select Action", ["Create New Route Card", "View / Update Existing Route Cards"], horizontal=True)
+    
+    if rc_action == "Create New Route Card":
+        st.markdown("### 📝 Generate New Route Card")
+        
+        with st.form("create_rc_form"):
+            rc_col1, rc_col2 = st.columns(2)
+            with rc_col1:
+                # Pull part numbers from your existing tracker if available
+                available_parts = df_tracker["PART NO."].astype(str).unique().tolist() if not df_tracker.empty else []
+                selected_part_no = st.selectbox("Select Part No. *", options=[""] + available_parts)
+                
+                # Auto-populate part name if part number matches
+                auto_part_name = ""
+                if selected_part_no and selected_part_no != "":
+                    matched_p = df_tracker[df_tracker["PART NO."].astype(str) == selected_part_no]
+                    if not matched_p.empty:
+                        auto_part_name = matched_p.iloc[0].get("PART NAME", "")
+                
+                part_name_input = st.text_input("Part Description / Name *", value=auto_part_name, placeholder="e.g. WASHER / GEAR BLANK")
+                rm_issue_slip = st.text_input("RM Issue Slip No. & Date", placeholder="e.g. SLIP-1025 / 2026-10-20")
+
+            with rc_col2:
+                # Auto-generate unique Route Card ID
+                default_rc_no = f"RC-{random.randint(10000, 99999)}"
+                rc_no_input = st.text_input("Route Card No. *", value=default_rc_no)
+                rm_qty_input = st.number_input("RM Issued Qty", min_value=1, value=100)
+                batch_no_input = st.text_input("Batch Number *", placeholder="e.g. BAT-2026-09")
+
+            st.markdown("#### ⚙️ Define Process Sequence (From Operation List)")
+            selected_ops = st.multiselect(
+                "Select Operations Sequence in Order:",
+                options=operation_master,
+                default=["Incoming Inspection", "CNC Turning", "Heat Treatment (HT)", "Surface Grinding", "Final Quality Inspection"]
+            )
+
+            rc_submitted = st.form_submit_button("Generate & Save Route Card")
+
+            if rc_submitted:
+                if not rc_no_input.strip() or not selected_part_no or not batch_no_input.strip():
+                    st.error("⚠️ Route Card No., Part No., and Batch Number are mandatory!")
+                else:
+                    import json
+                    # Build initial process step tracking structure
+                    process_steps = []
+                    for idx, op in enumerate(selected_ops, 1):
+                        process_steps.append({
+                            "process_no": idx,
+                            "description": op,
+                            "date": "",
+                            "qty_received": rm_qty_input if idx == 1 else 0,
+                            "ok_qty": 0,
+                            "rej_qty": 0,
+                            "rework_qty": 0,
+                            "batch_code": batch_no_input,
+                            "owner_sign": "",
+                            "remark": "Pending"
+                        })
+
+                    new_rc_row = pd.DataFrame([{
+                        "RC No": rc_no_input.strip(),
+                        "Part No": selected_part_no,
+                        "Part Name": part_name_input.strip().upper(),
+                        "RM Issue Slip": rm_issue_slip.strip(),
+                        "RM Qty": rm_qty_input,
+                        "Batch No": batch_no_input.strip(),
+                        "Process Steps JSON": json.dumps(process_steps),
+                        "Status": "Active",
+                        "Created Date": time.strftime("%Y-%m-%d %H:%M:%S")
+                    }])
+
+                    df_rc = pd.concat([df_rc, new_rc_row], ignore_index=True)
+                    df_rc.to_csv(ROUTE_CARDS_FILE, index=False)
+                    st.success(f"✅ Route Card `{rc_no_input}` successfully generated for Part `{selected_part_no}`!")
+                    st.rerun()
+
+    else:
+        st.markdown("### 🔍 Track & Update Route Cards")
+        if df_rc.empty:
+            st.info("No route cards created yet. Switch to 'Create New Route Card' to generate one.")
+        else:
+            rc_list = df_rc["RC No"].astype(str).tolist()
+            selected_rc = st.selectbox("Select Route Card Number", options=rc_list)
+            
+            rc_row = df_rc[df_rc["RC No"].astype(str) == selected_rc].iloc[0]
+            
+            st.markdown(f"""
+            <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 15px;">
+                <b>Route Card No:</b> <code>{rc_row['RC No']}</code> &nbsp;|&nbsp; 
+                <b>Part No:</b> <code>{rc_row['Part No']}</code> &nbsp;|&nbsp; 
+                <b>Part Name:</b> <code>{rc_row['Part Name']}</code><br>
+                <b>Batch No:</b> <code>{rc_row['Batch No']}</code> &nbsp;|&nbsp; 
+                <b>RM Qty Issued:</b> <code>{rc_row['RM Qty']}</code> &nbsp;|&nbsp; 
+                <b>Slip:</b> <code>{rc_row['RM Issue Slip']}</code>
+            </div>
+            """, unsafe_allow_html=True)
+
+            import json
+            steps = json.loads(rc_row["Process Steps JSON"])
+            
+            st.markdown("#### 📋 Process Sequence & Shop-Floor Status Log")
+            updated_steps = []
+            
+            for step in steps:
+                with st.expander(f"Process #{step['process_no']}: {step['description']} (Status: {step['remark']})"):
+                    sc1, sc2, sc3, sc4 = st.columns(4)
+                    with sc1:
+                        s_date = st.text_input(f"Date [{step['process_no']}]", value=step['date'], key=f"date_{rc_row['RC No']}_{step['process_no']}")
+                    with sc2:
+                        s_received = st.number_input(f"Qty Received [{step['process_no']}]", value=int(step['qty_received']), key=f"rcv_{rc_row['RC No']}_{step['process_no']}")
+                    with sc3:
+                        s_ok = st.number_input(f"OK Qty [{step['process_no']}]", value=int(step['ok_qty']), key=f"ok_{rc_row['RC No']}_{step['process_no']}")
+                    with sc4:
+                        s_rej = st.number_input(f"Rej Qty [{step['process_no']}]", value=int(step['rej_qty']), key=f"rej_{rc_row['RC No']}_{step['process_no']}")
+
+                    sc5, sc6, sc7 = st.columns(3)
+                    with sc5:
+                        s_rework = st.number_input(f"Rework Qty [{step['process_no']}]", value=int(step['rework_qty']), key=f"rew_{rc_row['RC No']}_{step['process_no']}")
+                    with sc6:
+                        s_owner = st.text_input(f"Operator / Owner Sign [{step['process_no']}]", value=step['owner_sign'], key=f"own_{rc_row['RC No']}_{step['process_no']}")
+                    with sc7:
+                        s_remark = st.selectbox(f"Status [{step['process_no']}]", options=["Pending", "In Progress", "Completed", "Hold"], index=["Pending", "In Progress", "Completed", "Hold"].index(step['remark']) if step['remark'] in ["Pending", "In Progress", "Completed", "Hold"] else 0, key=f"rem_{rc_row['RC No']}_{step['process_no']}")
+
+                    updated_steps.append({
+                        "process_no": step['process_no'],
+                        "description": step['description'],
+                        "date": s_date,
+                        "qty_received": s_received,
+                        "ok_qty": s_ok,
+                        "rej_qty": s_rej,
+                        "rework_qty": s_rework,
+                        "batch_code": rc_row['Batch No'],
+                        "owner_sign": s_owner,
+                        "remark": s_remark
+                    })
+
+            if st.button("💾 Save Process Progress"):
+                df_rc.loc[df_rc["RC No"].astype(str) == selected_rc, "Process Steps JSON"] = json.dumps(updated_steps)
+                df_rc.to_csv(ROUTE_CARDS_FILE, index=False)
+                st.success("✅ Route card progress successfully updated!")
+                st.rerun()
+
+            if role_val == "Admin":
+                if st.button("🗑️ Delete Route Card"):
+                    df_rc = df_rc[df_rc["RC No"].astype(str) != selected_rc]
+                    df_rc.to_csv(ROUTE_CARDS_FILE, index=False)
+                    st.warning(f"Route card `{selected_rc}` deleted.")
+                    st.rerun()
