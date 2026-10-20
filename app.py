@@ -460,11 +460,10 @@ with tab1:
         row = matched_rows.iloc[0]
         c_code = row.get("CODE NO.", "")
         c_item = row.get("ITEM NAME", "")
-        c_plant = row.get("Plant", "General")
         drawing_path = row.get("Drawing", "")
 
         st.markdown("---")
-        st.info(f"**Plant:** {c_plant} | **Part No:** `{c_code}` | **Part Name:** `{c_item}`")
+        st.info(f"**Part No:** `{c_code}` | **Part Name:** `{c_item}`")
 
         if pd.notna(drawing_path) and str(drawing_path).strip() != "" and os.path.exists(str(drawing_path)):
             st.success("Drawing loaded successfully in viewer:")
@@ -486,7 +485,7 @@ with tab1:
         else:
             st.warning("No drawing file attached to this item. Go to **'Manage Drawings'** tab to upload one.")
     else:
-        st.info(f"Type or select a {search_mode} above to instantly view your drawing with live Google-style suggestions.")
+        st.info(f"Type or select a {search_mode} above to instantly view your drawing")
 
 
 # ================= TAB 2: MANAGE DRAWINGS =================
