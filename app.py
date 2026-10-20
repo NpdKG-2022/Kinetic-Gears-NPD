@@ -735,7 +735,7 @@ with tab3:
 
 # ================= TAB 4: ROUTE CARDS =================
 with tab4:
-    st.subheader("🧭 Shop-Floor Route Card & Operation System")
+    st.subheader("🧭 Shop-Floor Route Card System")
     
     ROUTE_CARDS_FILE = "route_cards_data.csv"
     
@@ -775,21 +775,20 @@ with tab4:
                     if not matched_p.empty:
                         auto_part_name = matched_p.iloc[0].get("PART NAME", "")
                 
-                part_name_input = st.text_input("Part Description / Name *", value=auto_part_name, placeholder="e.g. WASHER / GEAR BLANK")
-                rm_issue_slip = st.text_input("RM Issue Slip No. & Date", placeholder="e.g. SLIP-1025 / 2026-10-20")
+                part_name_input = st.text_input("Part Description / Name *", value=auto_part_name, placeholder="Enter Part Name")
+                rm_issue_slip = st.text_input("RM Issue Slip No.", placeholder="Enter RM Issue Slip No.")
 
             with rc_col2:
                 # Auto-generate unique Route Card ID
                 default_rc_no = f"RC-{random.randint(10000, 99999)}"
                 rc_no_input = st.text_input("Route Card No. *", value=default_rc_no)
-                rm_qty_input = st.number_input("RM Issued Qty", min_value=1, value=100)
-                batch_no_input = st.text_input("Batch Number *", placeholder="e.g. BAT-2026-09")
+                rm_qty_input = st.number_input("RM Issued Qty", min_value=1, value="")
+                batch_no_input = st.text_input("Batch Number *", placeholder="Enter Batch Code/No.")
 
             st.markdown("#### ⚙️ Define Process Sequence (From Operation List)")
             selected_ops = st.multiselect(
                 "Select Operations Sequence in Order:",
                 options=operation_master,
-                default=["Incoming Inspection", "CNC Turning", "Heat Treatment (HT)", "Surface Grinding", "Final Quality Inspection"]
             )
 
             rc_submitted = st.form_submit_button("Generate & Save Route Card")
