@@ -27,7 +27,7 @@ def get_base64_image(image_path):
 
 logo_base64 = get_base64_image("KG-Logo.png")
 
-# Custom CSS for Glassmorphism login, layouts, and Sidebar Navigation styling
+# Custom CSS for Glassmorphism login, layouts, and Reference-Style Sidebar Navigation
 st.markdown(
     """
     <style>
@@ -43,10 +43,32 @@ st.markdown(
             padding-bottom: 1.5rem !important;
         }
 
-        /* --- SIDEBAR RADIO NAVIGATION STYLING --- */
+        /* --- SIDEBAR STYLING --- */
         [data-testid="stSidebar"] {
             background-color: #120e24 !important;
             border-right: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 10px;
+        }
+
+        /* Style sidebar radio options into clean menu cards */
+        [data-testid="stSidebar"] div[data-testid="stRadio"] > div {
+            gap: 6px;
+        }
+        [data-testid="stSidebar"] div[data-testid="stRadio"] label {
+            background-color: rgba(255, 255, 255, 0.03) !important;
+            border-radius: 10px !important;
+            padding: 10px 14px !important;
+            color: rgba(255, 255, 255, 0.8) !important;
+            font-weight: 600 !important;
+            font-size: 14px !important;
+            border: 1px solid rgba(255, 255, 255, 0.06) !important;
+            transition: all 0.3s ease !important;
+            width: 100% !important;
+        }
+        [data-testid="stSidebar"] div[data-testid="stRadio"] label:hover {
+            background-color: rgba(255, 255, 255, 0.08) !important;
+            color: #ffffff !important;
+            border-color: rgba(255, 255, 255, 0.15) !important;
         }
 
         /* --- HOVER-EXPANDING RED LOGOUT BUTTON --- */
@@ -304,29 +326,26 @@ if st.query_params.get("do_logout") == "true":
     st.rerun()
 
 
-# ================= PROFESSIONAL SIDEBAR WITH NAVIGATION MENU =================
+# ================= REFERENCE-STYLE SIDEBAR NAVIGATION =================
 with st.sidebar:
     if logo_base64:
         st.markdown(
             f"""
-            <div style="text-align: center; padding: 10px 0 5px 0;">
-                <img src="data:image/png;base64,{logo_base64}" width="60" style="display: block; margin: 0 auto 8px auto;" />
-                <h3 style="margin: 0; font-size: 17px; color: #ffffff; letter-spacing: 1px;">KINETIC GEARS</h3>
-                <p style="margin: 2px 0 0 0; font-size: 11px; color: rgba(255,255,255,0.6);">Drawing & Route Card System</p>
+            <div style="display: flex; align-items: center; gap: 12px; padding: 5px 5px 15px 5px;">
+                <img src="data:image/png;base64,{logo_base64}" width="38" style="display: block;" />
+                <h2 style="margin: 0; font-size: 20px; color: #ffffff; font-weight: 700; letter-spacing: 0.5px;">Main Menu</h2>
             </div>
             """,
             unsafe_allow_html=True,
         )
-    st.markdown("---")
+    st.markdown("<hr style='margin: 0 0 15px 0; border: none; border-top: 1px solid rgba(255,255,255,0.15);'>", unsafe_allow_html=True)
     
-    st.markdown("<p style='font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px;'>Main Menu</p>", unsafe_allow_html=True)
-    
-    # Sidebar Navigation Radio
+    # Sidebar Navigation Radio with Icon labels
     nav_selection = st.radio(
         "Navigation",
         options=[
-            "🔍 View Drawing",
-            "📐 Manage Drawings",
+            "🏠 View Drawing",
+            "📤 Manage Drawings",
             "🧭 Route Cards",
             "📋 Documentation"
         ],
@@ -337,11 +356,11 @@ with st.sidebar:
     
     st.markdown(
         f"""
-        <div style="padding: 2px 5px; margin-bottom: 5px;">
+        <div style="padding: 5px 5px; margin-bottom: 5px;">
             <div style="font-size: 13px; color: #ffffff; font-weight: 600; margin-bottom: 2px;">
                 👤 {username_val}
             </div>
-            <div style="font-size: 12px; color: rgba(255,255,255,0.8);">
+            <div style="font-size: 12px; color: rgba(255,255,255,0.7);">
                 Role: <b style="color: #ffffff;">{role_val}</b>
             </div>
         </div>
@@ -350,7 +369,7 @@ with st.sidebar:
     )
     
     st.markdown("---")
-    st.markdown("<p style='font-size: 11px; color: rgba(255,255,255,0.6); text-align: center;'>System operational & secure.</p>", unsafe_allow_html=True)
+    st.markdown("<p style='font-size: 11px; color: rgba(255,255,255,0.5); text-align: center;'>System operational & secure.</p>", unsafe_allow_html=True)
 
 
 # ================= TOP HEADER BAR & CLOCK WITH SIDE-BY-SIDE LOGOUT =================
@@ -471,11 +490,10 @@ if os.path.exists(CUSTOM_ITEMS_FILE):
 else:
     df_tracker = pd.DataFrame(columns=["Plant", "PART NO.", "PART NAME", "PRICE", "Drawing"] + months_list)
 
-# Ensure 'Drawing' column exists in tracker
 if "Drawing" not in df_tracker.columns:
     df_tracker["Drawing"] = ""
 
-# 2. Load and merge drawings map dataset to guarantee persistence across refreshes
+# 2. Load and merge drawings map dataset
 if os.path.exists(DRAWINGS_MAP_FILE):
     df_drawings = pd.read_csv(DRAWINGS_MAP_FILE)
     if "Item Code" in df_drawings.columns and "PART NO." not in df_drawings.columns:
@@ -494,7 +512,7 @@ if os.path.exists(DRAWINGS_MAP_FILE):
 
 
 # ================= VIEW 1: VIEW DRAWING =================
-if nav_selection == "🔍 View Drawing":
+if nav_selection == "🏠 View Drawing":
     st.subheader("🔍 In-Browser Engineering Drawing Viewer")
     
     main_search_col, _ = st.columns([3, 1])
@@ -566,7 +584,7 @@ if nav_selection == "🔍 View Drawing":
 
 
 # ================= VIEW 2: MANAGE DRAWINGS =================
-elif nav_selection == "📐 Manage Drawings":
+elif nav_selection == "📤 Manage Drawings":
     st.subheader("📐 Add or Update Drawings with Part Details")
     
     if "drawing_upload_success" not in st.session_state:
