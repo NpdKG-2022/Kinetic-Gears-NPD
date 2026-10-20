@@ -77,7 +77,7 @@ st.markdown(
             position: relative;
             display: flex;
             align-items: center;
-            justify-content: flex-end;
+            justify-content: flex-start;
             float: center;
             margin-top: 5px;
             cursor: pointer;
@@ -391,6 +391,28 @@ with top_col2:
     header_cols = st.columns([3.2, 1])
     
     with header_cols[0]:
+        st.markdown(
+            """
+            <div style="display: flex; align-items: center; height: 60px; justify-content: flex-end;">
+                <div class="logout-icon-wrapper" style="margin-top: 0; float: none;">
+                    <a href="?do_logout=true" target="_self" style="text-decoration: none;">
+                        <div class="logout-icon-btn">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;">
+                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                <polyline points="16 17 21 12 16 7"></polyline>
+                                <line x1="21" y1="12" x2="9" y2="12"></line>
+                            </svg>
+                            <span class="logout-text">LOGOUT</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+        
+        
+    with header_cols[1]:
         st.components.v1.html(
             """
             <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
@@ -437,27 +459,6 @@ with top_col2:
             </script>
             """,
             height=60,
-        )
-        
-    with header_cols[1]:
-        st.markdown(
-            """
-            <div style="display: flex; align-items: center; height: 60px; justify-content: flex-end;">
-                <div class="logout-icon-wrapper" style="margin-top: 0; float: none;">
-                    <a href="?do_logout=true" target="_self" style="text-decoration: none;">
-                        <div class="logout-icon-btn">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;">
-                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                                <polyline points="16 17 21 12 16 7"></polyline>
-                                <line x1="21" y1="12" x2="9" y2="12"></line>
-                            </svg>
-                            <span class="logout-text">LOGOUT</span>
-                        </div>
-                    </a>
-                </div>
-            </div>
-            """,
-            unsafe_allow_html=True
         )
     
 DRAWINGS_MAP_FILE = "item_drawings.csv"
