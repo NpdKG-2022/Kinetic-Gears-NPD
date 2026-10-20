@@ -495,12 +495,10 @@ if "Drawing" not in df_tracker.columns:
 # ================= ENTERPRISE STYLED TABS =================
 tab1, tab2, tab3 = st.tabs(["🔍 View Drawing (In-Browser)", "📐 Manage Drawings", "📋 Documentation"])
 
-
 # ================= TAB 1: VIEW DRAWING =================
 with tab1:
     st.subheader("🔍 In-Browser Engineering Drawing Viewer")
     
-    # Restrict search bar row to 3/4th width of the page
     main_search_col, _ = st.columns([3, 1])
 
     with main_search_col:
@@ -516,7 +514,6 @@ with tab1:
             target_col = "CODE NO." if search_mode == "Part No." else "ITEM NAME"
             all_options = sorted(df_tracker[target_col].astype(str).unique().tolist()) if not df_tracker.empty and target_col in df_tracker.columns else []
             
-            # Google-style searchable dropdown autocomplete acting as live search bar with suggestions
             selected_value = st.selectbox(
                 "Google Search Bar",
                 options=[""] + all_options,
@@ -540,19 +537,27 @@ with tab1:
 
         if pd.notna(drawing_path) and str(drawing_path).strip() != "" and os.path.exists(str(drawing_path)):
             st.success("Drawing loaded successfully in viewer:")
+            
             if drawing_path.lower().endswith((".png", ".jpg", ".jpeg", ".tiff", ".tif", ".svg")):
                 st.image(drawing_path, caption=f"Drawing: {c_code} - {c_item}", use_column_width=True)
             elif drawing_path.lower().endswith(".pdf"):
-                try:
-                    from streamlit_pdf_viewer import pdf_viewer
-                    pdf_viewer(drawing_path, width=700, height=700)
-                except Exception:
-                    # Fallback reader if viewer encounters any issue
-                    with open(drawing_path, "rb") as f:
-                        base64_pdf = base64.b64encode(f.read()).decode("utf-8")
-                    pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="100%" height="700px"></iframe>'
-                    st.markdown(pdf_display, unsafe_allow_html=True)
+                preview_img_path = drawing_path.rsplit(".", 1)[0] + "_preview.png"
                 
+                # If preview PNG exists, render it natively as an image (Chrome-proof!)
+                if os.path.exists(preview_img_path):
+                    st.image(preview_img_path, caption=f"Drawing: {c_code} - {c_item}", use_column_width=True)
+                else:
+                    # Fallback conversion on the fly if preview wasn't pre-generated
+                    try:
+                        import fitz
+                        doc = fitz.open(drawing_path)
+                        for page_num in range(len(doc)):
+                            page = doc.load_page(page_num)
+                            pix = page.get_pixmap(dpi=150)
+                            st.image(pix.tobytes("png"), caption=f"Drawing: {c_code} - {c_item} (Page {page_num + 1})", use_column_width=True)
+                    except Exception:
+                        st.warning("Preview generation requires PyMuPDF. Please use the download button below.")
+
                 if role_val == "Admin":
                     st.markdown("<br>", unsafe_allow_html=True)
                     with open(drawing_path, "rb") as pdf_file:
@@ -570,14 +575,12 @@ with tab2:
     st.subheader("📐 Add or Update Drawings with Part Details")
     
     with st.form("drawing_manager_form"):
-        # Part Number and Part Name side-by-side in one line
         col_p1, col_p2 = st.columns(2)
         with col_p1:
             manual_code = st.text_input("Enter Part Number *", placeholder="e.g. PM-001")
         with col_p2:
             manual_item_name = st.text_input("Enter Part Name *", placeholder="e.g. Gear Blank")
 
-        # File uploader constrained to 1/3rd width of the page using columns ([1, 2])
         up_col1, _ = st.columns([1, 2])
         with up_col1:
             uploaded_file = st.file_uploader("Upload Drawing File (PDF, PNG, JPG, TIFF) *", type=["pdf", "png", "jpg", "jpeg", "tiff", "tif"])
@@ -591,6 +594,18 @@ with tab2:
                 file_save_path = os.path.join(DRAWINGS_DIR, uploaded_file.name)
                 with open(file_save_path, "wb") as f:
                     f.write(uploaded_file.getbuffer())
+
+                # If uploaded file is a PDF, generate a PNG preview automatically
+                if uploaded_file.name.lower().endswith(".pdf"):
+                    try:
+                        import fitz  # PyMuPDF
+                        doc = fitz.open(file_save_path)
+                        page = doc.load_page(0)  # first page
+                        pix = page.get_pixmap(dpi=150)
+                        preview_img_path = file_save_path.rsplit(".", 1)[0] + "_preview.png"
+                        pix.save(preview_img_path)
+                    except Exception:
+                        pass
 
                 # 1. Update/Save drawing map file safely
                 if os.path.exists(DRAWINGS_MAP_FILE):
@@ -633,7 +648,6 @@ with tab2:
                 df_custom.to_csv(CUSTOM_ITEMS_FILE, index=False)
                 st.success(f"Successfully saved drawing and registered Part No: `{manual_code}` ({manual_item_name})!")
                 st.rerun()
-
 
 # ================= TAB 3: DOCUMENTATION =================
 with tab3:
