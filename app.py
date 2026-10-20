@@ -314,7 +314,7 @@ if st.query_params.get("do_logout") == "true":
     st.query_params.clear()
     st.rerun()
 
-# ================= TOP HEADER BAR & CLOCK WITH LOGOUT =================
+# ================= TOP HEADER BAR & CLOCK WITH HOVER LOGOUT =================
 st.markdown(
     f"""
     <script>
@@ -341,7 +341,6 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# Top header layout: clock + logout button aligned to the right
 top_col1, top_col2 = st.columns([3, 1])
 with top_col2:
     st.components.v1.html(
@@ -390,9 +389,22 @@ with top_col2:
         """,
         height=60,
     )
+    
+    # Hover-reveal Logout Button container
+    st.markdown(
+        """
+        <div class="logout-wrapper">
+            <div class="logout-trigger">⚙️ Session ▾</div>
+            <div class="logout-dropdown">
+        """,
+        unsafe_allow_html=True
+    )
     if st.button("🚪 Logout", use_container_width=True, type="secondary"):
         st.query_params["do_logout"] = "true"
         st.rerun()
+    st.markdown("</div></div>", unsafe_allow_html=True)
+
+
 DRAWINGS_MAP_FILE = "item_drawings.csv"
 DRAWINGS_DIR = "drawings"
 
