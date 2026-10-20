@@ -1,5 +1,6 @@
 import base64
 import io
+import json
 import os
 import random
 import time
@@ -420,7 +421,7 @@ if "Drawing" not in df_tracker.columns:
     df_tracker["Drawing"] = ""
 
 # ================= ENTERPRISE STYLED TABS =================
-tab1, tab2 = st.tabs(["🔍 View Drawing (In-Browser)", "📐 Manage Drawings"])
+tab1, tab2, tab3 = st.tabs(["🔍 View Drawing (In-Browser)", "📐 Manage Drawings", "📋 Documentation"])
 
 
 # ================= TAB 1: VIEW DRAWING =================
@@ -501,7 +502,7 @@ with tab2:
             manual_item_name = st.text_input("Enter Part Name *", placeholder="e.g. Gear Blank")
 
         # File uploader constrained to 1/3rd width of the page using columns ([1, 2])
-        up_col1, _ = st.columns([1, 3])
+        up_col1, _ = st.columns([1, 2])
         with up_col1:
             uploaded_file = st.file_uploader("Upload Drawing File (PDF, PNG, JPG, TIFF) *", type=["pdf", "png", "jpg", "jpeg", "tiff", "tif"])
 
@@ -556,3 +557,59 @@ with tab2:
                 df_custom.to_csv(CUSTOM_ITEMS_FILE, index=False)
                 st.success(f"Successfully saved drawing and registered Part No: `{manual_code}` ({manual_item_name})!")
                 st.rerun()
+
+
+# ================= TAB 3: DOCUMENTATION =================
+with tab3:
+    st.subheader("📋 Quality & Engineering Documentation")
+    
+    DOC_FILE = "documentation.json"
+    
+    default_docs = {
+        "Control Plan": "# Control Plan\n\n- **Process Name:** Gear Manufacturing\n- **Stage:** Machining & Heat Treatment\n- **Parameters:** Dimensions, Hardness, Surface Finish.",
+        "PFMEA": "# Process Failure Mode and Effects Analysis (PFMEA)\n\n- **System:** Kinetic Gears Production\n- **Potential Failure Mode:** Out of tolerance bore diameter.\n- **Severity/Occ/Det:** 8 / 3 / 4",
+        "Process Flow Diagram (PFD)": "# Process Flow Diagram (PFD)\n\n1. Raw Material Inspection (Forging/Bar)\n2. CNC Turning / Hobbing\n3. Heat Treatment\n4. Grinding & Finishing\n5. Final Quality Inspection",
+        "Checksheets": "# Quality Checksheets\n\n- Daily calibration check for Mitutoyo Surftest SJ-210.\n- Visual inspection checklist for surface defects and burrs."
+    }
+    
+    # Load or initialize documentation store
+    if os.path.exists(DOC_FILE):
+        try:
+            with open(DOC_FILE, "r") as f:
+                docs_data = json.load(f)
+        except Exception:
+            docs_data = default_docs
+    else:
+        docs_data = default_docs
+        with open(DOC_FILE, "w") as f:
+            json.dump(default_docs, f, indent=4)
+
+    # Document selection
+    doc_categories = list(docs_data.keys())
+    selected_doc = st.selectbox("Select Quality Document", doc_categories, key="doc_selector")
+
+    st.markdown("---")
+
+    if role_val == "Admin":
+        with st.form("doc_edit_form"):
+            st.markdown(f"**Editing Mode: `{selected_doc}`** (Admin privilege active)")
+            edited_content = st.text_area("Document Content (Markdown supported)", value=docs_data.get(selected_doc, ""), height=350)
+            doc_submitted = st.form_submit_button("Save Document Changes")
+
+            if doc_submitted:
+                docs_data[selected_doc] = edited_content
+                with open(DOC_FILE, "w") as f:
+                    json.dump(docs_data, f, indent=4)
+                st.success(f"Successfully updated `{selected_doc}`!")
+                st.rerun()
+    else:
+        st.markdown(f"### 📖 Viewing: {selected_doc}")
+        st.markdown(
+            f"""
+            <div style="background: rgba(255, 255, 255, 0.05); padding: 25px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff;">
+                {docs_data.get(selected_doc, 'No content available.')}
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+        st.info("🔒 Document editing is restricted to Administrator accounts only.")
