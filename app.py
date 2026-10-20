@@ -429,29 +429,60 @@ with tab1:
     
     search_mode = st.radio("Search Drawing By:", ["Part No.", "Part Name"], horizontal=True)
 
-    all_codes = sorted(df_tracker["CODE NO."].astype(str).unique().tolist()) if not df_tracker.empty and "CODE NO." in df_tracker.columns else []
-    all_items = sorted(df_tracker["ITEM NAME"].astype(str).unique().tolist()) if not df_tracker.empty and "ITEM NAME" in df_tracker.columns else []
-
     matched_rows = pd.DataFrame()
 
     if search_mode == "Part No.":
-        selected_code = st.selectbox(
-            "Search Part No.",
-            options=[""] + all_codes,
-            format_func=lambda x: "Type or select Part No..." if x == "" else x,
-            key="search_part_no_box"
-        )
-        if selected_code and selected_code.strip() != "":
-            matched_rows = df_tracker[df_tracker["CODE NO."].astype(str) == selected_code]
+        # Free text input for typing
+        typed_code = st.text_input("Search Part No.", placeholder="Type Part No. here...", key="live_search_code")
+        
+        query = typed_code.strip().lower()
+        if query:
+            matched_codes_df = df_tracker[df_tracker["CODE NO."].astype(str).str.lower().str.contains(query, na=False)]
+            
+            if not matched_codes_df.empty:
+                st.markdown("<p style='font-size: 13px; color: rgba(255,255,255,0.8); margin-top: 4px; margin-bottom: 2px;'><b>Suggestions:</b></p>", unsafe_allow_html=True)
+                
+                codes_list = matched_codes_df["CODE NO."].astype(str).tolist()[:5]
+                
+                # Render clean suggestion items directly below
+                for idx, c_code in enumerate(codes_list):
+                    if st.button(f"📌 {c_code}", key=f"live_btn_code_{idx}_{c_code}", use_container_width=True):
+                        st.session_state["selected_code_filter"] = c_code
+                        st.rerun()
+
+                selected_filter = st.session_state.get("selected_code_filter", "")
+                if selected_filter:
+                    matched_rows = df_tracker[df_tracker["CODE NO."].astype(str) == selected_filter]
+                elif len(matched_codes_df) == 1:
+                    matched_rows = matched_codes_df
+            else:
+                st.info("No matching Part No. found.")
     else:
-        selected_item = st.selectbox(
-            "Search Part Name",
-            options=[""] + all_items,
-            format_func=lambda x: "Type or select Part Name..." if x == "" else x,
-            key="search_part_name_box"
-        )
-        if selected_item and selected_item.strip() != "":
-            matched_rows = df_tracker[df_tracker["ITEM NAME"].astype(str) == selected_item]
+        # Free text input for typing
+        typed_item = st.text_input("Search Part Name", placeholder="Type Part Name here...", key="live_search_item")
+        
+        query = typed_item.strip().lower()
+        if query:
+            matched_items_df = df_tracker[df_tracker["ITEM NAME"].astype(str).str.lower().str.contains(query, na=False)]
+            
+            if not matched_items_df.empty:
+                st.markdown("<p style='font-size: 13px; color: rgba(255,255,255,0.8); margin-top: 4px; margin-bottom: 2px;'><b>Suggestions:</b></p>", unsafe_allow_html=True)
+                
+                items_list = matched_items_df["ITEM NAME"].astype(str).tolist()[:5]
+                
+                # Render clean suggestion items directly below
+                for idx, c_item in enumerate(items_list):
+                    if st.button(f"📌 {c_item}", key=f"live_btn_item_{idx}_{c_item}", use_container_width=True):
+                        st.session_state["selected_item_filter"] = c_item
+                        st.rerun()
+
+                selected_filter = st.session_state.get("selected_item_filter", "")
+                if selected_filter:
+                    matched_rows = df_tracker[df_tracker["ITEM NAME"].astype(str) == selected_filter]
+                elif len(matched_items_df) == 1:
+                    matched_rows = matched_items_df
+            else:
+                st.info("No matching Part Name found.")
 
     if not matched_rows.empty:
         row = matched_rows.iloc[0]
@@ -483,7 +514,7 @@ with tab1:
         else:
             st.warning("No drawing file attached to this item. Go to **'Manage Drawings'** tab to upload one.")
     else:
-        st.info("Please select or type in the search box above to find and view your drawing.")
+        st.info("Start typing above to search drawings instantly.")
 
 
 # ================= TAB 2: MANAGE DRAWINGS =================
