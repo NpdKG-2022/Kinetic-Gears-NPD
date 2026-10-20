@@ -438,7 +438,7 @@ with top_col2:
         """
         <div class="logout-icon-wrapper">
             <a href="?do_logout=true" target="_self" style="text-decoration: none;">
-                <div class="logout-icon-btn" title="Logout">
+                <div class="logout-icon-btn">
                     <span>🚪</span>
                     <span class="logout-text">LOGOUT</span>
                 </div>
