@@ -91,7 +91,7 @@ st.markdown(
             display: flex;
             align-items: center;
             justify-content: flex-start;
-            padding-left: 2px;
+            padding-left: 10px;
             box-shadow: 0 4px 10px rgba(229, 57, 53, 0.4);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             white-space: nowrap;
