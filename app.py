@@ -434,8 +434,8 @@ with tab1:
     if search_mode == "Part No.":
         typed_code = st.text_input("Enter Part No.", placeholder="Enter Part No.", key="search_code_text")
         
-        if typed_code.strip():
-            query = typed_code.strip().lower()
+        query = typed_code.strip().lower()
+        if query:
             matched_codes_df = df_tracker[df_tracker["CODE NO."].astype(str).str.lower().str.contains(query, na=False)]
             
             if not matched_codes_df.empty:
@@ -459,8 +459,8 @@ with tab1:
     else:
         typed_item = st.text_input("Enter Part Name", placeholder="Enter Part Name", key="search_item_text")
         
-        if typed_item.strip():
-            query = typed_item.strip().lower()
+        query = typed_item.strip().lower()
+        if query:
             matched_items_df = df_tracker[df_tracker["ITEM NAME"].astype(str).str.lower().str.contains(query, na=False)]
             
             if not matched_items_df.empty:
