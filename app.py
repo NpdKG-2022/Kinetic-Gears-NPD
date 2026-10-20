@@ -357,8 +357,7 @@ if st.query_params.get("do_logout") == "true":
     st.session_state["login_time"] = 0.0
     st.query_params.clear()
     st.rerun()
-
-# ================= TOP HEADER BAR & CLOCK WITH HOVER EXPAND LOGOUT =================
+# ================= TOP HEADER BAR & CLOCK WITH SIDE-BY-SIDE LOGOUT =================
 st.markdown(
     f"""
     <script>
@@ -385,72 +384,77 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-top_col1, top_col2 = st.columns([3, 1])
+top_col1, top_col2 = st.columns([1.5, 2.5])
 with top_col2:
-    st.components.v1.html(
-        """
-        <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
-        <style>
-            body { margin: 0; background-color: transparent; display: flex; justify-content: flex-end; }
-            .clock-card {
-                background: linear-gradient(135deg, #e91e63, #c2185b);
-                border-radius: 10px;
-                padding: 5px 10px;
-                text-align: center;
-                box-shadow: 0 2px 10px rgba(233, 30, 99, 0.3);
-                font-family: 'Orbitron', sans-serif;
-                display: inline-block;
-            }
-            .time-display {
-                font-size: 20px;
-                font-weight: 700;
-                color: #ffffff;
-                letter-spacing: 1px;
-            }
-            .date-display {
-                font-size: 12px;
-                color: #fce4ec;
-            }
-        </style>
-        <div class="clock-card">
-            <div id="futuristic-time" class="time-display">00:00:00 AM</div>
-            <div id="futuristic-date" class="date-display">Loading...</div>
-        </div>
-        <script>
-            function updateFuturisticClock() {
-                const now = new Date();
-                let hours = now.getHours();
-                const minutes = String(now.getMinutes()).padStart(2, '0');
-                const seconds = String(now.getSeconds()).padStart(2, '0');
-                const ampm = hours >= 12 ? 'PM' : 'AM';
-                hours = hours % 12 || 12;
-                document.getElementById('futuristic-time').innerText = `${String(hours).padStart(2, '0')}:${minutes}:${seconds} ${ampm}`;
-                document.getElementById('futuristic-date').innerText = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
-            }
-            setInterval(updateFuturisticClock, 1000);
-            updateFuturisticClock();
-        </script>
-        """,
-        height=60,
-    )
-
-    st.markdown(
-        """
-        <div class="logout-icon-wrapper">
-            <a href="?do_logout=true" target="_self" style="text-decoration: none;">
-                <div class="logout-icon-btn">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;">
-                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                        <polyline points="16 17 21 12 16 7"></polyline>
-                        <line x1="21" y1="12" x2="9" y2="12"></line>
-                    </svg>
-                    <span class="logout-text">LOGOUT</span>
-                </div>
-            </a>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+    clock_subcol, btn_subcol = st.columns([3, 1])
+    
+    with clock_subcol:
+        st.components.v1.html(
+            """
+            <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+            <style>
+                body { margin: 0; background-color: transparent; display: flex; justify-content: flex-end; }
+                .clock-card {
+                    background: linear-gradient(135deg, #e91e63, #c2185b);
+                    border-radius: 10px;
+                    padding: 5px 10px;
+                    text-align: center;
+                    box-shadow: 0 2px 10px rgba(233, 30, 99, 0.3);
+                    font-family: 'Orbitron', sans-serif;
+                    display: inline-block;
+                    float: right;
+                }
+                .time-display {
+                    font-size: 20px;
+                    font-weight: 700;
+                    color: #ffffff;
+                    letter-spacing: 1px;
+                }
+                .date-display {
+                    font-size: 12px;
+                    color: #fce4ec;
+                }
+            </style>
+            <div class="clock-card">
+                <div id="futuristic-time" class="time-display">00:00:00 AM</div>
+                <div id="futuristic-date" class="date-display">Loading...</div>
+            </div>
+            <script>
+                function updateFuturisticClock() {
+                    const now = new Date();
+                    let hours = now.getHours();
+                    const minutes = String(now.getMinutes()).padStart(2, '0');
+                    const seconds = String(now.getSeconds()).padStart(2, '0');
+                    const ampm = hours >= 12 ? 'PM' : 'AM';
+                    hours = hours % 12 || 12;
+                    document.getElementById('futuristic-time').innerText = `${String(hours).padStart(2, '0')}:${minutes}:${seconds} ${ampm}`;
+                    document.getElementById('futuristic-date').innerText = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+                }
+                setInterval(updateFuturisticClock, 1000);
+                updateFuturisticClock();
+            </script>
+            """,
+            height=60,
+        )
+        
+    with btn_subcol:
+        st.markdown(
+            """
+            <div class="logout-icon-wrapper" style="margin-top: 10px;">
+                <a href="?do_logout=true" target="_self" style="text-decoration: none;">
+                    <div class="logout-icon-btn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                            <polyline points="16 17 21 12 16 7"></polyline>
+                            <line x1="21" y1="12" x2="9" y2="12"></line>
+                        </svg>
+                        <span class="logout-text">LOGOUT</span>
+                    </div>
+                </a>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
     
 DRAWINGS_MAP_FILE = "item_drawings.csv"
 DRAWINGS_DIR = "drawings"
