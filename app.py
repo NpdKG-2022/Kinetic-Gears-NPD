@@ -543,8 +543,8 @@ with tab1:
         c_item = row.get("PART NAME", "")
         drawing_path = row.get("Drawing", "")
 
-        st.markdown("---")
-        st.markdown(f"**Part No:** `{c_code}` &nbsp;|&nbsp; **Part Name:** `{c_item}`")
+        # Reduced spacing directly above part info
+        st.markdown(f"<div style='margin-top: -10px; margin-bottom: 10px;'><b>Part No:</b> <code>{c_code}</code> &nbsp;|&nbsp; <b>Part Name:</b> <code>{c_item}</code></div>", unsafe_allow_html=True)
 
         if pd.notna(drawing_path) and str(drawing_path).strip() != "" and os.path.exists(str(drawing_path)):
             if drawing_path.lower().endswith((".png", ".jpg", ".jpeg", ".tiff", ".tif", ".svg")):
@@ -577,6 +577,7 @@ with tab1:
             st.warning("No drawing file attached to this item. Go to **'Manage Drawings'** tab to upload one.")
     else:
         st.info(f"Type or select a {search_mode} above to instantly view your drawing")
+
 
 # ================= TAB 2: MANAGE DRAWINGS =================
 with tab2:
