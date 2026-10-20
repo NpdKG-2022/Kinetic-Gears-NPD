@@ -427,20 +427,24 @@ tab1, tab2 = st.tabs(["🔍 View Drawing (In-Browser)", "📐 Manage Drawings"])
 with tab1:
     st.subheader("🔍 In-Browser Engineering Drawing Viewer")
     
-    # Side-by-side layout: Radio buttons, Search Input, and View Drawing Button
-    c_col1, c_col2, c_col3 = st.columns([2, 2, 2])
+    # Restrict total search bar row to 3/4th of the page width ([3, 1])
+    main_search_col, _ = st.columns([3, 1])
 
-    with c_col1:
-        st.markdown("<p style='font-size: 14px; font-weight: 600; margin-bottom: 0px;'>Search Drawing By:</p>", unsafe_allow_html=True)
-        search_mode = st.radio("Search Mode", ["Part No.", "Part Name"], horizontal=True, label_visibility="collapsed")
+    with main_search_col:
+        # Align label, radio buttons, search input, and button in a single row
+        r_col1, r_col2, r_col3, r_col4 = st.columns([1.3, 1.4, 2.2, 1.1])
 
-    with c_col2:
-        st.markdown(f"<p style='font-size: 14px; font-weight: 600; margin-bottom: 0px;'>Enter {search_mode}:</p>", unsafe_allow_html=True)
-        search_query = st.text_input("Search Input", placeholder=f"Type {search_mode}...", label_visibility="collapsed", key="inline_search_input")
+        with r_col1:
+            st.markdown("<p style='font-size: 14px; font-weight: 600; padding-top: 8px; margin-bottom: 0;'>Search Drawing By:</p>", unsafe_allow_html=True)
 
-    with c_col3:
-        st.markdown("<p style='font-size: 14px; margin-bottom: 0px; margin-left: 20px'>&nbsp;</p>", unsafe_allow_html=True) # Vertical alignment spacer
-        view_clicked = st.button("View Drawing", use_container_width=True, type="primary")
+        with r_col2:
+            search_mode = st.radio("Search Mode", ["Part No.", "Part Name"], horizontal=True, label_visibility="collapsed")
+
+        with r_col3:
+            search_query = st.text_input("Search Input", placeholder=f"Type {search_mode}...", label_visibility="collapsed", key="inline_search_input")
+
+        with r_col4:
+            view_clicked = st.button("View Drawing", use_container_width=True, type="primary")
 
     matched_rows = pd.DataFrame()
     query = search_query.strip().lower()
@@ -499,6 +503,7 @@ with tab1:
             st.warning("No drawing file attached to this item. Go to **'Manage Drawings'** tab to upload one.")
     else:
         st.info("Type a Part No. or Part Name above and click **View Drawing** or pick from the suggestions.")
+
 
 # ================= TAB 2: MANAGE DRAWINGS =================
 with tab2:
