@@ -428,7 +428,7 @@ with tab1:
     st.subheader("🔍 In-Browser Engineering Drawing Viewer")
     
     # Side-by-side layout: Radio buttons, Search Input, and View Drawing Button
-    c_col1, c_col2, c_col3 = st.columns([1, 2, 1])
+    c_col1, c_col2, c_col3 = st.columns([2, 2, 2])
 
     with c_col1:
         st.markdown("<p style='font-size: 14px; font-weight: 600; margin-bottom: 0px;'>Search Drawing By:</p>", unsafe_allow_html=True)
@@ -439,7 +439,7 @@ with tab1:
         search_query = st.text_input("Search Input", placeholder=f"Type {search_mode}...", label_visibility="collapsed", key="inline_search_input")
 
     with c_col3:
-        st.markdown("<p style='font-size: 14px; margin-bottom: 22px;'>&nbsp;</p>", unsafe_allow_html=True) # Vertical alignment spacer
+        st.markdown("<p style='font-size: 14px; margin-bottom: 0px;'>&nbsp;</p>", unsafe_allow_html=True) # Vertical alignment spacer
         view_clicked = st.button("View Drawing", use_container_width=True, type="primary")
 
     matched_rows = pd.DataFrame()
