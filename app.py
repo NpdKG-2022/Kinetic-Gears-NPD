@@ -439,7 +439,11 @@ with top_col2:
         <div class="logout-icon-wrapper">
             <a href="?do_logout=true" target="_self" style="text-decoration: none;">
                 <div class="logout-icon-btn">
-                    <span>🚪</span>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="min-width: 20px;">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
                     <span class="logout-text">LOGOUT</span>
                 </div>
             </a>
