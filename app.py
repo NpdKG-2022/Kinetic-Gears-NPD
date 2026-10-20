@@ -493,14 +493,18 @@ with tab2:
     st.subheader("📐 Add or Update Drawings with Part Details")
     
     with st.form("drawing_manager_form"):
-        # Part Number and Part Name side-by-side in one line, making all fields mandatory
+        # Part Number and Part Name side-by-side in one line
         col_p1, col_p2 = st.columns(2)
         with col_p1:
             manual_code = st.text_input("Enter Part Number *", placeholder="e.g. PM-001")
         with col_p2:
             manual_item_name = st.text_input("Enter Part Name *", placeholder="e.g. Gear Blank")
 
-        uploaded_file = st.file_uploader("Upload Drawing File (PDF, PNG, JPG, TIFF) *", type=["pdf", "png", "jpg", "jpeg", "tiff", "tif"])
+        # File uploader constrained to 1/3rd width of the page using columns ([1, 2])
+        up_col1, _ = st.columns([1, 2])
+        with up_col1:
+            uploaded_file = st.file_uploader("Upload Drawing File (PDF, PNG, JPG, TIFF) *", type=["pdf", "png", "jpg", "jpeg", "tiff", "tif"])
+
         drawing_submitted = st.form_submit_button("Save Drawing & Part Details")
 
         if drawing_submitted:
