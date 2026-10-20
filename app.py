@@ -538,7 +538,7 @@ with tab1:
         st.markdown("---")
         st.info(f"**Part No:** `{c_code}` | **Part Name:** `{c_item}`")
 
-       if pd.notna(drawing_path) and str(drawing_path).strip() != "" and os.path.exists(str(drawing_path)):
+        if pd.notna(drawing_path) and str(drawing_path).strip() != "" and os.path.exists(str(drawing_path)):
             st.success("Drawing loaded successfully in viewer:")
             if drawing_path.lower().endswith((".png", ".jpg", ".jpeg", ".tiff", ".tif", ".svg")):
                 st.image(drawing_path, caption=f"Drawing: {c_code} - {c_item}", use_column_width=True)
@@ -561,11 +561,8 @@ with tab1:
                     st.info("🔒 Download restricted to Administrator accounts only.")
         else:
             st.warning("No drawing file attached to this item. Go to **'Manage Drawings'** tab to upload one.")
-        else:
-            st.warning("No drawing file attached to this item. Go to **'Manage Drawings'** tab to upload one.")
     else:
         st.info(f"Type or select a {search_mode} above to instantly view your drawing")
-
 
 # ================= TAB 2: MANAGE DRAWINGS =================
 with tab2:
