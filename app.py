@@ -787,14 +787,20 @@ with tab4:
             with p_col2:
                 part_name_input = st.text_input("Part Name *", value=auto_part_name, placeholder="e.g. WASHER / GEAR BLANK")
 
-            # 3. RM issued quantity (text input), RM Issue Slip No., RM Issue Date (DD/MM/YYYY) and Batch No. in one line
+            # 3. RM issued quantity (text input), RM Issue Slip No., RM Issue Date (Calendar Popup) and Batch No. in one line
             rm_col1, rm_col2, rm_col3, rm_col4 = st.columns(4)
             with rm_col1:
                 rm_qty_input = st.text_input("RM Issued Qty *", placeholder="Enter issued qty")
             with rm_col2:
                 rm_issue_slip = st.text_input("RM Issue Slip No.", placeholder="Enter Issue Slip No.")
             with rm_col3:
-                rm_issue_date = st.text_input("RM Issue Date (DD/MM/YYYY) *", placeholder="DD/MM/YYYY")
+                import datetime
+                rm_issue_date = st.date_input(
+                    "RM Issue Date *", 
+                    value=datetime.date.today(), 
+                    min_value=datetime.date(2000, 4, 1), 
+                    max_value=datetime.date(2999, 3, 31)
+                )
             with rm_col4:
                 batch_no_input = st.text_input("Batch Number *", placeholder="Enter batch Code/Number")
 
@@ -813,67 +819,52 @@ with tab4:
                 # Validation checks
                 existing_rcs = df_rc["RC No"].astype(str).tolist() if not df_rc.empty else []
                 
-                if not rc_number_suffix.strip() or not selected_part_no or not batch_no_input.strip() or not rm_qty_input.strip() or not rm_issue_date.strip():
+                if not rc_number_suffix.strip() or not selected_part_no or not batch_no_input.strip() or not rm_qty_input.strip() or not rm_issue_date:
                     st.error("⚠️ Route Card No., Part No., RM Issued Qty, RM Issue Date, and Batch Number are mandatory!")
                 elif full_rc_no in existing_rcs:
                     st.error(f"❌ Route Card Number `{full_rc_no}` already exists! Please enter a unique route card number.")
                 else:
-                    # Validate date format DD/MM/YYYY and range 01/04/2000 to 31/03/2999
-                    import datetime
-                    date_valid = False
                     try:
-                        d_parts = rm_issue_date.strip().split('/')
-                        if len(d_parts) == 3:
-                            day, month, year = int(d_parts[0]), int(d_parts[1]), int(d_parts[2])
-                            parsed_date = datetime.date(year, month, day)
-                            min_d = datetime.date(2000, 4, 1)
-                            max_d = datetime.date(2999, 3, 31)
-                            if min_d <= parsed_date <= max_d:
-                                date_valid = True
-                    except Exception:
-                        date_valid = False
+                        parsed_qty = float(rm_qty_input.strip())
+                    except ValueError:
+                        parsed_qty = 0
 
-                    if not date_valid:
-                        st.error("⚠️ Invalid RM Issue Date format or range! Please use DD/MM/YYYY between 01/04/2000 and 31/03/2999.")
-                    else:
-                        try:
-                            parsed_qty = float(rm_qty_input.strip())
-                        except ValueError:
-                            parsed_qty = 0
+                    # Format date to Indian format DD/MM/YYYY for permanent storage/display
+                    formatted_indian_date = rm_issue_date.strftime("%d/%m/%Y")
 
-                        import json
-                        process_steps = []
-                        for idx, op in enumerate(selected_ops, 1):
-                            process_steps.append({
-                                "process_no": idx,
-                                "description": op,
-                                "date": "",
-                                "qty_received": parsed_qty if idx == 1 else 0,
-                                "ok_qty": 0,
-                                "rej_qty": 0,
-                                "rework_qty": 0,
-                                "batch_code": batch_no_input.strip(),
-                                "owner_sign": "",
-                                "remark": "Pending"
-                            })
+                    import json
+                    process_steps = []
+                    for idx, op in enumerate(selected_ops, 1):
+                        process_steps.append({
+                            "process_no": idx,
+                            "description": op,
+                            "date": "",
+                            "qty_received": parsed_qty if idx == 1 else 0,
+                            "ok_qty": 0,
+                            "rej_qty": 0,
+                            "rework_qty": 0,
+                            "batch_code": batch_no_input.strip(),
+                            "owner_sign": "",
+                            "remark": "Pending"
+                        })
 
-                        new_rc_row = pd.DataFrame([{
-                            "RC No": full_rc_no,
-                            "Part No": selected_part_no,
-                            "Part Name": part_name_input.strip().upper(),
-                            "RM Issue Slip": rm_issue_slip.strip(),
-                            "RM Qty": parsed_qty,
-                            "RM Issue Date": rm_issue_date.strip(),
-                            "Batch No": batch_no_input.strip(),
-                            "Process Steps JSON": json.dumps(process_steps),
-                            "Status": "Active",
-                            "Created Date": time.strftime("%Y-%m-%d %H:%M:%S")
-                        }])
+                    new_rc_row = pd.DataFrame([{
+                        "RC No": full_rc_no,
+                        "Part No": selected_part_no,
+                        "Part Name": part_name_input.strip().upper(),
+                        "RM Issue Slip": rm_issue_slip.strip(),
+                        "RM Qty": parsed_qty,
+                        "RM Issue Date": formatted_indian_date,
+                        "Batch No": batch_no_input.strip(),
+                        "Process Steps JSON": json.dumps(process_steps),
+                        "Status": "Active",
+                        "Created Date": time.strftime("%Y-%m-%d %H:%M:%S")
+                    }])
 
-                        df_rc = pd.concat([df_rc, new_rc_row], ignore_index=True)
-                        df_rc.to_csv(ROUTE_CARDS_FILE, index=False)
-                        st.success(f"✅ Route Card `{full_rc_no}` successfully generated for Part `{selected_part_no}`!")
-                        st.rerun()
+                    df_rc = pd.concat([df_rc, new_rc_row], ignore_index=True)
+                    df_rc.to_csv(ROUTE_CARDS_FILE, index=False)
+                    st.success(f"✅ Route Card `{full_rc_no}` successfully generated for Part `{selected_part_no}`!")
+                    st.rerun()
 
     else:
         st.markdown("### 🔍 Track & Update Route Cards")
