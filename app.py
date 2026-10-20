@@ -735,7 +735,7 @@ with tab3:
 
 # ================= TAB 4: ROUTE CARDS =================
 with tab4:
-    st.subheader("🧭 Shop-Floor Route Card System")
+    st.subheader("🧭 Shop-Floor Route Card & Operation System")
     
     ROUTE_CARDS_FILE = "route_cards_data.csv"
     
@@ -752,7 +752,7 @@ with tab4:
         df_rc = pd.read_csv(ROUTE_CARDS_FILE)
     else:
         df_rc = pd.DataFrame(columns=[
-            "RC No", "Part No", "Part Name", "RM Issue Slip", "RM Qty", 
+            "RC No", "Part No", "Part Name", "RM Issue Slip", "RM Qty", "RM Issue Date",
             "Batch No", "Process Steps JSON", "Status", "Created Date"
         ])
 
@@ -762,43 +762,63 @@ with tab4:
         st.markdown("### 📝 Generate New Route Card")
         
         with st.form("create_rc_form"):
-            rc_col1, rc_col2 = st.columns(2)
-            with rc_col1:
-                # Pull part numbers from your existing tracker if available
+            # 1. Route card no section first with "RC-" outside / prefix
+            st.markdown("<p style='font-weight: 600; margin-bottom: 2px;'>Route Card No. *</p>", unsafe_allow_html=True)
+            r_c_col1, r_c_col2, _ = st.columns([0.1, 0.9, 2])
+            with r_c_col1:
+                st.markdown("<div style='padding-top: 10px; font-weight: 700; font-size: 16px; color: #ffffff;'>RC-</div>", unsafe_allow_html=True)
+            with r_c_col2:
+                rc_number_suffix = st.text_input("RC Suffix", value=str(random.randint(10000, 99999)), label_visibility="collapsed")
+            
+            st.markdown("<br>", unsafe_allow_html=True)
+
+            # 2. Part No. & Part Name in one line below
+            p_col1, p_col2 = st.columns(2)
+            with p_col1:
                 available_parts = df_tracker["PART NO."].astype(str).unique().tolist() if not df_tracker.empty else []
                 selected_part_no = st.selectbox("Select Part No. *", options=[""] + available_parts)
-                
-                # Auto-populate part name if part number matches
-                auto_part_name = ""
-                if selected_part_no and selected_part_no != "":
-                    matched_p = df_tracker[df_tracker["PART NO."].astype(str) == selected_part_no]
-                    if not matched_p.empty:
-                        auto_part_name = matched_p.iloc[0].get("PART NAME", "")
-                
-                part_name_input = st.text_input("Part Description / Name *", value=auto_part_name, placeholder="Enter Part Name")
-                rm_issue_slip = st.text_input("RM Issue Slip No.", placeholder="Enter RM Issue Slip No.")
+            
+            auto_part_name = ""
+            if selected_part_no and selected_part_no != "":
+                matched_p = df_tracker[df_tracker["PART NO."].astype(str) == selected_part_no]
+                if not matched_p.empty:
+                    auto_part_name = matched_p.iloc[0].get("PART NAME", "")
+            
+            with p_col2:
+                part_name_input = st.text_input("Part Name *", value=auto_part_name, placeholder="e.g. WASHER / GEAR BLANK")
 
-            with rc_col2:
-                # Auto-generate unique Route Card ID
-                default_rc_no = f"RC-{random.randint(10000, 99999)}"
-                rc_no_input = st.text_input("Route Card No. *", value=default_rc_no)
-                rm_qty_input = st.number_input("RM Issued Qty", min_value=1)
-                batch_no_input = st.text_input("Batch Number *", placeholder="Enter Batch Code/No.")
+            # 3. RM issued quantity, RM Issue Slip No., RM Issue Date and Batch No. in one line
+            rm_col1, rm_col2, rm_col3, rm_col4 = st.columns(4)
+            with rm_col1:
+                rm_qty_input = st.number_input("RM Issued Qty *", min_value=0, value=100, step=1)
+            with rm_col2:
+                rm_issue_slip = st.text_input("RM Issue Slip No.", placeholder="e.g. SLIP-1025")
+            with rm_col3:
+                import datetime
+                rm_issue_date = st.date_input(
+                    "RM Issue Date *", 
+                    value=datetime.date.today(), 
+                    min_value=datetime.date(2000, 4, 1), 
+                    max_value=datetime.date(2999, 3, 31)
+                )
+            with rm_col4:
+                batch_no_input = st.text_input("Batch Number *", placeholder="e.g. BAT-2026-09")
 
             st.markdown("#### ⚙️ Define Process Sequence (From Operation List)")
             selected_ops = st.multiselect(
                 "Select Operations Sequence in Order:",
                 options=operation_master,
+                default=["Incoming Inspection", "CNC Turning", "Heat Treatment (HT)", "Surface Grinding", "Final Quality Inspection"]
             )
 
             rc_submitted = st.form_submit_button("Generate & Save Route Card")
 
             if rc_submitted:
-                if not rc_no_input.strip() or not selected_part_no or not batch_no_input.strip():
+                full_rc_no = f"RC-{rc_number_suffix.strip()}"
+                if not rc_number_suffix.strip() or not selected_part_no or not batch_no_input.strip():
                     st.error("⚠️ Route Card No., Part No., and Batch Number are mandatory!")
                 else:
                     import json
-                    # Build initial process step tracking structure
                     process_steps = []
                     for idx, op in enumerate(selected_ops, 1):
                         process_steps.append({
@@ -815,11 +835,12 @@ with tab4:
                         })
 
                     new_rc_row = pd.DataFrame([{
-                        "RC No": rc_no_input.strip(),
+                        "RC No": full_rc_no,
                         "Part No": selected_part_no,
                         "Part Name": part_name_input.strip().upper(),
                         "RM Issue Slip": rm_issue_slip.strip(),
                         "RM Qty": rm_qty_input,
+                        "RM Issue Date": str(rm_issue_date),
                         "Batch No": batch_no_input.strip(),
                         "Process Steps JSON": json.dumps(process_steps),
                         "Status": "Active",
@@ -828,7 +849,7 @@ with tab4:
 
                     df_rc = pd.concat([df_rc, new_rc_row], ignore_index=True)
                     df_rc.to_csv(ROUTE_CARDS_FILE, index=False)
-                    st.success(f"✅ Route Card `{rc_no_input}` successfully generated for Part `{selected_part_no}`!")
+                    st.success(f"✅ Route Card `{full_rc_no}` successfully generated for Part `{selected_part_no}`!")
                     st.rerun()
 
     else:
@@ -848,6 +869,7 @@ with tab4:
                 <b>Part Name:</b> <code>{rc_row['Part Name']}</code><br>
                 <b>Batch No:</b> <code>{rc_row['Batch No']}</code> &nbsp;|&nbsp; 
                 <b>RM Qty Issued:</b> <code>{rc_row['RM Qty']}</code> &nbsp;|&nbsp; 
+                <b>Issue Date:</b> <code>{rc_row.get('RM Issue Date', 'N/A')}</code> &nbsp;|&nbsp; 
                 <b>Slip:</b> <code>{rc_row['RM Issue Slip']}</code>
             </div>
             """, unsafe_allow_html=True)
