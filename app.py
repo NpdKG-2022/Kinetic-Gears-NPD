@@ -552,17 +552,11 @@ with tab1:
                         doc = fitz.open(drawing_path) # Uses the actual drawing path!
                         for page_num in range(len(doc)):
                             page = doc.load_page(page_num)
-                            pix = page.get_pixmap(dpi=300) # High DPI for crystal clear zooming
+                            pix = page.get_pixmap(dpi=600) # High DPI for crystal clear zooming
                             img_bytes = pix.tobytes("png")
                             st.image(img_bytes, caption=f"Drawing: {c_code} - {c_item} (Page {page_num + 1})", use_column_width=True)
                     except Exception as e:
                         st.info("📄 PDF drawing is attached. Please use the secure download button below.")
-                
-                import pymupdf
-                doc = pymupdf.open("document.pdf")
-                page = doc[0]
-                pixmap = page.get_pixmap(dpi=600)
-                pixmap.save("page_0.png")
 
                 if role_val == "Admin":
                     st.markdown("<br>", unsafe_allow_html=True)
