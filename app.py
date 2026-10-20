@@ -386,7 +386,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-top_col1, top_col2 = st.columns([2.5, 1])
+top_col1, top_col2 = st.columns([1, 2.5])
 with top_col2:
     header_cols = st.columns([3.2, 1])
     
@@ -410,7 +410,6 @@ with top_col2:
             """,
             unsafe_allow_html=True
         )
-        
         
     with header_cols[1]:
         st.components.v1.html(
