@@ -446,10 +446,6 @@ with top_col2:
         </div>
         """,
         unsafe_allow_html=True
-    )
-    if st.button("", key="hidden_logout_trigger", help="Click to logout"):
-        st.query_params["do_logout"] = "true"
-        st.rerun()
 
 DRAWINGS_MAP_FILE = "item_drawings.csv"
 DRAWINGS_DIR = "drawings"
