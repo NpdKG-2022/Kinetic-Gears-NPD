@@ -27,7 +27,7 @@ def get_base64_image(image_path):
 
 logo_base64 = get_base64_image("KG-Logo.png")
 
-# Custom CSS for Glassmorphism login, layouts, Enterprise Styled Tabs, and Hover Logout Button
+# Custom CSS for Glassmorphism login, layouts, Enterprise Styled Tabs, and Hover-Expanding Logout Button
 st.markdown(
     """
     <style>
@@ -72,51 +72,48 @@ st.markdown(
             box-shadow: 0 4px 15px rgba(30, 136, 229, 0.4);
         }
 
-        /* --- HOVER-EXPAND LOGOUT CONTAINER --- */
-        .logout-wrapper {
+        /* --- HOVER-EXPANDING RED LOGOUT BUTTON --- */
+        .logout-icon-wrapper {
             position: relative;
-            display: flex;
+            display: inline-flex;
+            align-items: center;
             justify-content: flex-end;
+            float: right;
             margin-top: 5px;
-        }
-        .logout-trigger {
-            background: rgba(255, 255, 255, 0.1);
-            color: rgba(255, 255, 255, 0.8);
-            padding: 4px 12px;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 600;
-            border: 1px solid rgba(255, 255, 255, 0.15);
             cursor: pointer;
-            text-align: right;
-            transition: all 0.3s ease;
-            display: inline-block;
         }
-        .logout-dropdown {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            background: rgba(20, 15, 35, 0.95);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
-            padding: 8px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.5);
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-5px);
-            transition: all 0.3s ease;
-            z-index: 999;
-        }
-        .logout-wrapper:hover .logout-dropdown {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(4px);
-        }
-        .logout-wrapper:hover .logout-trigger {
-            background: rgba(233, 30, 99, 0.2);
+        .logout-icon-btn {
+            background: #e53935;
             color: #ffffff;
-            border-color: #e91e63;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            box-shadow: 0 4px 10px rgba(229, 57, 53, 0.4);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        .logout-icon-wrapper:hover .logout-icon-btn {
+            width: 115px;
+            border-radius: 20px;
+            padding-right: 12px;
+            padding-left: 8px;
+            justify-content: space-between;
+        }
+        .logout-text {
+            opacity: 0;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            transition: opacity 0.2s ease 0.1s;
+            pointer-events: none;
+        }
+        .logout-icon-wrapper:hover .logout-text {
+            opacity: 1;
         }
 
         /* --- GLASSMORPHISM LOGIN FORM STYLING --- */
@@ -361,7 +358,7 @@ if st.query_params.get("do_logout") == "true":
     st.query_params.clear()
     st.rerun()
 
-# ================= TOP HEADER BAR & CLOCK WITH HOVER LOGOUT =================
+# ================= TOP HEADER BAR & CLOCK WITH HOVER EXPAND LOGOUT =================
 st.markdown(
     f"""
     <script>
@@ -436,20 +433,21 @@ with top_col2:
         """,
         height=60,
     )
-    
-    # Hover-reveal Logout Button container
+
     st.markdown(
         """
-        <div class="logout-wrapper">
-            <div class="logout-trigger">⚙️ Session ▾</div>
-            <div class="logout-dropdown">
+        <div class="logout-icon-wrapper">
+            <div class="logout-icon-btn">
+                <span>🚪</span>
+                <span class="logout-text">LOGOUT</span>
+            </div>
+        </div>
         """,
         unsafe_allow_html=True
     )
-    if st.button("🚪 Logout", use_container_width=True, type="secondary"):
+    if st.button("", key="hidden_logout_trigger", help="Click to logout"):
         st.query_params["do_logout"] = "true"
         st.rerun()
-    st.markdown("</div></div>", unsafe_allow_html=True)
 
 DRAWINGS_MAP_FILE = "item_drawings.csv"
 DRAWINGS_DIR = "drawings"
