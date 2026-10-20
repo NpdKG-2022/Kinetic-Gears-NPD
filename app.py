@@ -543,17 +543,12 @@ with tab1:
             if drawing_path.lower().endswith((".png", ".jpg", ".jpeg", ".tiff", ".tif", ".svg")):
                 st.image(drawing_path, caption=f"Drawing: {c_code} - {c_item}", use_column_width=True)
             elif drawing_path.lower().endswith(".pdf"):
-                try:
-                    import fitz  # PyMuPDF
-                    doc = fitz.open(drawing_path)
-                    for page_num in range(len(doc)):
-                        page = doc.load_page(page_num)
-                        pix = page.get_pixmap(dpi=150)
-                        img_bytes = pix.tobytes("png")
-                        st.image(img_bytes, caption=f"Drawing: {c_code} - {c_item} (Page {page_num + 1} of {len(doc)})", use_column_width=True)
-                except Exception as e:
-                    # Fallback to direct download if rendering fails
-                    st.warning("Could not render PDF preview directly. Please use the download button below.")
+                with open(drawing_path, "rb") as f:
+                    base64_pdf = base64.b64encode(f.read()).decode("utf-8")
+                
+                # Using <object> tag which Chrome allows for PDF rendering
+                pdf_display = f'<object data="data:application/pdf;base64,{base64_pdf}" type="application/pdf" width="100%" height="700px"><p>Your browser does not support embedded PDFs.</p></object>'
+                st.markdown(pdf_display, unsafe_allow_html=True)
                 
                 if role_val == "Admin":
                     st.markdown("<br>", unsafe_allow_html=True)
