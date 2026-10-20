@@ -543,9 +543,15 @@ with tab1:
             if drawing_path.lower().endswith((".png", ".jpg", ".jpeg", ".tiff", ".tif", ".svg")):
                 st.image(drawing_path, caption=f"Drawing: {c_code} - {c_item}", use_column_width=True)
             elif drawing_path.lower().endswith(".pdf"):
-                # Render using standard iframe pointing directly to the file path
-                pdf_display = f'<iframe src="{drawing_path}" width="100%" height="700px" type="application/pdf"></iframe>'
-                st.markdown(pdf_display, unsafe_allow_html=True)
+                try:
+                    from streamlit_pdf_viewer import pdf_viewer
+                    pdf_viewer(drawing_path, width=700, height=700)
+                except Exception:
+                    # Fallback reader if viewer encounters any issue
+                    with open(drawing_path, "rb") as f:
+                        base64_pdf = base64.b64encode(f.read()).decode("utf-8")
+                    pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="100%" height="700px"></iframe>'
+                    st.markdown(pdf_display, unsafe_allow_html=True)
                 
                 if role_val == "Admin":
                     st.markdown("<br>", unsafe_allow_html=True)
