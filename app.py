@@ -314,7 +314,7 @@ if st.query_params.get("do_logout") == "true":
     st.query_params.clear()
     st.rerun()
 
-# ================= TOP HEADER BAR =================
+# ================= TOP HEADER BAR & CLOCK WITH LOGOUT =================
 st.markdown(
     f"""
     <script>
@@ -341,53 +341,58 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-st.components.v1.html(
-    """
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
-    <style>
-        body { margin: 0; background-color: transparent; display: flex; justify-content: flex-end; }
-        .clock-card {
-            background: linear-gradient(135deg, #e91e63, #c2185b);
-            border-radius: 10px;
-            padding: 5px 10px;
-            text-align: center;
-            box-shadow: 0 2px 10px rgba(233, 30, 99, 0.3);
-            font-family: 'Orbitron', sans-serif;
-            display: inline-block;
-        }
-        .time-display {
-            font-size: 20px;
-            font-weight: 700;
-            color: #ffffff;
-            letter-spacing: 1px;
-        }
-        .date-display {
-            font-size: 12px;
-            color: #fce4ec;
-        }
-    </style>
-    <div class="clock-card">
-        <div id="futuristic-time" class="time-display">00:00:00 AM</div>
-        <div id="futuristic-date" class="date-display">Loading...</div>
-    </div>
-    <script>
-        function updateFuturisticClock() {
-            const now = new Date();
-            let hours = now.getHours();
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            const seconds = String(now.getSeconds()).padStart(2, '0');
-            const ampm = hours >= 12 ? 'PM' : 'AM';
-            hours = hours % 12 || 12;
-            document.getElementById('futuristic-time').innerText = `${String(hours).padStart(2, '0')}:${minutes}:${seconds} ${ampm}`;
-            document.getElementById('futuristic-date').innerText = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
-        }
-        setInterval(updateFuturisticClock, 1000);
-        updateFuturisticClock();
-    </script>
-    """,
-    height=60,
-)
-
+# Top header layout: clock + logout button aligned to the right
+top_col1, top_col2 = st.columns([3, 1])
+with top_col2:
+    st.components.v1.html(
+        """
+        <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+        <style>
+            body { margin: 0; background-color: transparent; display: flex; justify-content: flex-end; }
+            .clock-card {
+                background: linear-gradient(135deg, #e91e63, #c2185b);
+                border-radius: 10px;
+                padding: 5px 10px;
+                text-align: center;
+                box-shadow: 0 2px 10px rgba(233, 30, 99, 0.3);
+                font-family: 'Orbitron', sans-serif;
+                display: inline-block;
+            }
+            .time-display {
+                font-size: 20px;
+                font-weight: 700;
+                color: #ffffff;
+                letter-spacing: 1px;
+            }
+            .date-display {
+                font-size: 12px;
+                color: #fce4ec;
+            }
+        </style>
+        <div class="clock-card">
+            <div id="futuristic-time" class="time-display">00:00:00 AM</div>
+            <div id="futuristic-date" class="date-display">Loading...</div>
+        </div>
+        <script>
+            function updateFuturisticClock() {
+                const now = new Date();
+                let hours = now.getHours();
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                const seconds = String(now.getSeconds()).padStart(2, '0');
+                const ampm = hours >= 12 ? 'PM' : 'AM';
+                hours = hours % 12 || 12;
+                document.getElementById('futuristic-time').innerText = `${String(hours).padStart(2, '0')}:${minutes}:${seconds} ${ampm}`;
+                document.getElementById('futuristic-date').innerText = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+            }
+            setInterval(updateFuturisticClock, 1000);
+            updateFuturisticClock();
+        </script>
+        """,
+        height=60,
+    )
+    if st.button("🚪 Logout", use_container_width=True, type="secondary"):
+        st.query_params["do_logout"] = "true"
+        st.rerun()
 DRAWINGS_MAP_FILE = "item_drawings.csv"
 DRAWINGS_DIR = "drawings"
 
