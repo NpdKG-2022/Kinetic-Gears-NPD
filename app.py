@@ -799,7 +799,7 @@ with tab4:
                     "RM Issue Date *", 
                     value=datetime.date.today(), 
                     min_value=datetime.date(2000, 4, 1), 
-                    max_value=datetime.date(2999, 3, 31)
+                    max_value=datetime.date(2999, 3, 31),
                     format="DD/MM/YYYY"
                 )
             with rm_col4:
