@@ -782,7 +782,7 @@ with tab4:
                 # Auto-generate unique Route Card ID
                 default_rc_no = f"RC-{random.randint(10000, 99999)}"
                 rc_no_input = st.text_input("Route Card No. *", value=default_rc_no)
-                rm_qty_input = st.number_input("RM Issued Qty", min_value=1, value="")
+                rm_qty_input = st.number_input("RM Issued Qty", min_value=1)
                 batch_no_input = st.text_input("Batch Number *", placeholder="Enter Batch Code/No.")
 
             st.markdown("#### ⚙️ Define Process Sequence (From Operation List)")
