@@ -538,15 +538,20 @@ with tab1:
         st.markdown("---")
         st.info(f"**Part No:** `{c_code}` | **Part Name:** `{c_item}`")
 
-        if pd.notna(drawing_path) and str(drawing_path).strip() != "" and os.path.exists(str(drawing_path)):
+       if pd.notna(drawing_path) and str(drawing_path).strip() != "" and os.path.exists(str(drawing_path)):
             st.success("Drawing loaded successfully in viewer:")
             if drawing_path.lower().endswith((".png", ".jpg", ".jpeg", ".tiff", ".tif", ".svg")):
                 st.image(drawing_path, caption=f"Drawing: {c_code} - {c_item}", use_column_width=True)
             elif drawing_path.lower().endswith(".pdf"):
-                with open(drawing_path, "rb") as f:
-                    base64_pdf = base64.b64encode(f.read()).decode("utf-8")
-                pdf_display = f'<embed src="data:application/pdf;base64,{base64_pdf}" width="100%" height="700px" type="application/pdf">'
-                st.markdown(pdf_display, unsafe_allow_html=True)
+                try:
+                    from streamlit_pdf_viewer import pdf_viewer
+                    pdf_viewer(drawing_path, width=700, height=700)
+                except ImportError:
+                    # Fallback if package isn't installed
+                    with open(drawing_path, "rb") as f:
+                        base64_pdf = base64.b64encode(f.read()).decode("utf-8")
+                    pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="100%" height="700px" type="application/pdf"></iframe>'
+                    st.markdown(pdf_display, unsafe_allow_html=True)
                 
                 if role_val == "Admin":
                     st.markdown("<br>", unsafe_allow_html=True)
