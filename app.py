@@ -395,7 +395,7 @@ with top_col2:
             """
             <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
             <style>
-                body { margin: 0; background-color: transparent; display: flex; justify-content: flex-end; align-items: center; }
+                body { margin: 0; background-color: transparent; display: flex; justify-content: flex-end; align-items: right; }
                 .clock-card {
                     background: linear-gradient(135deg, #e91e63, #c2185b);
                     border-radius: 10px;
