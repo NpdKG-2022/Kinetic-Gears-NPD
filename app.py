@@ -427,11 +427,10 @@ tab1, tab2 = st.tabs(["🔍 View Drawing (In-Browser)", "📐 Manage Drawings"])
 with tab1:
     st.subheader("🔍 In-Browser Engineering Drawing Viewer")
     
-    # Restrict total search bar row to 3/4th of the page width ([3, 1])
+    # Restrict search section to 3/4th width of the page
     main_search_col, _ = st.columns([3, 1])
 
     with main_search_col:
-        # Align label, radio buttons, search input, and button in a single row
         r_col1, r_col2, r_col3, r_col4 = st.columns([1.3, 1.4, 2.2, 1.1])
 
         with r_col1:
@@ -467,10 +466,15 @@ with tab1:
             selected_target = st.session_state.get("active_view_target", "")
             if selected_target:
                 matched_rows = matched_df[matched_df[target_col].astype(str) == selected_target]
-            elif view_clicked or len(matched_df) == 1:
+            elif len(matched_df) == 1:
                 matched_rows = matched_df.iloc[[0]]
         else:
             st.warning(f"No matching {search_mode} found.")
+
+    if view_clicked and not search_query.strip():
+        st.warning("Please type a search term first.")
+    elif view_clicked and matched_rows.empty and query:
+        matched_rows = matched_df.iloc[[0]] if 'matched_df' in locals() and not matched_df.empty else pd.DataFrame()
 
     if not matched_rows.empty:
         row = matched_rows.iloc[0]
@@ -502,7 +506,7 @@ with tab1:
         else:
             st.warning("No drawing file attached to this item. Go to **'Manage Drawings'** tab to upload one.")
     else:
-        st.info("Type a Part No. or Part Name above and click **View Drawing** or pick from the suggestions.")
+        st.info("Type a Part No. or Part Name above to see live suggestions, or click **View Drawing**.")
 
 
 # ================= TAB 2: MANAGE DRAWINGS =================
