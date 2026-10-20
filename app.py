@@ -439,7 +439,7 @@ with tab1:
         search_query = st.text_input("Search Input", placeholder=f"Type {search_mode}...", label_visibility="collapsed", key="inline_search_input")
 
     with c_col3:
-        st.markdown("<p style='font-size: 14px; margin-bottom: 0px;'>&nbsp;</p>", unsafe_allow_html=True) # Vertical alignment spacer
+        st.markdown("<p style='font-size: 14px; margin-bottom: 0px; margin-left: 20px'>&nbsp;</p>", unsafe_allow_html=True) # Vertical alignment spacer
         view_clicked = st.button("View Drawing", use_container_width=True, type="primary")
 
     matched_rows = pd.DataFrame()
