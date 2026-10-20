@@ -543,25 +543,25 @@ with tab1:
             elif drawing_path.lower().endswith(".pdf"):
                 preview_img_path = drawing_path.rsplit(".", 1)[0] + "_preview.png"
                 
-                # If preview PNG exists, render it natively as an image (Chrome-proof!)
+                # Check if pre-rendered preview exists, or generate it using the correct drawing_path variable
                 if os.path.exists(preview_img_path):
-                    st.image(preview_img_path, caption=f"Drawing: {c_code} - {c_item}", use_column_width=True)
+                    st.image(preview_img_path, caption=f"Drawing: {c_code} - {c_item} (Click fullscreen icon top-right to zoom)", use_column_width=True)
                 else:
-                    # Fallback conversion on the fly if preview wasn't pre-generated
                     try:
-                        import fitz
-                        doc = fitz.open(drawing_path)
+                        import fitz  # PyMuPDF
+                        doc = fitz.open(drawing_path) # Uses the actual drawing path!
                         for page_num in range(len(doc)):
                             page = doc.load_page(page_num)
-                            pix = page.get_pixmap(dpi=150)
-                            st.image(pix.tobytes("png"), caption=f"Drawing: {c_code} - {c_item} (Page {page_num + 1})", use_column_width=True)
-                    except Exception:
-                        st.warning("Preview generation requires PyMuPDF. Please use the download button below.")
+                            pix = page.get_pixmap(dpi=300) # High DPI for crystal clear zooming
+                            img_bytes = pix.tobytes("png")
+                            st.image(img_bytes, caption=f"Drawing: {c_code} - {c_item} (Page {page_num + 1})", use_column_width=True)
+                    except Exception as e:
+                        st.info("📄 PDF drawing is attached. Please use the secure download button below.")
                 
                 import pymupdf
                 doc = pymupdf.open("document.pdf")
                 page = doc[0]
-                pixmap = page.get_pixmap(dpi=150)
+                pixmap = page.get_pixmap(dpi=600)
                 pixmap.save("page_0.png")
 
                 if role_val == "Admin":
