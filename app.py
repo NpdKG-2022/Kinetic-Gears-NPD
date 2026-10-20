@@ -421,13 +421,12 @@ if "Drawing" not in df_tracker.columns:
 
 # ================= ENTERPRISE STYLED TABS =================
 tab1, tab2 = st.tabs(["🔍 View Drawing (In-Browser)", "📐 Manage Drawings"])
-
 # ================= TAB 1: VIEW DRAWING =================
 with tab1:
     st.subheader("🔍 In-Browser Engineering Drawing Viewer")
     
     # Inject CSS to make the placeholder option faint and non-selectable/disabled
-   st.markdown("""
+    st.markdown("""
         <style>
             div[data-baseweb="select"] option[value=""], 
             li[role="option"]:first-child {
@@ -445,14 +444,15 @@ with tab1:
     matched_rows = pd.DataFrame()
 
     if search_mode == "Code No.":
-        search_code_input = st.text_input("Enter Code No.",
+        selected_code = st.selectbox(
+            "Enter Code No.",
             options=[""] + all_codes,
             index=0,
             format_func=lambda x: "Enter Code No." if x == "" else x,
-            label_visibility="collapsed")
-        if search_code_input.strip():
-            query_code = search_code_input.strip().lower()
-            matched_rows = df_tracker[df_tracker["CODE NO."].astype(str).str.lower().str.contains(query_code, na=False)]
+            label_visibility="collapsed"
+        )
+        if selected_code and selected_code.strip() != "":
+            matched_rows = df_tracker[df_tracker["CODE NO."].astype(str) == selected_code]
     else:
         selected_item = st.selectbox(
             "Enter Item Name",
