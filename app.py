@@ -40,7 +40,7 @@ st.markdown(
         /* Remove excess top padding above header */
         .block-container {
             padding-top: 1.75rem !important;
-            padding-bottom: 1.5rem !important;
+            padding-bottom: 1.75rem !important;
         }
 
         /* --- SIDEBAR STYLING --- */
