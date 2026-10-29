@@ -27,7 +27,7 @@ def get_base64_image(image_path):
 
 logo_base64 = get_base64_image("KG-Logo.png")
 
-# Custom CSS for Glassmorphism login, layouts, and Reference-Style Sidebar Navigation
+# Custom CSS for Glassmorphism login, layouts, and Sidebar Card Navigation
 st.markdown(
     """
     <style>
@@ -40,7 +40,7 @@ st.markdown(
         /* Remove excess top padding above header */
         .block-container {
             padding-top: 1.75rem !important;
-            padding-bottom: 1.75rem !important;
+            padding-bottom: 1.5rem !important;
         }
 
         /* --- SIDEBAR STYLING --- */
@@ -50,25 +50,31 @@ st.markdown(
             padding-top: 10px;
         }
 
-        /* Style sidebar radio options into clean menu cards */
-        [data-testid="stSidebar"] div[data-testid="stRadio"] > div {
-            gap: 6px;
-        }
-        [data-testid="stSidebar"] div[data-testid="stRadio"] label {
+        /* Custom Sidebar Navigation Button Styling */
+        [data-testid="stSidebar"] div.stButton > button {
             background-color: rgba(255, 255, 255, 0.03) !important;
-            border-radius: 10px !important;
-            padding: 10px 14px !important;
             color: rgba(255, 255, 255, 0.8) !important;
-            font-weight: 600 !important;
-            font-size: 14px !important;
-            border: 1px solid rgba(255, 255, 255, 0.06) !important;
-            transition: all 0.3s ease !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            border-radius: 12px !important;
             width: 100% !important;
+            text-align: left !important;
+            padding: 10px 16px !important;
+            font-size: 14px !important;
+            font-weight: 600 !important;
+            box-shadow: none !important;
+            transition: all 0.25s ease !important;
+            margin-bottom: 6px !important;
         }
-        [data-testid="stSidebar"] div[data-testid="stRadio"] label:hover {
+        [data-testid="stSidebar"] div.stButton > button:hover {
             background-color: rgba(255, 255, 255, 0.08) !important;
             color: #ffffff !important;
-            border-color: rgba(255, 255, 255, 0.15) !important;
+            border-color: rgba(255, 255, 255, 0.2) !important;
+            transform: translateX(2px);
+        }
+
+        /* Active Sidebar Button Styling (highlighted red/accent or white) */
+        [data-testid="stSidebar"] div.stButton > button[kind="secondary"] {
+            /* Can be customized or left standard */
         }
 
         /* --- HOVER-EXPANDING RED LOGOUT BUTTON --- */
@@ -325,8 +331,12 @@ if st.query_params.get("do_logout") == "true":
     st.query_params.clear()
     st.rerun()
 
+# Initialize active navigation state if not present
+if "nav_active" not in st.session_state:
+    st.session_state["nav_active"] = "🏠 View Drawing"
 
-# ================= REFERENCE-STYLE SIDEBAR NAVIGATION =================
+
+# ================= REFERENCE-STYLE SIDEBAR NAVIGATION (NO RADIO) =================
 with st.sidebar:
     if logo_base64:
         st.markdown(
@@ -340,17 +350,22 @@ with st.sidebar:
         )
     st.markdown("<hr style='margin: 0 0 15px 0; border: none; border-top: 1px solid rgba(255,255,255,0.15);'>", unsafe_allow_html=True)
     
-    # Sidebar Navigation Radio with Icon labels
-    nav_selection = st.radio(
-        "Navigation",
-        options=[
-            "🏠 View Drawing",
-            "📤 Manage Drawings",
-            "🧭 Route Cards",
-            "📋 Documentation"
-        ],
-        label_visibility="collapsed"
-    )
+    # Custom Sidebar Navigation Buttons (Pill Cards)
+    if st.button("🏠 View Drawing", use_container_width=True):
+        st.session_state["nav_active"] = "🏠 View Drawing"
+        st.rerun()
+        
+    if st.button("📤 Manage Drawings", use_container_width=True):
+        st.session_state["nav_active"] = "📤 Manage Drawings"
+        st.rerun()
+        
+    if st.button("🧭 Route Cards", use_container_width=True):
+        st.session_state["nav_active"] = "🧭 Route Cards"
+        st.rerun()
+        
+    if st.button("📋 Documentation", use_container_width=True):
+        st.session_state["nav_active"] = "📋 Documentation"
+        st.rerun()
 
     st.markdown("---")
     
@@ -370,6 +385,8 @@ with st.sidebar:
     
     st.markdown("---")
     st.markdown("<p style='font-size: 11px; color: rgba(255,255,255,0.5); text-align: center;'>System operational & secure.</p>", unsafe_allow_html=True)
+
+nav_selection = st.session_state["nav_active"]
 
 
 # ================= TOP HEADER BAR & CLOCK WITH SIDE-BY-SIDE LOGOUT =================
